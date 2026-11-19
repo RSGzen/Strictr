@@ -5,27 +5,27 @@ bootstrap PR merges.
 
 ## Main branch
 
-- [ ] Require a pull request before merging.
-- [ ] Require status checks: `quality`, `test (ubuntu-latest, 3.13)`,
+- [x] Require a pull request before merging.
+- [x] Require status checks: `quality`, `test (ubuntu-latest, 3.13)`,
       `test (windows-latest, 3.13)`, `traceability`.
-- [ ] Block force pushes.
-- [ ] Require linear history.
-- [ ] Automatically delete head branches.
+- [x] Block force pushes.
+- [x] Require linear history.
+- [x] Automatically delete head branches.
 
 ## Actions
 
-- [ ] Default workflow permissions: read-only.
-- [ ] Allow GitHub Actions to create and approve pull requests: off.
-- [ ] Keep standard runners; no larger runners.
-- [ ] Set concurrency on workflows (already in `ci.yml`).
+- [x] Default workflow permissions: read-only.
+- [x] Allow GitHub Actions to create and approve pull requests: off.
+- [x] Keep standard runners; no larger runners.
+- [x] Set concurrency on workflows (already in `ci.yml`).
 
 ## Security
 
-- [ ] Secret scanning enabled.
-- [ ] Push protection enabled.
-- [ ] Dependabot alerts enabled.
-- [ ] Dependabot security updates enabled.
-- [ ] Third-party actions pinned; Dependabot updates them.
+- [x] Secret scanning enabled.
+- [x] Push protection enabled.
+- [x] Dependabot alerts enabled.
+- [x] Dependabot security updates enabled.
+- [x] Third-party actions pinned; Dependabot updates them.
 - [ ] No secrets in `pull_request` workflows from forks.
 
 ## Ownership
