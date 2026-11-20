@@ -16,6 +16,11 @@ Update repository entry points and the old spec numbering, then run the local
 gates and traceability check. No product code, architecture, or benchmark
 execution is added.
 
+During verification, the global AC report caused spec 001 to treat spec 000's
+AC tags as orphans. The report is now scoped by a `pytest.mark.spec("NNN")`
+marker so multiple specs can coexist. This is repository tooling, not product
+behavior.
+
 ## Modules and boundaries
 
 | Module | Responsibility | Change |
@@ -48,6 +53,7 @@ No runtime contracts. The durable document sections are the contract:
 | Changelog missing | Docs test fails | `test_changelog_records_product_discovery` |
 | Unmeasured claim presented as fact | Review checklist catches it | Manual review; not automated |
 | Architecture leaks into discovery | Review checklist catches it | Manual review |
+| Cross-spec AC tags are treated as orphans | AC report is scoped by spec marker | `test_validate_pr_ignores_other_spec_ac_tags` |
 
 ## Security and trust boundaries
 

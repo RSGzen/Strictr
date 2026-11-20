@@ -6,15 +6,20 @@ Tests are derived from acceptance criteria, not from source files. A spec is
 implemented when every AC has a passing automated test and the regression suite
 is green.
 
-Tag each AC test with the AC it proves:
+Each test module declares the spec that owns it, and each AC test carries the AC:
 
 ```python
+pytestmark = pytest.mark.spec("003")
+
+
 @pytest.mark.ac("AC-1")
 def test_syntax_error_reports_location(): ...
 ```
 
-`tests/conftest.py` writes `build/ac-tests.json` at collection. The traceability
-check fails when an AC has no test or a tag has no matching AC.
+`tests/conftest.py` writes a spec-scoped `build/ac-tests.json` at collection. The
+traceability check reads only the current spec's entries, so AC IDs may repeat
+across specs. It fails when an AC has no test or a tag in that spec has no
+matching AC.
 
 This proves a test exists, not that it is good. Review still matters.
 

@@ -25,7 +25,10 @@ packages = ["src/strictr"]
 [tool.pytest.ini_options]
 addopts = ["--strict-config", "--strict-markers"]
 testpaths = ["tests"]
-markers = ["ac(id): acceptance criterion covered by the test"]
+markers = [
+  "ac(id): acceptance criterion covered by the test",
+  "spec(id): spec that owns the test module",
+]
 
 [tool.ruff]
 line-length = 100

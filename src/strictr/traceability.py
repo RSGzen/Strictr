@@ -190,8 +190,8 @@ def load_spec(spec_id: str, root: Path) -> SpecInfo | None:
     return SpecInfo(spec_id, path, status, ac_ids)
 
 
-def load_ac_report(path: Path) -> dict[str, list[str]]:
-    """Load the pytest AC collection report."""
+def load_ac_report(path: Path) -> dict[str, dict[str, list[str]]]:
+    """Load the spec-scoped pytest AC collection report."""
     if not path.is_file():
         return {}
     try:
@@ -202,11 +202,16 @@ def load_ac_report(path: Path) -> dict[str, list[str]]:
     if not isinstance(raw, dict):
         raise TraceabilityError(f"AC report must be an object: {path}")
 
-    report: dict[str, list[str]] = {}
-    for key, value in raw.items():
-        if not isinstance(key, str) or not isinstance(value, list):
-            raise TraceabilityError(f"AC report has an invalid entry: {key!r}")
-        report[key] = [str(item) for item in value]
+    report: dict[str, dict[str, list[str]]] = {}
+    for spec_id, acs in raw.items():
+        if not isinstance(spec_id, str) or not isinstance(acs, dict):
+            raise TraceabilityError(f"AC report has an invalid spec entry: {spec_id!r}")
+        spec_report: dict[str, list[str]] = {}
+        for ac_id, tests in acs.items():
+            if not isinstance(ac_id, str) or not isinstance(tests, list):
+                raise TraceabilityError(f"AC report has an invalid AC entry: {ac_id!r}")
+            spec_report[ac_id] = [str(item) for item in tests]
+        report[spec_id] = spec_report
     return report
 
 
@@ -247,13 +252,14 @@ def validate_commits(messages: Sequence[str], spec_id: str) -> list[str]:
     return errors
 
 
-def validate_ac_coverage(spec: SpecInfo, report: dict[str, list[str]]) -> list[str]:
+def validate_ac_coverage(spec: SpecInfo, report: dict[str, dict[str, list[str]]]) -> list[str]:
     """Check that every AC has a tagged test and no tags are orphaned."""
+    spec_report = report.get(spec.spec_id, {})
     errors: list[str] = []
     for ac_id in sorted(spec.ac_ids):
-        if not report.get(ac_id):
+        if not spec_report.get(ac_id):
             errors.append(f"{ac_id} has no tagged test in build/ac-tests.json")
-    for ac_id in sorted(report):
+    for ac_id in sorted(spec_report):
         if ac_id not in spec.ac_ids:
             errors.append(f"test tag {ac_id} does not exist in the spec")
     return errors
@@ -263,7 +269,7 @@ def validate_pr(
     branch: BranchInfo,
     title: TitleInfo,
     spec: SpecInfo | None,
-    ac_report: dict[str, list[str]],
+    ac_report: dict[str, dict[str, list[str]]],
     commit_messages: Sequence[str],
     changed_files: Sequence[str],
 ) -> list[str]:
