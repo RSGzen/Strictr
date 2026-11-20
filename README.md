@@ -9,11 +9,12 @@ LLM judge.
 
 ## Status
 
-Bootstrap. The verification CLI does not exist yet. This repository currently
-contains the SDD governance, specification templates, traceability tooling, and
-CI foundation.
+Product discovery. The verification CLI does not exist yet. This repository
+contains the SDD governance, product vision, evaluation plan, specification
+templates, traceability tooling, and CI foundation.
 
-The first product slice will be `strictr check <paths> [--json]`.
+The first product slice will be `003-check-command`: `strictr check <paths>
+[--json]`.
 
 ## Quick start
 
@@ -30,14 +31,18 @@ uv run mypy
 - `src/strictr/` — package code
 - `tests/` — unit and acceptance tests
 - `specs/` — active and archived specifications
+- `docs/product/` — product vision and evaluation plan
 - `docs/` — constitution, architecture, ADRs, testing and setup guides
 - `scripts/` — repository tooling
 
-Start with `AGENTS.md`, then read `docs/constitution.md` and the active spec.
+Start with `AGENTS.md`, then read the product vision, the constitution, and the
+active spec.
 
 ## Documentation
 
 - [AGENTS.md](AGENTS.md) — how to work in this repository
+- [Product vision](docs/product/vision.md) — problem, users, scope, non-goals
+- [Evaluation plan](docs/product/evaluation.md) — metrics, benchmarks, kill criteria
 - [Engineering constitution](docs/constitution.md)
 - [System overview](docs/architecture/system-overview.md)
 - [Testing guide](docs/testing.md)

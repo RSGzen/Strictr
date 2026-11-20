@@ -6,15 +6,18 @@ Strictr is a deterministic verification tool for LLM-generated Python code. It
 parses candidate code, runs static checks, optionally runs tests, and returns
 compact machine-readable diagnostics.
 
-Current phase: bootstrap. There is no product CLI yet. The first product slice
-will be `001-check-command`; that spec does not exist yet.
+Current phase: product discovery. There is no product CLI yet. Spec `001`
+defines the product, `002` will define the architecture, and `003-check-command`
+is the first product slice.
 
 ## Read order
 
 1. `docs/constitution.md`
-2. `docs/architecture/system-overview.md`
-3. The active spec in `specs/active/` with status `approved` or `in-progress`
-4. Its `blueprint.md`
+2. `docs/product/vision.md`
+3. `docs/product/evaluation.md`
+4. `docs/architecture/system-overview.md`
+5. The active spec in `specs/active/` with status `approved` or `in-progress`
+6. Its `blueprint.md`
 
 If there is no approved or in-progress spec for the requested behavior, stop and
 write or clarify the spec first.
@@ -23,10 +26,11 @@ write or clarify the spec first.
 
 - `src/strictr/` — production package code
 - `tests/unit/` — unit tests
-- `tests/acceptance/` — black-box CLI tests (from `001` onward)
+- `tests/acceptance/` — black-box CLI tests (from `003` onward)
 - `tests/fixtures/` — small fixture projects
 - `specs/active/` — in-flight specs
 - `specs/archive/` — frozen, completed specs
+- `docs/product/` — durable product vision and evaluation plan
 - `docs/` — constitution, architecture, ADRs, testing and setup guides
 - `scripts/` — repository tooling
 - `internal-docs/` — local notes, git-ignored, do not edit
@@ -42,7 +46,7 @@ write or clarify the spec first.
 - Types: `uv run mypy`
 - Traceability: `uv run python scripts/check_traceability.py` (requires PR environment variables; see `docs/repo-setup.md`)
 
-There is no `strictr` CLI yet. Add the command here when `001` lands.
+There is no `strictr` CLI yet. Add the command here when `003` lands.
 
 ## Workflow
 
@@ -74,7 +78,7 @@ feat(check): add tier 0 syntax gate
 
 Parse target files before invoking external tools.
 
-Spec: 001
+Spec: 003
 Refs: AC-1, AC-2
 ```
 
@@ -95,6 +99,8 @@ Refs: AC-1, AC-2
 - Never suppress a type or lint error without a written justification.
 - Never claim completion without the exact command and result.
 - If a required tool is missing or crashes, report it; do not invent success.
+- Do not present unmeasured performance or detection claims as facts. Label
+  them as hypotheses and link to `docs/product/evaluation.md`.
 
 ## Definition of Done
 

@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.spec("000")
+
 ROOT = Path(__file__).resolve().parents[2]
 
 

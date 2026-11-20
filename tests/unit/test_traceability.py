@@ -19,7 +19,7 @@ from strictr.traceability import (
     validate_pr,
 )
 
-pytestmark = pytest.mark.ac("AC-3")
+pytestmark = [pytest.mark.spec("000"), pytest.mark.ac("AC-3")]
 
 COMMIT = "feat(check): add gate\n\nSpec: 001"
 
@@ -33,10 +33,12 @@ def spec(status: str = "approved") -> SpecInfo:
     )
 
 
-def ac_report() -> dict[str, list[str]]:
+def ac_report() -> dict[str, dict[str, list[str]]]:
     return {
-        "AC-1": ["tests/unit/test_demo.py::test_one"],
-        "AC-2": ["tests/unit/test_demo.py::test_two"],
+        "001": {
+            "AC-1": ["tests/unit/test_demo.py::test_one"],
+            "AC-2": ["tests/unit/test_demo.py::test_two"],
+        }
     }
 
 
@@ -166,10 +168,10 @@ def test_load_ac_report_missing_returns_empty(tmp_path: Path) -> None:
     assert load_ac_report(tmp_path / "missing.json") == {}
 
 
-def test_load_ac_report_reads_json(tmp_path: Path) -> None:
+def test_load_ac_report_reads_spec_scoped_json(tmp_path: Path) -> None:
     path = tmp_path / "report.json"
-    path.write_text('{"AC-1": ["test_one"]}', encoding="utf-8")
-    assert load_ac_report(path) == {"AC-1": ["test_one"]}
+    path.write_text('{"001": {"AC-1": ["test_one"]}}', encoding="utf-8")
+    assert load_ac_report(path) == {"001": {"AC-1": ["test_one"]}}
 
 
 def test_code_change_detection() -> None:
@@ -198,6 +200,20 @@ def test_validate_commits_skips_fixup() -> None:
 
 def test_validate_pr_happy_path() -> None:
     assert pr_errors() == []
+
+
+def test_validate_pr_ignores_other_spec_ac_tags() -> None:
+    report = ac_report()
+    report["000"] = {"AC-5": ["tests/unit/test_other.py::test_five"]}
+    errors = validate_pr(
+        parse_branch("feat/001-demo"),
+        parse_title("feat(check): add gate [001]"),
+        spec(),
+        report,
+        [COMMIT],
+        ["src/strictr/demo.py"],
+    )
+    assert errors == []
 
 
 def test_validate_pr_rejects_title_mismatch() -> None:
@@ -234,7 +250,7 @@ def test_validate_pr_rejects_missing_ac_test() -> None:
         parse_branch("feat/001-demo"),
         parse_title("feat(check): add gate [001]"),
         spec(),
-        {"AC-1": ["tests/unit/test_demo.py::test_one"]},
+        {"001": {"AC-1": ["tests/unit/test_demo.py::test_one"]}},
         [COMMIT],
         ["src/strictr/demo.py"],
     )
@@ -243,7 +259,7 @@ def test_validate_pr_rejects_missing_ac_test() -> None:
 
 def test_validate_pr_rejects_orphan_ac() -> None:
     report = ac_report()
-    report["AC-9"] = ["tests/unit/test_demo.py::test_nine"]
+    report["001"]["AC-9"] = ["tests/unit/test_demo.py::test_nine"]
     errors = validate_pr(
         parse_branch("feat/001-demo"),
         parse_title("feat(check): add gate [001]"),
