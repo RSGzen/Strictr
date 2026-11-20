@@ -1,10 +1,10 @@
 ---
 id: "000"
 title: "SDD bootstrap and repository governance"
-status: in-progress
+status: done
 owner: "Ge Rui Sen"
 created: 2026-11-19
-updated: 2026-11-19
+updated: 2026-11-20
 branch: "docs/000-sdd-bootstrap"
 ---
 
@@ -94,3 +94,4 @@ None. The following are explicitly deferred:
 |---|---|---|---|
 | 2026-11-19 | 0.1 | Initial bootstrap spec | Ge Rui Sen |
 | 2026-11-19 | 0.2 | Artifacts implemented and verified locally; awaiting PR | Ge Rui Sen |
+| 2026-11-20 | 1.0 | Bootstrap merged and spec archived | Ge Rui Sen |
