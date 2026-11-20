@@ -1,7 +1,8 @@
 # System Overview
 
 Status: planned v0.1. The product CLI does not exist yet; this document defines
-the intended topology and boundaries for `001-check-command`.
+the provisional topology and boundaries for `003-check-command`. The product
+scope lives in `docs/product/`; the final architecture is owned by spec `002`.
 
 ## C4 Level 1 — Context
 
@@ -73,7 +74,7 @@ compact, stable result.
 | `strictr.diagnostics` | Normalize and serialize diagnostics | stdlib | `strictr.cli`, engines |
 | `strictr.traceability` | Repository policy checker | stdlib | Product runtime code |
 
-These modules are planned for `001`. The traceability module exists now as
+These modules are planned for `003`. The traceability module exists now as
 repository tooling and does not participate in product verification.
 
 ## Main sequence: `strictr check`

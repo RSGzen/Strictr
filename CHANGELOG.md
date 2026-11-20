@@ -16,3 +16,6 @@ Versioning once a public release exists.
   traceability.
 - Pull request template, commit-msg hook, repository setup checklist, and
   testing guide.
+- Product discovery: `docs/product/vision.md` and
+  `docs/product/evaluation.md`, with locked users, scope, non-goals, evaluation
+  metrics, conditional targets, and kill criteria.
