@@ -7,6 +7,11 @@ Versioning once a public release exists.
 
 ## [Unreleased]
 
+### Changed
+
+- Product discovery is approved; spec 001 is archived and its durable documents
+  remain in `docs/product/`.
+
 ### Added
 
 - SDD bootstrap: `AGENTS.md`, engineering constitution, system overview, ADR

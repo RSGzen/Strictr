@@ -1,9 +1,9 @@
 # Evaluation Plan
 
-Status: draft for `001-product-discovery` approval
+Status: approved (spec 001 archived)
 Owner: Ge Rui Sen
-Last updated: 2026-11-20
-Related: [vision.md](vision.md), `specs/active/001-product-discovery/spec.md`
+Last updated: 2026-11-21
+Related: [vision.md](vision.md), spec 001 (archived)
 
 ## Purpose
 
