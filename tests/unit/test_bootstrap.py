@@ -28,7 +28,7 @@ def test_governance_documents_exist_and_have_required_sections() -> None:
     assert "## Definition of Done" in text("AGENTS.md")
     assert "## I. Specification before code" in text("docs/constitution.md")
     assert "## Amendment process" in text("docs/constitution.md")
-    assert "## Trust boundaries" in text("docs/architecture/system-overview.md")
+    assert "## Trust boundary" in text("docs/architecture/system-overview.md")
     assert "## Decision" in text("docs/adr/0001-python-toolchain.md")
 
 
