@@ -1,7 +1,7 @@
 # Blueprint: SDD bootstrap and repository governance
 
-- Spec: `specs/active/000-sdd-bootstrap/spec.md`
-- Status: in-progress (all tasks verified locally; awaiting PR)
+- Spec: `specs/archive/000-sdd-bootstrap/spec.md`
+- Status: done (bootstrap merged; spec archived)
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -107,8 +107,10 @@ None.
 
 ## Retrospective
 
-Fill after merge. Candidate questions:
-
-- Did the envelope/CLI contract stay small enough?
-- Did the traceability check catch a real mistake?
-- Was any governance section unused or unclear?
+- Worked: the bootstrap was small enough to review as one PR; the local gates
+  and traceability integration caught a UTF-8 BOM bug before CI.
+- Did not work: the first CI run failed because only the quality job had pinned
+  actions; the repository setting was enabled before every workflow occurrence
+  was pinned.
+- Next change: pin all remote actions before enabling the SHA-pinning policy,
+  and verify with `Select-String` across every workflow file.
