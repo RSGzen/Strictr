@@ -1,18 +1,19 @@
 # Progress: Check command
 
-- Phase: 2 Stub & Test (T-10 written; awaiting freeze)
-- Work unit: WU-2 in progress (T-6 and T-7 complete; T-10 in Phase 2)
-- Task: T-10 Phase 2 written; awaiting test freeze
+- Phase: 3 Implement & Reconcile (T-10 frozen; next implement)
+- Work unit: WU-2 in progress (T-6 and T-7 complete; T-10 frozen)
+- Task: T-10 frozen at `47099f4`; next implement output renderers
 - Spec: 003
 - Branch: feat/003-check-command
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
-  `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`
+  `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
+  `47099f4`
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
   `tests/unit/test_tier0.py` at `a080b62`; `tests/unit/test_ruff.py`
-  at `1ee081c`
+  at `1ee081c`; `tests/unit/test_output.py` at `47099f4`
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -33,9 +34,8 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: `uv run pytest tests/unit/test_output.py -q` (currently 11
-  expected `NotImplementedError` failures); after owner freeze, implement the
-  output renderers in Phase 3
+- Next command: Phase 3 for T-10; implement both renderers, then
+  `uv run pytest tests/unit/test_output.py -q` must pass
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -102,4 +102,6 @@
   reports no issues in 21 source files. The target command fails 11/11 as
   expected with `NotImplementedError`; full suite is 164 passed, 2 skipped,
   11 expected failures. Awaiting owner review and the T-10 test freeze.
-- Next: after the T-10 freeze, implement the JSON and human renderers.
+- 2026-11-21: Owner approved the T-10 freeze at `47099f4`. Next: Phase 3
+  implements `output/json_output.py` and `output/human.py` until the 11 frozen
+  tests pass. Do not edit `tests/unit/test_output.py`.
