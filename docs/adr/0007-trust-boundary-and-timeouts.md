@@ -48,7 +48,8 @@ Timeouts and process termination:
 - Defaults: Tier 0 10 s, ruff 30 s, type checker 180 s, pytest 300 s.
 - Tier 0 is an in-process budget checked between files; hard process termination
   applies to subprocess tiers (ADR 0009).
-- A CLI timeout override applies to the selected tiers.
+- A CLI timeout override applies to the selected tiers and their version checks
+  (ADR 0009).
 - On timeout, the tier is `error`, never `pass`.
 - On POSIX, start the child in a new session and kill the process group.
 - On Windows, use a new process group and terminate the tree with

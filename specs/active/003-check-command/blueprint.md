@@ -115,17 +115,19 @@ without redefining them.
   `ToolNotFoundError`, `ToolTimeoutError`, `InvalidToolOutput`.
 - `ToolResult`: `command: tuple[str, ...]`, `returncode: int`, `stdout: str`,
   `stderr: str`, `duration_ms: int`.
-- `ToolRunner`: `run(command, *, cwd: Path, timeout: float) -> ToolResult` and
-  `which(name: str) -> str | None`. Missing executable and timeout raise the
-  named errors.
+- `ToolRunner`: `run(command: Sequence[str], *, cwd: Path, timeout: float)
+  -> ToolResult` and `which(name: str) -> str | None`. Missing executable and
+  timeout raise the named errors.
 - `Tier`: `id`, `name`, `run(CheckContext) -> TierResult`.
 - `CheckContext`: `root: Path`, `targets: tuple[str, ...]` (root-relative
   POSIX), `files: tuple[Path, ...]` (absolute), `timeout: float | None`,
   `type_checker: Literal["mypy", "pyright", "none"] | None`.
 - `TierResult`: the contract fields plus an internal
   `warnings: tuple[str, ...]`, excluded from JSON serialization.
-- `CheckResult`: envelope fields plus `to_envelope()`; warnings aggregate
-  discovery and tier warnings.
+- `CheckResult`: `schema_version`, `tool`, `status`, `scope`, `tiers`, `timings`,
+  `environment`, `trust`, `warnings`, plus `to_envelope()`. Warnings aggregate
+  discovery warnings first, then tier warnings in execution order, deduplicated
+  by exact string.
 - `DiscoveryResult`: `root`, `targets`, `files`, `files_skipped`, `warnings`.
 - `Scope`: test counts default to 0. Pipeline copies exactly
   `tests_collected`, `tests_run`, and `tests_skipped` from `tier2-pytest` meta;
@@ -149,21 +151,26 @@ python -m strictr check ...
 ```
 
 - No paths means `.`.
-- `--timeout` is one positive float that overrides every subprocess tier and
-  version check for the run. Defaults remain ADR 0007: Tier 0 10 s, ruff 30 s,
-  types 180 s, pytest 300 s.
+- `--timeout` is one finite positive float that overrides every subprocess tier
+  and version check for the run. Defaults remain ADR 0007: Tier 0 10 s, ruff
+  30 s, types 180 s, pytest 300 s.
+- Top-level `strictr --version` prints the package version and exits 0; the
+  `check` parser does not accept `--version`.
 - `--json` writes one compact UTF-8 JSON object plus a newline to stdout and
   nothing else to stdout.
 - Human output is concise and never colored in v0.1.
 - Argparse usage errors write to stderr and exit 2.
+- `KeyboardInterrupt` and `SystemExit` are not converted to check results. A
+  Ctrl+C exits 130 with a stderr message; no JSON envelope is emitted.
 
 ### Root and targets
 
 1. Walk up from the current directory to the first directory containing
-   `pyproject.toml` or `.git`. That is the root.
+   `pyproject.toml` or `.git`. That is the root. This root wins for nested
+   projects; targets inside it use this root.
 2. If no marker exists above the current directory, inspect each target's
-   nearest marker. Exactly one unique root may be selected; multiple roots are
-   a discovery error.
+   nearest marker; for a file target, start at its parent. Exactly one unique
+   root may be selected; multiple roots are a discovery error.
 3. If no marker exists for any target, use the common ancestor of the targets
    (file targets use their parent), or the current directory when there are no
    targets.
@@ -187,10 +194,12 @@ python -m strictr check ...
 - Include only existing `.py` and `.pyi` files. Deleted tracked files are
   ignored. Symlinked files that resolve outside the root are an error; directory
   symlinks are not followed. Display paths are not resolved through symlinks.
-- `files_checked` is the number of discovered Python files.
+- `files_checked` is the number of discovered Python files in the requested
+  scope, including files offered to Tier 0 before a budget abort.
 - `files_skipped` counts enumerated candidate files rejected by Strictr's own
-  filters, such as non-regular files. Escaping symlinks are errors, not skipped.
-  Gitignored files are outside the candidate set and are not counted.
+  ignore rules or explicit filters, such as non-regular files. Escaping symlinks
+  are errors, not skipped. Gitignored files are outside the candidate set and
+  are not counted.
 - Zero discovered files is an error, not a pass.
 
 ### Tier IDs and tools
@@ -247,9 +256,16 @@ checker name and version go in the tier `tool`; `environment` stays
   `meta` under those exact keys; the pipeline copies them into `scope`.
 - A testcase line of 0 or missing is normalized to 1; if the failure text gives
   a better `file:line`, use it.
-- The test node ID is reconstructed from `file`, `classname`, and `name`; a
-  collection error without a usable path uses `meta.error`, not a pathless
-  diagnostic.
+- The test node ID is reconstructed from `file`, `classname`, and `name`:
+  derive the module path from `file`; if `classname` equals the module, use
+  `file::name`; if `classname` starts with the module plus `.`, use
+  `file::<class path joined by ::>::name`; otherwise use `classname::name`.
+- Pytest diagnostics use `source: "pytest"` and one of the stable codes
+  `test-failure`, `test-error`, or `collection-error`; the `test` field is the
+  node ID and `exception` is the exception class.
+- Parsed test counts are copied to `scope` even when pytest exits 2/3/4 and XML
+  is available; otherwise they remain 0. A collection error without a usable
+  path uses `meta.error`, not a pathless diagnostic.
 
 ### Status and exit model
 
@@ -294,9 +310,10 @@ is redacted, capped at 500 characters, and included with the marker
   `tests_collected`, `tests_run`, and `tests_skipped`; unrun counts are 0. The
   three test counts come only from `tier2-pytest` meta.
 - `trust` is always present with `sandboxed: false` and the approved warning.
-- `warnings` aggregates discovery and tier warnings. It is non-fatal and does not
-  change `status`. Human and JSON modes write warnings to stderr; JSON also
-  carries the array. The trust warning is printed only in human mode.
+- `warnings` aggregates discovery and tier warnings in that order, deduplicated
+  by exact string. It is non-fatal and does not change `status`. Human and JSON
+  modes write warnings to stderr; JSON also carries the array. The trust warning
+  is printed only in human mode.
 - Argparse usage errors write stderr and exit 2 without an envelope.
 - JSON is compact (`separators=(",", ":")`), UTF-8, and newline-terminated.
 - The schema lives at
@@ -311,13 +328,27 @@ is redacted, capped at 500 characters, and included with the marker
   then keep the first 20 diagnostics.
 - `meta.truncated` is true when diagnostics are dropped or any message or
   `meta.error` is capped. `meta.total_diagnostics` is set only when diagnostics
-  are dropped and records the pre-cap count.
+  are dropped and records the pre-cap count; the contract's
+  `total_diagnostics` is interpreted as the diagnostic-count limit only.
 - Human output shows `N more diagnostics` when `total_diagnostics` exists and
   `some text truncated` otherwise.
-- Fixed redaction set: PEM private-key blocks, AWS access-key IDs, GitHub
-  tokens, `sk-` keys, Slack tokens, JWTs, bearer tokens, key=value credentials,
-  and URL credentials. Replace matches with `[REDACTED]`; false positives are
-  acceptable, over-broad matching is not. Tests include negative cases.
+- Fixed redaction patterns:
+  - PEM private-key blocks:
+    `-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----.*?-----END [A-Z0-9 ]*PRIVATE KEY-----`
+    with DOTALL.
+  - AWS access-key IDs: `AKIA[0-9A-Z]{16}`.
+  - GitHub tokens: `gh[pousr]_[A-Za-z0-9]{36,}` and
+    `github_pat_[A-Za-z0-9_]{20,}`.
+  - `sk-` keys: `sk-[A-Za-z0-9]{20,}`.
+  - Slack tokens: `xox[baprs]-[A-Za-z0-9-]{10,}`.
+  - JWTs: `eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+`.
+  - Bearer tokens: `(?i)\bBearer\s+[A-Za-z0-9._~+/-]{16,}=*`.
+  - Key=value credentials:
+    `(?i)\b(api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password|passwd|secret)\b\s*[:=]\s*["']?([A-Za-z0-9_./+=-]{8,})`.
+  - URL credentials: `(?i)\bhttps?://[^/\s:@]+:[^/\s@]+@`.
+  Replace matches with `[REDACTED]`. These are the complete v0.1 patterns; no
+  broader matching. Tests include negative cases such as `token budget`,
+  `password policy`, and `sk-learn`.
 
 ### Human output
 
@@ -343,6 +374,7 @@ warnings to stderr but not the trust warning. Exit code follows the contract.
 | Target missing or outside root | `error`, tier0 `discovery failed`, later tiers skipped, exit 2 | `test_target_outside_root` |
 | No Python files | `error`, `no Python files found`, later tiers skipped, exit 2 | `test_empty_project_is_error` |
 | Syntax error | `fail` with path/line/column, later tiers skipped | `test_syntax_error` |
+| Tier 0 budget exceeded | `error`, later tiers skipped | unit Tier 0 test |
 | Ruff findings | `fail`, later tiers skipped | `test_ruff_failure` |
 | Ruff missing/crash/timeout/invalid JSON | `error`, later tiers skipped | unit runner/parser tests |
 | Type errors | `fail`, pytest skipped | `test_type_failure` |
@@ -380,7 +412,9 @@ works best here as a hybrid, not as a planner pre-writing every test:
   `tests/acceptance/test_cli_contract.py`, `tests/acceptance/test_human_output.py`,
   `tests/acceptance/test_exit_codes.py`, `tests/unit/test_check_docs.py`). These
   define the public surface and must not be weakened by a worker. Planner prep
-  sessions P-1 and P-2 write the CLI and docs tests before T-11 and T-13.
+  sessions P-1 and P-2 write the CLI and docs tests before T-11 and T-13. All
+  planner-owned tests declare `pytest.mark.spec("003")` and tag every covered
+  AC.
 - **Worker-owned, test-first per task:** each task worker writes or extends the
   failing tests for its own task, runs them, implements the minimum, reruns,
   and updates the blueprint checkbox. Examples: discovery, runner, parsers,
@@ -462,6 +496,10 @@ repository created with `git init`.
 - [ ] T-10: Add JSON and human renderers; start with the two-tier pipeline and
   extend as later tiers land — verify:
   `uv run pytest tests/unit/test_output.py -q` — AC: AC-2, AC-3, AC-14
+- [ ] P-1: Planner writes the black-box CLI contract, human-output, and exit-code
+  tests, tagged with `spec("003")` and the covered ACs — verify:
+  `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
+  is expected red until T-11 — AC: AC-1..AC-4
 - [ ] T-11: Wire the app, CLI, `__main__`, and console script; start with Tier 0
   and ruff, then extend as later tiers land. Implement the discovery/internal
   error envelope, warnings-to-stderr behavior, and argparse/no-envelope behavior;
@@ -478,6 +516,9 @@ repository created with `git init`.
   then add acceptance fixtures and black-box tests for tiers, discovery, failure
   modes, paths, and timeout — verify: `uv run pytest tests/acceptance -q` —
   AC: AC-1..AC-15
+- [ ] P-2: Planner writes the docs contract test, tagged with `spec("003")` and
+  AC-16 — verify: `uv run pytest tests/unit/test_check_docs.py -q` is expected
+  red until T-13 — AC: AC-16
 - [ ] T-13: Add docs and make the planner-owned docs test pass, then run the
   full gate and traceability — verify:
   `uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest -q`
@@ -497,7 +538,7 @@ Role scopes, read/write ranges, and the task brief template are in
    delete tests.
 5. Run `uv run ruff format .`, `uv run ruff check .`, and `uv run mypy` for
    touched modules before committing.
-6. Update only the T-task checkbox after its command passes.
+6. Update only the task's checkbox after its command passes.
 7. Commit with a Conventional Commit subject and a `Spec: 003` trailer; include
    `Refs: AC-n` for the covered criteria.
 
@@ -522,13 +563,12 @@ traceability, and acceptance suite pass.
   accepted in ADR 0009.
 - [x] `files_skipped` does not count Gitignored files; the owner approved this
   interpretation. Escaping symlinks are errors, not skipped — resolved by spec
-  1.2 and Q2.
+  1.2 and the owner decision on 2026-11-21.
 - [ ] The timeout acceptance test must assert a generous bound to avoid CI
   flakiness and is the single deliberate `sleep()` exception in the suite —
   integrator, T-12.
-- [ ] Nested-project root selection uses the current directory's marker first;
-  confirm this is the intended monorepo behavior — owner, before AC-5 is
-  marked done.
+- [x] Nested-project root selection uses the current directory's marker first;
+  nested targets use the outer root — accepted 2026-11-21.
 - [x] Tools may import pure core types; execution refinements are recorded in
   ADR 0008 and ADR 0009.
 

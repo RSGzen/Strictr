@@ -50,7 +50,7 @@ constitution, `.github/`, `internal-docs/`, or `specs/archive/`.
 | 4 | Task Worker | T-6 Tier 0 | WU-2 | `uv run pytest tests/unit/test_tier0.py -q` |
 | 5 | Task Worker | T-7 ruff | WU-2 | `uv run pytest tests/unit/test_ruff.py -q` |
 | 6 | Task Worker | T-10 output renderers | WU-2 | `uv run pytest tests/unit/test_output.py -q` |
-| 7 | Planner | P-1 CLI contract tests | WU-2 | `uv run pytest tests/acceptance/test_cli_contract.py -q` (expected red until T-11) |
+| 7 | Planner | P-1 CLI contract tests | WU-2 | CLI contract/human/exit tests (expected red until T-11) |
 | 8 | Task Worker | T-11 app and CLI | WU-2 | CLI contract/human/exit tests and `uv run strictr --version` |
 | — | Human/Planner | Push and open draft PR | WU-2 | PR URL; CI may be red |
 | 9 | Task Worker | T-8 types | WU-3 | `uv run pytest tests/unit/test_types.py -q` |
@@ -86,8 +86,10 @@ must not weaken.
   signature. Pipeline implements status precedence and fail-fast, catches
   `Exception` (not `BaseException`), uses `internal error`, and stops later
   tiers with `earlier_tier_failed`. Project `tier2-pytest` meta counts into
-  `scope`. Aggregate discovery and tier warnings. Cap 20 diagnostics per tier.
-  Redact before capping; message 2,000 and `meta.error` 500 include
+  `scope`. Aggregate discovery warnings first, then tier warnings in execution
+  order, deduplicated by exact string. Cap 20 diagnostics per tier. Use the
+  exact redaction patterns in the blueprint. Redact before capping; message
+  2,000 and `meta.error` 500 include
   `" [truncated]"`; `meta.truncated` for count or text caps;
   `meta.total_diagnostics` only for dropped counts. `relative_posix` is pure and
   never resolves symlinks. Comment policy: one-line docstrings on public models,
@@ -102,12 +104,15 @@ must not weaken.
   blueprint T-4 checkbox.
 - Forbidden: tiers, tools, output, app/CLI, schema, contract.
 - Verify: `uv run pytest tests/unit/test_discovery.py -q`.
-- Notes: root algorithm from blueprint; target confinement; explicit files even
-  if Gitignored; `git ls-files -co --exclude-standard -z`; fallback walk with
-  pruned directories; empty project is an error; `files_skipped` semantics.
-  Escaping symlinks are errors, not skipped; resolve only for confinement and
-  record/display original paths. `DiscoveryResult` carries warnings. Use a
-  temporary `git init` fixture, no network.
+- Notes: root algorithm from blueprint; for a file target, marker search starts
+  at its parent. Target confinement; explicit files even if Gitignored;
+  `git ls-files -co --exclude-standard -z`; fallback walk with pruned
+  directories; empty project is an error; `files_checked` counts discovered
+  Python files in the requested scope; `files_skipped` counts Strictr's own
+  ignore-rule/explicit-filter rejections. Escaping symlinks are errors, not
+  skipped; resolve only for confinement and record/display original paths.
+  `DiscoveryResult` carries warnings. Use a temporary `git init` fixture, no
+  network.
 
 ### T-5 — Subprocess runner
 
@@ -134,7 +139,8 @@ must not weaken.
 - Forbidden: other tiers, tools, output, app/CLI, contract, schema.
 - Verify: `uv run pytest tests/unit/test_tier0.py -q`.
 - Notes: parse bytes with `ast.parse` so PEP 263 encodings work; map syntax
-  error location; in-process budget checked between files; stop later tiers.
+  error location; in-process budget checked between files; over-budget is
+  `error`, not `fail`; stop later tiers.
 
 ### T-7 — Ruff
 
@@ -175,7 +181,8 @@ must not weaken.
 - Forbidden: product code, schema, contract, tier tests.
 - Verify: `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
   is expected red until T-11.
-- Notes: black-box subprocess tests only; no internals. Cover JSON schema,
+- Notes: black-box subprocess tests only; no internals. Declare
+  `pytest.mark.spec("003")` and tag every covered AC. Cover JSON schema,
   stdout-only JSON, warnings/trust on stderr, exit codes, argparse errors without
   an envelope, and the discovery/internal error envelope. Do not assert a final
   four-tier pass at WU-2.
@@ -196,7 +203,8 @@ must not weaken.
   T-8/T-9. Implement the discovery/internal error envelope with all four tiers,
   warnings to stderr, and argparse errors without a JSON envelope. Do not assert
   a final four-tier pass at WU-2; T-12 owns the complete envelope. Invalid
-  arguments exit 2. No direct main push.
+  arguments exit 2. `--version` is top-level only; `--timeout` must be finite and
+  positive; Ctrl+C exits 130 without an envelope. No direct main push.
 
 ### T-8 — Types
 
@@ -227,7 +235,9 @@ must not weaken.
   repo; exit 5 skipped; exit 2/3/4 error; invalid XML error; write
   `tests_collected`/`tests_run`/`tests_skipped` to tier meta; reconstruct node
   IDs from file/classname/name; normalize line 0/missing to 1 and prefer a
-  failure-text `file:line`; missing pytest heuristic. No pathless collection
+  failure-text `file:line`; missing pytest heuristic. Use stable codes
+  `test-failure`, `test-error`, or `collection-error`; copy parsed counts even on
+  exit 2/3/4 when XML exists, otherwise zero. No pathless collection
   diagnostics; use `meta.error`.
 
 ### T-12 — Acceptance and failure modes
@@ -254,7 +264,8 @@ must not weaken.
 - Verify: `uv run pytest tests/unit/test_check_docs.py -q` is expected red until
   T-13.
 - Notes: assert the CLI command/status in README and AGENTS, the architecture
-  implementation note, and the changelog entry. Do not test exact prose.
+  implementation note, and the changelog entry. Do not test exact prose. Declare
+  `pytest.mark.spec("003")` and tag AC-16.
 
 ### T-13 — Integrator
 

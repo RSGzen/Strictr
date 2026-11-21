@@ -12,7 +12,7 @@ branch: "feat/003-check-command"
 
 ## Context
 
-Spec `002` approved the architecture and the verification contract. The next
+Spec `002` approved the architecture and the verification contract. The current
 product slice is the first runnable surface: `strictr check <paths> [--json]`.
 There is no product CLI, tier, parser, or output renderer yet.
 
@@ -78,9 +78,9 @@ refinements.
 
 - **AC-1:** WHEN the user runs `strictr check [paths]` or
   `python -m strictr check [paths]`, the CLI SHALL default paths to `.` when
-  none are given, accept `--json`, `--type-checker mypy|pyright|none`,
-  `--timeout SECONDS`, and `--version`, and reject invalid arguments with a
-  stderr message and exit code 2.
+  none are given; accept `--json`, `--type-checker mypy|pyright|none`, and
+  `--timeout SECONDS`; support a top-level `strictr --version`; and reject
+  invalid arguments with a stderr message and exit code 2.
 - **AC-2:** WHEN `--json` is supplied to a valid `check` invocation, the CLI
   SHALL write exactly one UTF-8, newline-terminated JSON object to stdout and no
   other stdout output; progress, warnings, and tracebacks SHALL not appear on
@@ -101,7 +101,9 @@ refinements.
   `pass`.
 - **AC-7:** Tier 0 SHALL parse every discovered `.py` and `.pyi` file; IF
   parsing fails, THEN the tier SHALL be `fail` with diagnostics containing path,
-  line, column, and message, and later tiers SHALL be recorded as skipped.
+  line, column, and message, and later tiers SHALL be recorded as skipped. IF
+  the in-process Tier 0 budget is exceeded, THEN the tier SHALL be `error` and
+  later tiers SHALL be recorded as skipped.
 - **AC-8:** Tier 1a SHALL run ruff with the project configuration, JSON output,
   and fixing disabled; findings SHALL be normalized and deterministically
   ordered; a missing ruff, crash, timeout, or invalid JSON SHALL be `error`; the
@@ -156,10 +158,12 @@ refinements.
 - Every JSON `path` is relative to the project root and uses `/` regardless of
   operating system. Display paths are not resolved through symlinks; resolution
   is used only for target confinement.
+- `files_checked` is the number of discovered Python files in the requested
+  scope, including files offered to Tier 0 before a budget abort.
 - `files_skipped` counts enumerated `.py` and `.pyi` files rejected by
-  Strictr's own filters, such as non-regular files. A symlink that resolves
-  outside the root is an error, not a skipped file. Files excluded by Git ignore
-  rules are outside the candidate set and are not counted.
+  Strictr's own ignore rules or explicit filters, such as non-regular files. A
+  symlink that resolves outside the root is an error, not a skipped file. Files
+  excluded by Git ignore rules are outside the candidate set and are not counted.
 - Tool-level errors do not invent diagnostics without a file path. They use
   `skipped_reason` plus a small redacted `meta.error`; diagnostics are reserved
   for findings that have a path. This keeps the contract diagnostic shape
@@ -169,12 +173,15 @@ refinements.
   field is added in v1.
 - Human output has no color in v0.1. This is compliant with the contract's
   "colors only when" rule.
+- Top-level warnings aggregate discovery warnings first, then tier warnings in
+  execution order, deduplicated by exact string.
 - Fixture projects are excluded from `ruff` and from pytest collection so
   intentional failures do not break the repository gate.
 - Tests declare `pytest.mark.spec("003")` and tag every covered AC with
   `pytest.mark.ac("AC-n")`.
-- No network access, no telemetry, and no unmeasured performance or detection
-  claims.
+- Strictr performs no network access; invoked tools are not network-isolated and
+  may perform their own network access. No telemetry and no unmeasured
+  performance or detection claims.
 
 ## Open questions
 
@@ -190,8 +197,8 @@ Resolved by this spec:
 - [x] Tier 0 timeout: in-process budget checked between files; no subprocess
   parser worker — owner, 2026-11-21.
 - [x] No-path behavior: default to `.` — owner, 2026-11-21.
-- [x] `--timeout` is one positive float that overrides every subprocess tier
-  and version check for the run — owner, 2026-11-21.
+- [x] `--timeout` is one finite positive float that overrides every subprocess
+  tier and version check for the run — owner, 2026-11-21.
 - [x] Missing pytest with no test candidates or pytest configuration is a
   deliberate skip, not an error — owner, 2026-11-21.
 
@@ -208,7 +215,8 @@ Deferred to later specs:
 
 | Date | Version | Change | Author |
 |---|---|---|---|
-| 2026-11-21 | 0.1 | Initial draft; planning decisions Q1–Q6 recorded | Ge Rui Sen |
+| 2026-11-21 | 0.1 | Initial draft; planning decisions recorded | Ge Rui Sen |
 | 2026-11-21 | 1.0 | ACs and blueprint approved; implementation not started | Ge Rui Sen |
 | 2026-11-21 | 1.1 | Implementation started; T-2 contract schema work | Ge Rui Sen |
 | 2026-11-21 | 1.2 | Clarified JSON usage errors, `earlier_tier_failed`, symlink confinement, and pyright resolution | Ge Rui Sen |
+| 2026-11-21 | 1.3 | Clarified version scope, Tier 0 budget, files ledger, warnings, and network boundary | Ge Rui Sen |

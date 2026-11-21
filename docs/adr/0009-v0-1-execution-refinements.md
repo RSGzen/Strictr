@@ -56,8 +56,9 @@ Adopt one refinement ADR:
    cannot interrupt a single pathological `ast.parse`; a subprocess parser
    worker is deferred. The tier is never reported as `pass` after exceeding the
    budget.
-4. **Timeout scope.** A single `--timeout` value bounds every subprocess tier and
-   its version check. Tier 0 uses the same budget between files.
+4. **Timeout scope.** A single finite positive `--timeout` value bounds every
+   subprocess tier and its version check. Tier 0 uses the same budget between
+   files.
 5. **Version location.** Tool versions are recorded in each tier's `tool`
    object. `environment` stays `python`, `platform`, and `root`; the contract is
    not widened.

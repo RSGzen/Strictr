@@ -10,7 +10,7 @@ Versioning once a public release exists.
 ### Changed
 
 - Spec `003-check-command` is in progress; T-1 and T-2 are complete and the
-  spec is at revision 1.2.
+  spec is at revision 1.3.
 - Architecture is approved; spec 002 is archived, while
   `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
