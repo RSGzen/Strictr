@@ -5,7 +5,7 @@
 - Task: T-3 core models and pipeline
 - Spec: 003
 - Branch: feat/003-check-command
-- Phase 1 gate: complete; spec 1.3 and blueprint approved at `fdc01dd`
+- Phase 1 gate: complete; spec 1.3 and blueprint approved (see git log)
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2)
 - Next command: write T-3 stubs and failing tests; run `uv run mypy` and
   `uv run ruff check .`, then `uv run pytest tests/unit/test_core.py -q`
