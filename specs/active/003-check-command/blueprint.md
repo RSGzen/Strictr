@@ -505,7 +505,7 @@ repository created with `git init`.
 - [x] T-5: Add `tools/__init__.py` and the subprocess runner with UTF-8 capture,
   timeouts, process-tree termination, `ToolResult`, and the T-3 error types —
   verify: `uv run pytest tests/unit/test_runner.py -q` — AC: AC-13
-- [ ] T-6: Add Tier 0 syntax parsing — verify:
+- [x] T-6: Add Tier 0 syntax parsing — verify:
   `uv run pytest tests/unit/test_tier0.py -q` — AC: AC-7
 - [ ] T-7: Add the ruff parser and tier — verify:
   `uv run pytest tests/unit/test_ruff.py -q` — AC: AC-8
