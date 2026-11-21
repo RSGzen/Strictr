@@ -507,7 +507,7 @@ repository created with `git init`.
   verify: `uv run pytest tests/unit/test_runner.py -q` — AC: AC-13
 - [x] T-6: Add Tier 0 syntax parsing — verify:
   `uv run pytest tests/unit/test_tier0.py -q` — AC: AC-7
-- [ ] T-7: Add the ruff parser and tier — verify:
+- [x] T-7: Add the ruff parser and tier — verify:
   `uv run pytest tests/unit/test_ruff.py -q` — AC: AC-8
 - [ ] T-10: Add JSON and human renderers; start with the two-tier pipeline and
   extend as later tiers land — verify:
