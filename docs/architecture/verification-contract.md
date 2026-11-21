@@ -1,6 +1,6 @@
 # Verification Contract v1
 
-Status: approved for spec `002`
+Status: approved (spec `002` archived)
 Owner: Ge Rui Sen
 Last updated: 2026-11-21
 Related: [system overview](system-overview.md),

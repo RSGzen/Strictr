@@ -9,10 +9,10 @@ LLM judge.
 
 ## Status
 
-Product discovery approved. The architecture spec is next; the verification CLI
-does not exist yet. This repository contains the SDD governance, product vision,
-evaluation plan, specification templates, traceability tooling, and CI
-foundation.
+Architecture approved. The verification CLI does not exist yet. The next spec is
+`003-check-command`. This repository contains the SDD governance, product vision,
+evaluation plan, architecture, verification contract, specification templates,
+traceability tooling, and CI foundation.
 
 The first product slice will be `003-check-command`: `strictr check <paths>
 [--json]`.
