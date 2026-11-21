@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import signal
@@ -17,6 +18,7 @@ from strictr.core.models import ToolResult
 # Typeshed exposes CREATE_NEW_PROCESS_GROUP only on Windows; the Windows API
 # value is stable and the flag lets taskkill reach the whole process tree.
 _CREATE_NEW_PROCESS_GROUP = 0x00000200
+_CLEANUP_TIMEOUT_SECONDS = 1.0
 
 
 class SubprocessRunner:
@@ -48,9 +50,11 @@ class SubprocessRunner:
         try:
             stdout, stderr = process.communicate(timeout=timeout)
         except subprocess.TimeoutExpired:
-            _terminate_tree(process)
-            process.communicate()
+            _stop(process, drain=True)
             raise ToolTimeoutError(f"tool timed out after {timeout:g} seconds") from None
+        except KeyboardInterrupt:
+            _stop(process, drain=False)
+            raise
 
         return ToolResult(
             command=tuple(command),
@@ -63,6 +67,33 @@ class SubprocessRunner:
     def which(self, name: str) -> str | None:
         """Return the executable path for *name*, or `None` when absent."""
         return shutil.which(name)
+
+
+def _stop(process: subprocess.Popen[str], *, drain: bool) -> None:
+    """Terminate a timed-out or interrupted child without waiting unbounded.
+
+    A failed tree kill must not leave `communicate()` waiting on a hung child,
+    so draining is bounded and always falls back to killing the direct process.
+    """
+    with contextlib.suppress(OSError):
+        _terminate_tree(process)
+    if drain:
+        try:
+            process.communicate(timeout=_CLEANUP_TIMEOUT_SECONDS)
+            return
+        except subprocess.TimeoutExpired:
+            pass
+        except (OSError, ValueError):
+            pass
+    _force_stop(process)
+
+
+def _force_stop(process: subprocess.Popen[str]) -> None:
+    """Kill and reap the direct child after tree termination fails."""
+    with contextlib.suppress(OSError):
+        process.kill()
+    with contextlib.suppress(subprocess.TimeoutExpired, OSError):
+        process.wait(timeout=_CLEANUP_TIMEOUT_SECONDS)
 
 
 def _terminate_tree(process: subprocess.Popen[str]) -> None:
