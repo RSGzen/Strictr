@@ -1,15 +1,16 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-4 complete; next T-5)
+- Phase: 2 Stub & Test (T-5; awaiting owner freeze)
 - Work unit: WU-1
-- Task: T-4 discovery complete
+- Task: T-5 subprocess runner
 - Spec: 003
 - Branch: feat/003-check-command
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
-- Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`
+- Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 awaiting
+  freeze
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
-  at `85536ef`
+  at `85536ef`; `tests/unit/test_runner.py` written, awaiting freeze approval
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -21,14 +22,18 @@
 - T-4 gate: complete at `6fb7d9a`; `uv run pytest tests/unit/test_discovery.py -q`
   -> 19 passed, 2 skipped; full gate `uv run pytest -q` -> 125 passed,
   2 skipped; format, lint, and strict types pass
-- Next command: Phase 2 for T-5; write `tools/__init__.py` and
-  `tools/runner.py` stubs plus failing `tests/unit/test_runner.py`, then run
-  `uv run pytest tests/unit/test_runner.py -q`
+- T-5 Phase 2 evidence: `uv run ruff format --check .` pass;
+  `uv run ruff check .` pass; `uv run mypy` pass;
+  `uv run pytest tests/unit/test_runner.py -q` -> 8 failed, all
+  `NotImplementedError` from the `tools/runner.py` stub; no import errors
+- Next command: after owner freeze, Phase 3 implements `tools/runner.py`
+  until `uv run pytest tests/unit/test_runner.py -q` passes
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
 - Open items: real pyright is not in CI; the timeout acceptance test needs a
-  generous bound
+  generous bound; process-tree termination is proven by the Phase 4 timeout
+  acceptance test
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -53,4 +58,7 @@
   `core/discovery.py` at `6fb7d9a`; 19 frozen tests pass and 2 platform tests
   skip. Full gate `uv run pytest -q` 125 passed, 2 skipped; format, lint, and
   strict types pass. T-4 checkbox marked.
-- Next: start T-5 Phase 2 (runner stubs and failing unit tests).
+- 2026-11-21: T-5 Phase 2 stubs and `tests/unit/test_runner.py` written.
+  mypy and ruff pass; the target command fails only with `NotImplementedError`.
+  Awaiting owner review and the T-5 test freeze commit.
+- Next: freeze `tests/unit/test_runner.py`, then start Phase 3 for T-5.
