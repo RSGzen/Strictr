@@ -1,8 +1,8 @@
 # Progress: Check command
 
-- Phase: 2 Stub & Test (T-12)
-- Work unit: WU-5 in progress (T-12)
-- Task: T-12 Phase 2 freeze candidate at `5c30bae`; awaiting owner approval
+- Phase: 3 Implement & Reconcile (T-12 complete)
+- Work unit: WU-5 complete (T-12); next is T-13 (WU-6)
+- Task: T-12 complete at `b492e57`; T-13 Phase 2 is next
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
@@ -10,7 +10,7 @@
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
   `47099f4`; T-11 frozen at `f15bc2d`; T-8 frozen at `88405bf`; T-9 frozen at
-  `313d54e`; T-12 candidate at `5c30bae` (awaiting owner approval)
+  `313d54e`; T-12 frozen at `5c30bae`
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
@@ -21,7 +21,7 @@
 - T-8 tests: `tests/unit/test_types.py` at `88405bf` (frozen)
 - T-9 tests: `tests/unit/test_pytest.py` at `313d54e` (frozen)
 - T-12 tests: `tests/acceptance/test_discovery.py`, `test_tiers.py`, and
-  `test_timeout.py` at `5c30bae` (freeze candidate, awaiting owner approval)
+  `test_timeout.py` at `5c30bae` (frozen)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -54,24 +54,26 @@
   -> 48 passed; full gate `uv run pytest -q` -> 308 passed, 2 skipped; format,
   lint, and strict types pass. Real CLI smoke on a failing test reports tier2
   `fail`, node ID, line 7, `AssertionError`, and counts 2/2/0
+- T-12 gate: complete at `b492e57`; `uv run pytest tests/acceptance -q`
+  -> 47 passed, 1 skipped; full gate `uv run pytest -q` -> 323 passed,
+  3 skipped; format, lint, and strict types pass
 - WU-1 Phase 4 evidence at `bd67d2c`:
   `uv run pytest tests/unit/test_wu1_integration.py -q` -> 6 passed; full gate
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: owner review and freeze T-12 at `5c30bae`; then T-12 Phase 3
-  fixes the UTF-8 stdout gap and runs `uv run pytest tests/acceptance -q`. The
-  owner decided on 2026-11-21 to leave history as-is, so the T-3 commit-subject
-  traceability blocker remains open and must be resolved before the merge gate.
+- Next command: start T-13 Phase 2 and write `tests/unit/test_check_docs.py`
+  (AC-16), then T-13 Phase 4 closeout and Phase 5 audit. The owner decided on
+  2026-11-21 to leave history as-is, so the T-3 commit-subject traceability
+  blocker remains open and must be resolved before the merge gate.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
 - Open items: real pyright is not in CI; T-8 parser and selection tests use a
-  fake runner, and the real CLI smoke covered mypy only. The timeout acceptance
-  test needs a generous bound; process-tree termination is proven by the
-  Phase 4/T-12 acceptance test. The pipeline is now four tiers (Tier 0, ruff,
-  types, pytest); the frozen T-11 tests stay valid because pass paths use
-  `--type-checker none`. A CLI-level `partial` exit code is reachable through
+  fake runner, and the real CLI smoke covered mypy only. The T-12 timeout test
+  uses a 45 s bound; process-tree termination is proven by it. The pipeline is
+  now four tiers (Tier 0, ruff, types, pytest); the frozen T-11 tests stay valid
+  because pass paths use `--type-checker none`. A CLI-level `partial` exit code is reachable through
   auto-selection when neither checker is installed. Draft PR #11 is open.
   Traceability has one expected blocker left: the missing AC-16 test (T-13).
   The non-Conventional subject on the T-3 freeze commit `d2f85f9`
@@ -80,12 +82,10 @@
   frozen T-3 hash and every later commit hash recorded here. Owner decided on
   2026-11-21 to leave history as-is; the commit-subject blocker therefore stays
   open until a later approved resolution. Do not weaken the checker.
-- T-12 findings: `test_path_with_spaces_and_unicode` fails because the CLI
-  writes stdout with the Windows locale encoding (cp1252) rather than UTF-8;
-  AC-2 requires UTF-8. This is the expected Phase 2 failure, not a test bug.
-  T-12 Phase 3 must make CLI stdout/stderr UTF-8. The acceptance target command
-  is 46 passed, 1 failed, 1 skipped (symlink creation unavailable locally); the
-  full suite is 322 passed, 3 skipped, 1 failed.
+- T-12 resolution: Phase 3 made CLI stdout/stderr UTF-8 in `cli.py`; the
+  Unicode path test passes. The frozen acceptance command is 47 passed,
+  1 skipped (symlink creation unavailable locally); the full suite is
+  323 passed, 3 skipped.
 - T-12 test infrastructure: added `tests/unit/__init__.py` and
   `tests/acceptance/__init__.py` so the duplicate `test_discovery.py` basename
   collects in both packages; no product behavior changes.
@@ -214,5 +214,10 @@
   `test_path_with_spaces_and_unicode`: locale-encoded stdout violates AC-2's
   UTF-8 requirement. Full suite is 322 passed, 3 skipped, 1 expected failure.
   Awaiting owner review and the T-12 freeze.
-- Next: T-12 Phase 3 fixes UTF-8 stdout. Traceability cannot pass the merge gate
+- 2026-11-22: Owner approved the T-12 freeze at `5c30bae`. Phase 3 made CLI
+  stdout/stderr UTF-8 at `b492e57`, fixing locale-dependent JSON paths without
+  changing the frozen tests. `uv run pytest tests/acceptance -q` -> 47 passed,
+  1 skipped; full gate `uv run pytest -q` -> 323 passed, 3 skipped; format,
+  lint, and strict types pass. T-12 checkbox marked; WU-5 complete.
+- Next: T-13 Phase 2 docs contract test. Traceability cannot pass the merge gate
   until the commit-subject blocker is resolved by an owner-approved route.
