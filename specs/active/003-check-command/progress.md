@@ -1,10 +1,10 @@
 # Progress: Check command
 
-- Phase: 2 Stub & Test (T-13)
-- Work unit: WU-5 complete (T-12, T-12b); T-13 (WU-6) Phase 2 awaiting owner
-  review
-- Task: T-13 docs test written at `2d4c0c1`; Phase 4 docs closeout is next after
-  the freeze
+- Phase: 4 Integrate & Verify (T-13 docs closeout complete)
+- Work unit: WU-6 in progress; T-13 docs and full gate done, traceability blocked
+  by the T-3 commit subject
+- Task: T-13 Phase 4 complete at `a7d30cc`; Phase 5 audit is next after the
+  traceability blocker is resolved
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
@@ -12,7 +12,8 @@
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
   `47099f4`; T-11 frozen at `f15bc2d`; T-8 frozen at `88405bf`; T-9 frozen at
-  `313d54e`; T-12 frozen at `5c30bae`; T-12b frozen at `1891a9d`
+  `313d54e`; T-12 frozen at `5c30bae`; T-12b frozen at `1891a9d`; T-13 frozen
+  at `2d4c0c1`
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
@@ -27,6 +28,7 @@
 - T-12b tests: `tests/unit/test_runner_hardening.py` and
   `tests/unit/test_cli_hardening.py` at `1891a9d` (frozen);
   `tests/acceptance/test_envelope_schema.py` at `e20715e` (Phase 4)
+- T-13 tests: `tests/unit/test_check_docs.py` at `2d4c0c1` (frozen)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -67,15 +69,18 @@
   -> 11 passed; `uv run pytest tests/acceptance -q` -> 54 passed, 1 skipped;
   full gate `uv run pytest -q` -> 334 passed, 3 skipped; format, lint, and
   strict types pass
+- T-13 gate: docs closeout at `a7d30cc`; `uv run pytest tests/unit/test_check_docs.py -q`
+  -> 4 passed; full gate `uv run pytest -q` -> 338 passed, 3 skipped; format,
+  lint, and strict types pass. Traceability still fails only on the T-3 commit
+  subject `t3-stub&test: ...`; AC coverage has no errors
 - WU-1 Phase 4 evidence at `bd67d2c`:
   `uv run pytest tests/unit/test_wu1_integration.py -q` -> 6 passed; full gate
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: `uv run pytest tests/unit/test_check_docs.py -q` (4/4 fail until
-  the T-13 Phase 4 docs update); then the full gate and traceability. The owner
-  decided on 2026-11-21 to leave history as-is, so the T-3 commit-subject
-  traceability blocker remains open and must be resolved before the merge gate.
+- Next command: Phase 5 read-only audit after the owner resolves the T-3
+  commit-subject traceability blocker. The full gate and AC coverage already
+  pass; do not weaken the checker or rewrite history without owner approval.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -85,15 +90,13 @@
   now four tiers (Tier 0, ruff, types, pytest); the frozen T-11 tests stay valid
   because pass paths use `--type-checker none`. A CLI-level `partial` exit code is reachable through
   auto-selection when neither checker is installed. Draft PR #11 is open.
-  Traceability has one expected blocker left: the missing AC-16 test (T-13).
-  The AC-16 docs test now exists at `2d4c0c1`; T-13 Phase 4 still has to update
-  the docs before the full gate.
-  The non-Conventional subject on the T-3 freeze commit `d2f85f9`
-  (`t3-stub&test: ...`) is the other blocker. It will remain after all AC tests
-  exist. Rewriting that commit needs owner approval because it changes the
-  frozen T-3 hash and every later commit hash recorded here. Owner decided on
-  2026-11-21 to leave history as-is; the commit-subject blocker therefore stays
-  open until a later approved resolution. Do not weaken the checker.
+  Traceability AC coverage now passes; the only remaining blocker is the
+  non-Conventional subject on the T-3 freeze commit `d2f85f9`
+  (`t3-stub&test: ...`). Rewriting that commit needs owner approval because it
+  changes the frozen T-3 hash and every later commit hash recorded here. Owner
+  decided on 2026-11-21 to leave history as-is; the commit-subject blocker
+  therefore stays open until a later approved resolution. Do not weaken the
+  checker.
 - T-12 resolution: Phase 3 made CLI stdout/stderr UTF-8 in `cli.py`; the
   Unicode path test passes. The frozen acceptance command is 47 passed,
   1 skipped (symlink creation unavailable locally); the full suite is
@@ -251,6 +254,11 @@
   `tests/unit/test_check_docs.py` covers AC-16 for README, CHANGELOG, AGENTS,
   and the system overview. `uv run ruff format --check .`, `uv run ruff check .`,
   and `uv run mypy` pass. The target command fails 4/4 on assertions, not import
-  errors. Awaiting owner review and the T-13 freeze.
-- Next: T-13 Phase 2 docs contract test. Traceability cannot pass the merge gate
-  until the commit-subject blocker is resolved by an owner-approved route.
+  errors.
+- 2026-11-22: Owner approved the T-13 freeze and Phase 4. Docs updated at
+  `a7d30cc`; `tests/unit/test_check_docs.py` -> 4 passed; full gate
+  `uv run pytest -q` -> 338 passed, 3 skipped; format, lint, and strict types
+  pass. Traceability AC coverage passes; the only error is the known T-3 commit
+  subject.
+- Next: Phase 5 read-only audit after the owner resolves the T-3 commit-subject
+  traceability blocker. Traceability cannot pass the merge gate until then.
