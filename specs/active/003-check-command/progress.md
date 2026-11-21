@@ -1,10 +1,11 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-11 complete; next T-8 Phase 2)
-- Work unit: WU-2 complete (T-6, T-7, T-10, T-11); next WU-3 with T-8
-- Task: T-11 complete; next T-8 Phase 2
+- Phase: 3 Implement & Reconcile (T-11 complete; paused before T-8)
+- Work unit: WU-2 complete (T-6, T-7, T-10, T-11); WU-3 not started
+- Task: T-11 complete; T-8 Phase 2 awaits the traceability decision
 - Spec: 003
 - Branch: feat/003-check-command
+- Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
@@ -44,9 +45,10 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: Phase 2 for T-8; write the mypy/pyright parser and type-tier
-  stubs plus `tests/unit/test_types.py`, then run
-  `uv run pytest tests/unit/test_types.py -q`
+- Next command: owner decision on rewording the T-3 freeze commit; do not start
+  T-8 in this session. If approved, reword `d2f85f9` to a Conventional Commits
+  subject, rebase the branch, `--force-with-lease`, and update the recorded
+  freeze hashes before resuming T-8.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -56,8 +58,12 @@
   (Tier 0 + ruff); pass paths use `--type-checker none` so they stay valid when
   T-8/T-9 extend it. A CLI-level `partial` exit code is not reachable until
   T-8; AC-4's partial/error mapping remains covered by the frozen T-3 unit
-  test. WU-2 is complete but the draft PR is not open because `gh` is not
-  installed; that is an owner action.
+  test. Draft PR #11 is open. Traceability has two blockers: the expected
+  missing tags for AC-9, AC-10, AC-11, and AC-16 (T-8/T-9/T-13), and the
+  non-Conventional subject on the T-3 freeze commit `d2f85f9`
+  (`t3-stub&test: ...`). The second blocker will remain after all AC tests
+  exist. Rewriting that commit needs owner approval because it changes the
+  frozen T-3 hash and every later commit hash recorded here.
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -134,4 +140,11 @@
   `uv run strictr --version` prints 0.0.0, and the full gate
   `uv run pytest -q` is 207 passed, 2 skipped. Format, lint, and strict types
   pass. T-11 checkbox marked; WU-2 complete.
-- Next: Phase 2 for T-8 (type-checker selection, parsers, and tier).
+- 2026-11-21: Draft PR #11 opened by the owner. Traceability fails on the
+  expected missing AC-9/AC-10/AC-11/AC-16 tests and on the non-Conventional
+  subject of the T-3 freeze commit `d2f85f9`. A local run with
+  `HEAD_REF=feat/003-check-command`,
+  `PR_TITLE=feat(check): add check command for tier 0 and ruff [003]`, and
+  `BASE_REF=main` reproduces both. Paused before T-8 pending the owner's
+  history-rewrite decision.
+- Next: owner decision, then either the reword/rebase or T-8 Phase 2.
