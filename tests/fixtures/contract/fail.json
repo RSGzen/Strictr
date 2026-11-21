@@ -1,0 +1,88 @@
+{
+  "schema_version": "1",
+  "tool": {
+    "name": "strictr",
+    "version": "test"
+  },
+  "status": "fail",
+  "scope": {
+    "root": ".",
+    "targets": ["src"],
+    "files_checked": 2,
+    "files_skipped": 0,
+    "tests_collected": 0,
+    "tests_run": 0,
+    "tests_skipped": 0
+  },
+  "tiers": [
+    {
+      "id": "tier0",
+      "name": "syntax",
+      "status": "pass",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": null,
+      "meta": {}
+    },
+    {
+      "id": "tier1-ruff",
+      "name": "lint",
+      "status": "fail",
+      "tool": {"name": "ruff", "version": "test"},
+      "duration_ms": 0,
+      "diagnostics": [
+        {
+          "tier": "tier1-ruff",
+          "source": "ruff",
+          "path": "src/app.py",
+          "line": 3,
+          "column": 1,
+          "end_line": 3,
+          "end_column": 5,
+          "code": "F401",
+          "severity": "error",
+          "message": "`os` imported but unused",
+          "test": null,
+          "exception": null,
+          "url": "https://docs.astral.sh/ruff/rules/unused-import"
+        }
+      ],
+      "skipped_reason": null,
+      "meta": {}
+    },
+    {
+      "id": "tier1-types",
+      "name": "types",
+      "status": "skipped",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": "earlier_tier_failed",
+      "meta": {}
+    },
+    {
+      "id": "tier2-pytest",
+      "name": "tests",
+      "status": "skipped",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": "earlier_tier_failed",
+      "meta": {}
+    }
+  ],
+  "timings": {
+    "total_ms": 0
+  },
+  "environment": {
+    "python": "test",
+    "platform": "test",
+    "root": "."
+  },
+  "trust": {
+    "sandboxed": false,
+    "warning": "Local execution; not a security boundary."
+  },
+  "warnings": []
+}

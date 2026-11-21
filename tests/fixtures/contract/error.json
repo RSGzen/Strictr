@@ -1,0 +1,72 @@
+{
+  "schema_version": "1",
+  "tool": {
+    "name": "strictr",
+    "version": "test"
+  },
+  "status": "error",
+  "scope": {
+    "root": ".",
+    "targets": ["src"],
+    "files_checked": 2,
+    "files_skipped": 0,
+    "tests_collected": 0,
+    "tests_run": 0,
+    "tests_skipped": 0
+  },
+  "tiers": [
+    {
+      "id": "tier0",
+      "name": "syntax",
+      "status": "pass",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": null,
+      "meta": {}
+    },
+    {
+      "id": "tier1-ruff",
+      "name": "lint",
+      "status": "error",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": "ruff not found",
+      "meta": {"error": "ruff not found"}
+    },
+    {
+      "id": "tier1-types",
+      "name": "types",
+      "status": "skipped",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": "earlier_tier_error",
+      "meta": {}
+    },
+    {
+      "id": "tier2-pytest",
+      "name": "tests",
+      "status": "skipped",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": "earlier_tier_error",
+      "meta": {}
+    }
+  ],
+  "timings": {
+    "total_ms": 0
+  },
+  "environment": {
+    "python": "test",
+    "platform": "test",
+    "root": "."
+  },
+  "trust": {
+    "sandboxed": false,
+    "warning": "Local execution; not a security boundary."
+  },
+  "warnings": []
+}

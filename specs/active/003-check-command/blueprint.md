@@ -332,7 +332,7 @@ command, and the full gate runs after each merge-sized task group.
 | AC-12 | unit, acceptance | `tests/unit/test_core.py`, `tests/acceptance/test_exit_codes.py` | same | todo |
 | AC-13 | unit, acceptance | `tests/unit/test_runner.py`, `tests/acceptance/test_timeout.py` | `uv run pytest tests/unit/test_runner.py -q` | todo |
 | AC-14 | unit | `tests/unit/test_core.py` | `uv run pytest tests/unit/test_core.py -q` | todo |
-| AC-15 | unit | `tests/unit/test_contract.py` | `uv run pytest tests/unit/test_contract.py -q` | todo |
+| AC-15 | unit | `tests/unit/test_contract.py` | `uv run pytest tests/unit/test_contract.py -q` | pass |
 | AC-16 | unit | `tests/unit/test_check_docs.py` | `uv run pytest tests/unit/test_check_docs.py -q` | todo |
 
 Fixture projects:
@@ -358,7 +358,7 @@ repository created with `git init`.
 - [x] T-1: Finalize the spec and blueprint, resolve owner questions, and set the
   spec status to `approved` — verify: owner approval and
   `uv run pytest tests/unit/test_architecture_docs.py -q` — AC: AC-1..AC-16
-- [ ] T-2: Add the contract JSON Schema, golden envelope fixtures, and
+- [x] T-2: Add the contract JSON Schema, golden envelope fixtures, and
   `tests/unit/test_contract.py`; add test-only `jsonschema` — verify:
   `uv run pytest tests/unit/test_contract.py -q` — AC: AC-2, AC-15
 - [ ] T-3: Add models, path/text helpers, limits, redaction, and the pipeline

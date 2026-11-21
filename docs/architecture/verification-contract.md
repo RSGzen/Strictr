@@ -238,7 +238,9 @@ Tier results are in execution order.
 - `schema_version` changes only for breaking contract changes.
 - Additive fields are allowed within v1.
 - Removing or renaming a field requires a new schema version and an ADR.
-- The contract is tested by JSON Schema and golden fixtures.
+- The contract is tested by JSON Schema and golden fixtures. The machine-readable
+  schema is
+  [`verification-contract.schema.json`](verification-contract.schema.json).
 
 ## Trust metadata
 
