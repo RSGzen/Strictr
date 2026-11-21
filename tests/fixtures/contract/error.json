@@ -42,7 +42,7 @@
       "tool": null,
       "duration_ms": 0,
       "diagnostics": [],
-      "skipped_reason": "earlier_tier_error",
+      "skipped_reason": "earlier_tier_failed",
       "meta": {}
     },
     {
@@ -52,7 +52,7 @@
       "tool": null,
       "duration_ms": 0,
       "diagnostics": [],
-      "skipped_reason": "earlier_tier_error",
+      "skipped_reason": "earlier_tier_failed",
       "meta": {}
     }
   ],
