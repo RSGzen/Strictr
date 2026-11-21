@@ -2,7 +2,8 @@
 
 - Phase: 5 Closeout & Audit (complete; ready for merge)
 - Work unit: WU-6 complete; T-13 docs, full gate, and traceability pass
-- Task: T-13 complete at `b2fef75`; spec 003 is ready for the owner to merge
+- Task: T-13 complete at `b2fef75`; Phase 5 closeout at `26fd58e`; spec 003 is
+  ready for the owner to merge
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
@@ -73,6 +74,11 @@
   -> 4 passed; full gate `uv run pytest -q` -> 338 passed, 3 skipped; format,
   lint, and strict types pass. Traceability passes after the T-3 subject reword.
   T-13 checkbox marked.
+- Phase 5 gate: closeout at `26fd58e`; `uv run ruff format --check .`,
+  `uv run ruff check .`, and `uv run mypy` pass; `uv run pytest -q` -> 338
+  passed, 3 skipped; `uv run pytest tests/acceptance -q` -> 54 passed,
+  1 skipped; traceability passes. The audit's discovery-error path finding is
+  documented for spec 004; no code or test changes were made for it.
 - WU-1 Phase 4 evidence at `fbdc25c`:
   `uv run pytest tests/unit/test_wu1_integration.py -q` -> 6 passed; full gate
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
@@ -263,7 +269,8 @@
 - 2026-11-22: Owner approved the Phase 5 cleanup. The T-3 commit subject was
   reworded to `test(core): add stubs and tests for T-3`, all freeze hashes in
   this file were remapped, documentation bookkeeping was updated, and the path
-  normalization gap found in the audit was deferred to spec 004. Full gate and
-  traceability pass; T-13 checkbox marked. Ready for the owner to merge.
+  normalization gap found in the audit was deferred to spec 004. Closeout at
+  `26fd58e`; full gate and traceability pass; T-13 checkbox marked. Ready for
+  the owner to merge.
 - Next: owner merges PR #11, archives spec 003, deletes the branch, and starts
   spec 004 from the default size targets.
