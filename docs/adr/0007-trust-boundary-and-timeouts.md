@@ -1,6 +1,6 @@
 # ADR 0007: Local trust boundary, timeouts, and process termination
 
-- Status: accepted
+- Status: accepted; Tier 0 budget refined by [ADR 0009](0009-v0-1-execution-refinements.md)
 - Date: 2026-11-21
 - Decision makers: Ge Rui Sen
 
@@ -46,6 +46,8 @@ v0.1 uses local execution with explicit trust metadata:
 Timeouts and process termination:
 
 - Defaults: Tier 0 10 s, ruff 30 s, type checker 180 s, pytest 300 s.
+- Tier 0 is an in-process budget checked between files; hard process termination
+  applies to subprocess tiers (ADR 0009).
 - A CLI timeout override applies to the selected tiers.
 - On timeout, the tier is `error`, never `pass`.
 - On POSIX, start the child in a new session and kill the process group.

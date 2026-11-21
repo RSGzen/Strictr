@@ -9,11 +9,11 @@ LLM judge.
 
 ## Status
 
-Architecture approved. Spec `003-check-command` is approved; implementation has
-not started. The verification CLI does not exist yet. This repository contains
-the SDD governance, product vision, evaluation plan, architecture, verification
-contract, specification templates, workflow roles, traceability tooling, and CI
-foundation.
+Architecture approved. Spec `003-check-command` is approved and in progress; the
+contract schema and golden fixtures have landed, but the verification CLI does
+not exist yet. This repository contains the SDD governance, product vision,
+evaluation plan, architecture, verification contract, specification templates,
+workflow roles, traceability tooling, and CI foundation.
 
 The first product slice is `003-check-command`: `strictr check <paths>
 [--json]`.

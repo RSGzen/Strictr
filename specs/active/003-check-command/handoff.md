@@ -8,6 +8,7 @@
 - Blueprint: `specs/active/003-check-command/blueprint.md`
 - Completed: T-1, T-2
 - Next: T-3
+- Import boundary: ADR 0008; execution refinements: ADR 0009
 - Remote branch: pushed and tracking `origin/feat/003-check-command`
 
 T-2 evidence: `uv run pytest tests/unit/test_contract.py -q` → 11 passed.
@@ -49,14 +50,18 @@ constitution, `.github/`, `internal-docs/`, or `specs/archive/`.
 | 4 | Task Worker | T-6 Tier 0 | WU-2 | `uv run pytest tests/unit/test_tier0.py -q` |
 | 5 | Task Worker | T-7 ruff | WU-2 | `uv run pytest tests/unit/test_ruff.py -q` |
 | 6 | Task Worker | T-10 output renderers | WU-2 | `uv run pytest tests/unit/test_output.py -q` |
-| 7 | Task Worker | T-11 app and CLI | WU-2 | `uv run pytest tests/acceptance/test_cli_contract.py -q` and `uv run strictr --version` |
+| 7 | Planner | P-1 CLI contract tests | WU-2 | `uv run pytest tests/acceptance/test_cli_contract.py -q` (expected red until T-11) |
+| 8 | Task Worker | T-11 app and CLI | WU-2 | CLI contract/human/exit tests and `uv run strictr --version` |
 | — | Human/Planner | Push and open draft PR | WU-2 | PR URL; CI may be red |
-| 8 | Task Worker | T-8 types | WU-3 | `uv run pytest tests/unit/test_types.py -q` |
-| 9 | Task Worker | T-9 pytest | WU-4 | `uv run pytest tests/unit/test_pytest.py -q` |
-| 10 | Task Worker | T-12 acceptance and failure modes | WU-5 | `uv run pytest tests/acceptance -q` |
-| 11 | **Integrator** | T-13 full gate and traceability | WU-6 | Full gate + traceability |
+| 9 | Task Worker | T-8 types | WU-3 | `uv run pytest tests/unit/test_types.py -q` |
+| 10 | Task Worker | T-9 pytest | WU-4 | `uv run pytest tests/unit/test_pytest.py -q` |
+| 11 | Task Worker | T-12 acceptance and failure modes | WU-5 | `uv run pytest tests/acceptance -q` |
+| 12 | Planner | P-2 docs contract test | WU-6 | `uv run pytest tests/unit/test_check_docs.py -q` (expected red until T-13) |
+| 13 | **Integrator** | T-13 full gate and traceability | WU-6 | Full gate + traceability |
 
 T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
+P-1 and P-2 are short Planner sessions that write the contract tests the workers
+must not weaken.
 
 ## Task briefs
 
@@ -66,17 +71,27 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
 - ACs: AC-4, AC-12, AC-14.
 - Read: `AGENTS.md`, `docs/sdd-workflow.md`, spec, blueprint, contract,
   `docs/testing.md`, architecture overview.
-- Write: `src/strictr/core/models.py`, `core/paths.py`, `core/text.py`,
-  `core/protocols.py`, `core/errors.py`, `core/pipeline.py`,
+- Write: `src/strictr/core/__init__.py`, `core/models.py`, `core/paths.py`,
+  `core/text.py`, `core/protocols.py`, `core/errors.py`, `core/pipeline.py`,
   `tests/unit/test_core.py`, blueprint T-3 checkbox.
 - Forbidden: `tiers/`, `tools/`, `output/`, `cli.py`, `app.py`, schema,
   contract, other tests.
 - Verify: `uv run pytest tests/unit/test_core.py -q`.
-- Notes: pure pipeline with fake tiers; status precedence; fail-fast; scope,
-  diagnostic, tier, envelope dataclasses; 20-diagnostic and 2,000-character
-  limits; deterministic ordering; secret redaction; `ToolResult` shape for the
-  runner port. Comment policy: one-line docstrings on public models, protocols,
-  and pipeline only; no field-by-field narration or duplicated contract text.
+- Notes: freeze the interfaces in the blueprint:
+  `StrictrError`/`DiscoveryError`/`ConfigError`/`ToolError`/
+  `ToolNotFoundError`/`ToolTimeoutError`/`InvalidToolOutput`;
+  `ToolResult(command, returncode, stdout: str, stderr: str, duration_ms)`;
+  `ToolRunner.run` and `which`; `Tier`; `CheckContext`; `TierResult` with
+  internal `warnings`; `CheckResult.to_envelope`; `DiscoveryResult`; pipeline
+  signature. Pipeline implements status precedence and fail-fast, catches
+  `Exception` (not `BaseException`), uses `internal error`, and stops later
+  tiers with `earlier_tier_failed`. Project `tier2-pytest` meta counts into
+  `scope`. Aggregate discovery and tier warnings. Cap 20 diagnostics per tier.
+  Redact before capping; message 2,000 and `meta.error` 500 include
+  `" [truncated]"`; `meta.truncated` for count or text caps;
+  `meta.total_diagnostics` only for dropped counts. `relative_posix` is pure and
+  never resolves symlinks. Comment policy: one-line docstrings on public models,
+  protocols, and pipeline only; no field-by-field narration.
 
 ### T-4 — Discovery
 
@@ -90,21 +105,24 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
 - Notes: root algorithm from blueprint; target confinement; explicit files even
   if Gitignored; `git ls-files -co --exclude-standard -z`; fallback walk with
   pruned directories; empty project is an error; `files_skipped` semantics.
-  Use a temporary `git init` fixture, no network.
+  Escaping symlinks are errors, not skipped; resolve only for confinement and
+  record/display original paths. `DiscoveryResult` carries warnings. Use a
+  temporary `git init` fixture, no network.
 
 ### T-5 — Subprocess runner
 
 - Role: Task Worker.
 - AC: AC-13.
 - Read: T-3 `models.py`, `errors.py`, `protocols.py`; ADR 0003/0007.
-- Write: `src/strictr/tools/runner.py`, `tests/unit/test_runner.py`,
-  blueprint T-5 checkbox.
+- Write: `src/strictr/tools/__init__.py`, `tools/runner.py`,
+  `tests/unit/test_runner.py`, blueprint T-5 checkbox.
 - Forbidden: tiers, parsers, output, app/CLI, contract, schema.
 - Verify: `uv run pytest tests/unit/test_runner.py -q`.
-- Notes: no shell; cwd root; byte capture with UTF-8 replacement; timeout;
-  Windows new process group plus `taskkill /T /F`; POSIX new session plus
-  `killpg`; missing executable maps to the runner error type. Use fakes for
-  command construction. T-12 owns the one real timeout fixture.
+- Notes: no shell; cwd root; byte capture decoded to `str` with UTF-8
+  replacement; timeout; Windows new process group plus `taskkill /T /F`; POSIX
+  new session plus `killpg`; missing executable raises `ToolNotFoundError`;
+  timeout raises `ToolTimeoutError`. Use fakes for command construction. T-12
+  owns the one real timeout fixture.
 
 ### T-6 — Tier 0
 
@@ -142,8 +160,25 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
 - Forbidden: app/CLI before T-11, tiers, contract, schema.
 - Verify: `uv run pytest tests/unit/test_output.py -q`.
 - Notes: compact UTF-8 JSON plus newline; human status/scope/first failures to
-  stdout; warnings and trust warning to stderr; no color; five diagnostics in
-  human mode, 20 in JSON; explicit truncation notice.
+  stdout; warnings to stderr in both modes; trust warning in human mode only; no
+  color; five diagnostics in human mode, 20 in JSON; distinguish count
+  truncation (`N more diagnostics`) from text truncation (`some text
+  truncated`).
+
+### P-1 — Planner: CLI contract tests
+
+- Role: Planner.
+- ACs: AC-1..AC-4.
+- Read: contract, spec, blueprint, CLI contracts, human-output section.
+- Write: `tests/acceptance/test_cli_contract.py`,
+  `tests/acceptance/test_human_output.py`, `tests/acceptance/test_exit_codes.py`.
+- Forbidden: product code, schema, contract, tier tests.
+- Verify: `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
+  is expected red until T-11.
+- Notes: black-box subprocess tests only; no internals. Cover JSON schema,
+  stdout-only JSON, warnings/trust on stderr, exit codes, argparse errors without
+  an envelope, and the discovery/internal error envelope. Do not assert a final
+  four-tier pass at WU-2.
 
 ### T-11 — App and CLI
 
@@ -151,15 +186,17 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
 - ACs: AC-1..AC-4.
 - Read: all completed core/tiers/tools/output modules; contract; spec scenarios.
 - Write: `src/strictr/app.py`, `cli.py`, `__main__.py`, `pyproject.toml`
-  `[project.scripts]` only, `tests/acceptance/test_cli_contract.py`,
-  `tests/acceptance/test_human_output.py`, `tests/acceptance/test_exit_codes.py`,
-  blueprint T-11 checkbox.
+  `[project.scripts]` only, blueprint T-11 checkbox. P-1 owns
+  `tests/acceptance/test_cli_contract.py`, `test_human_output.py`, and
+  `test_exit_codes.py`; make them pass without weakening them.
 - Forbidden: schema, contract, real tool fixtures (T-12), runtime dependencies.
-- Verify: `uv run pytest tests/acceptance/test_cli_contract.py -q` and
-  `uv run strictr --version`.
+- Verify: `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
+  and `uv run strictr --version`.
 - Notes: start with the Tier 0 + ruff pipeline; add types and pytest tiers in
-  T-8/T-9. The acceptance tests are black-box and planner-owned in spirit; do
-  not import internals. Invalid arguments exit 2. No direct main push.
+  T-8/T-9. Implement the discovery/internal error envelope with all four tiers,
+  warnings to stderr, and argparse errors without a JSON envelope. Do not assert
+  a final four-tier pass at WU-2; T-12 owns the complete envelope. Invalid
+  arguments exit 2. No direct main push.
 
 ### T-8 — Types
 
@@ -171,9 +208,10 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
   blueprint T-8 checkbox.
 - Forbidden: pytest tier, output, contract, schema.
 - Verify: `uv run pytest tests/unit/test_types.py -q`.
-- Notes: selection precedence; both configured → mypy + warning; configured
-  missing → error; none available → partial; `none` → `disabled_by_user`;
-  mypy JSONL; pyright zero-based JSON; version capture; invalid output is error.
+- Notes: selection precedence; both configured → mypy + warning via
+  `TierResult.warnings`; configured missing → error; none available → partial;
+  `none` → `disabled_by_user`; mypy JSONL; pyright zero-based JSON; version
+  capture; invalid output is error.
 
 ### T-9 — Pytest
 
@@ -186,8 +224,11 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
 - Forbidden: types tier, output, contract, schema.
 - Verify: `uv run pytest tests/unit/test_pytest.py -q`.
 - Notes: full suite; `-q -o junit_family=xunit1 --junitxml=<temp>`; temp outside
-  repo; exit 5 skipped; exit 2/3/4 error; invalid XML error; count tests;
-  node IDs; file/line; missing pytest heuristic.
+  repo; exit 5 skipped; exit 2/3/4 error; invalid XML error; write
+  `tests_collected`/`tests_run`/`tests_skipped` to tier meta; reconstruct node
+  IDs from file/classname/name; normalize line 0/missing to 1 and prefer a
+  failure-text `file:line`; missing pytest heuristic. No pathless collection
+  diagnostics; use `meta.error`.
 
 ### T-12 — Acceptance and failure modes
 
@@ -203,6 +244,18 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
   deliberate timeout `sleep()` is allowed. Test paths with spaces/Unicode,
   gitignored files, missing ruff, no tests, invalid output, and exit codes.
 
+### P-2 — Planner: docs contract test
+
+- Role: Planner.
+- AC: AC-16.
+- Read: spec, blueprint, README, AGENTS, system overview, changelog.
+- Write: `tests/unit/test_check_docs.py`.
+- Forbidden: product code, contract, schema.
+- Verify: `uv run pytest tests/unit/test_check_docs.py -q` is expected red until
+  T-13.
+- Notes: assert the CLI command/status in README and AGENTS, the architecture
+  implementation note, and the changelog entry. Do not test exact prose.
+
 ### T-13 — Integrator
 
 - Role: Integrator.
@@ -210,7 +263,8 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
 - Read: entire repo, spec, blueprint, contract, workflow, CI logs.
 - Write: `README.md`, `CHANGELOG.md`, `AGENTS.md` CLI command/status,
   `docs/architecture/system-overview.md` implementation note,
-  `tests/unit/test_check_docs.py`, blueprint T-13 and test-plan statuses.
+  blueprint T-13 and test-plan statuses. P-2 owns
+  `tests/unit/test_check_docs.py`; make it pass without weakening it.
 - Forbidden: behavior changes; send defects back to a Task Worker.
 - Verify: full gate, acceptance, local traceability.
 - Notes: review AC coverage and orphan tags; no hidden skips; docs consistent;

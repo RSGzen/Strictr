@@ -1,6 +1,6 @@
 # ADR 0006: Pytest integration and full-suite policy
 
-- Status: accepted
+- Status: accepted; JUnit format refined by [ADR 0009](0009-v0-1-execution-refinements.md)
 - Date: 2026-11-21
 - Decision makers: Ge Rui Sen
 
@@ -37,7 +37,8 @@ Strictr must also integrate with pytest without adding a runtime dependency.
 
 Use built-in JUnit XML in v0.1 and run the full test suite by default:
 
-- Command: `python -m pytest -q --junitxml=<temporary path>`.
+- Command: `python -m pytest -q -o junit_family=xunit1 --junitxml=<temporary
+  path>`.
 - Parse the XML with the standard library.
 - Map testcase `file`, `line`, failure/error text, and node IDs into compact
   diagnostics.

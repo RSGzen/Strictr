@@ -25,7 +25,9 @@ contract revision is proposed instead of silently diverging.
 The planning decisions approved by the owner on 2026-11-21 are part of this
 spec: full v0.1 scope, no verification-contract change, a test-only JSON Schema
 dependency, an approved `AGENTS.md` update, version `0.0.0`, and an in-process
-Tier 0 budget with real subprocess timeouts for later tiers.
+Tier 0 budget with real subprocess timeouts for later tiers. ADR 0008 records
+the tools-to-core import boundary; ADR 0009 records the v0.1 execution
+refinements.
 
 ## Goals
 
@@ -79,9 +81,11 @@ Tier 0 budget with real subprocess timeouts for later tiers.
   none are given, accept `--json`, `--type-checker mypy|pyright|none`,
   `--timeout SECONDS`, and `--version`, and reject invalid arguments with a
   stderr message and exit code 2.
-- **AC-2:** WHEN `--json` is supplied, the CLI SHALL write exactly one UTF-8,
-  newline-terminated JSON object to stdout and no other stdout output; progress,
-  warnings, and tracebacks SHALL not appear on stdout.
+- **AC-2:** WHEN `--json` is supplied to a valid `check` invocation, the CLI
+  SHALL write exactly one UTF-8, newline-terminated JSON object to stdout and no
+  other stdout output; progress, warnings, and tracebacks SHALL not appear on
+  stdout. Argparse usage errors SHALL use stderr and exit code 2 without a JSON
+  envelope.
 - **AC-3:** WHEN human output is used, the CLI SHALL write overall status,
   scope, and the first failures to stdout, and SHALL write warnings and the
   local-execution trust warning to stderr exactly once.
@@ -118,9 +122,8 @@ Tier 0 budget with real subprocess timeouts for later tiers.
   SHALL be `error`, missing pytest when tests exist SHALL be `error`, and
   invalid XML SHALL be `error`.
 - **AC-12:** THE pipeline SHALL stop after the first `fail` or `error` tier,
-  record every later tier as `skipped` with `earlier_tier_failed` or
-  `earlier_tier_error`, and compute overall status with precedence
-  `error > fail > partial > pass`.
+  record every later tier as `skipped` with `earlier_tier_failed`, and compute
+  overall status with precedence `error > fail > partial > pass`.
 - **AC-13:** THE tool runner SHALL execute without a shell from the project
   root, capture output as UTF-8 with replacement on decoding errors, enforce the
   ADR 0007 defaults and the `--timeout` override, terminate the process tree on
@@ -142,18 +145,21 @@ Tier 0 budget with real subprocess timeouts for later tiers.
 - No runtime third-party dependencies. `jsonschema` is a test-only development
   dependency approved for contract validation.
 - The package version stays `0.0.0`; `tool.version` reads `strictr.__version__`.
-- The architecture module boundaries are binding. No generic engine, plugin
-  registry, dependency-injection framework, event bus, or async runtime.
+- The architecture module boundaries are binding, as refined by ADR 0008. No
+  generic engine, plugin registry, dependency-injection framework, event bus, or
+  async runtime.
 - Tool commands run from the project root, use argument lists, never a shell,
   and use the current interpreter for `mypy` and `pytest`.
-- `ruff` and `pyright` are resolved with `shutil.which`; `pyright` prefers
-  `sys.executable -m pyright` when the Python wrapper is importable.
+- `ruff` is resolved with `shutil.which`; `pyright` prefers
+  `sys.executable -m pyright` when the Python wrapper is importable, then falls
+  back to `shutil.which("pyright")`.
 - Every JSON `path` is relative to the project root and uses `/` regardless of
-  operating system.
+  operating system. Display paths are not resolved through symlinks; resolution
+  is used only for target confinement.
 - `files_skipped` counts enumerated `.py` and `.pyi` files rejected by
-  Strictr's own filters, such as files that escape the root through a symlink or
-  non-regular files. Files excluded by Git ignore rules are outside the
-  candidate set and are not counted.
+  Strictr's own filters, such as non-regular files. A symlink that resolves
+  outside the root is an error, not a skipped file. Files excluded by Git ignore
+  rules are outside the candidate set and are not counted.
 - Tool-level errors do not invent diagnostics without a file path. They use
   `skipped_reason` plus a small redacted `meta.error`; diagnostics are reserved
   for findings that have a path. This keeps the contract diagnostic shape
@@ -205,3 +211,4 @@ Deferred to later specs:
 | 2026-11-21 | 0.1 | Initial draft; planning decisions Q1–Q6 recorded | Ge Rui Sen |
 | 2026-11-21 | 1.0 | ACs and blueprint approved; implementation not started | Ge Rui Sen |
 | 2026-11-21 | 1.1 | Implementation started; T-2 contract schema work | Ge Rui Sen |
+| 2026-11-21 | 1.2 | Clarified JSON usage errors, `earlier_tier_failed`, symlink confinement, and pyright resolution | Ge Rui Sen |

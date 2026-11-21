@@ -2,6 +2,7 @@
 
 - Spec: `specs/active/003-check-command/spec.md`
 - Status: approved
+- Revised: 2026-11-21 — frozen core interfaces, warnings, truncation, counts, ADR 0008/0009
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -44,11 +45,11 @@ start against the two-tier pipeline and are extended as T-8 and T-9 land.
 | Unit | Tasks | Outcome |
 |---|---|---|
 | WU-1 | T-2, T-3, T-4, T-5 | Contract, core, discovery, and runner foundation |
-| WU-2 | T-6, T-7, T-10, T-11 | First end-to-end command: Tier 0, ruff, JSON/human output, CLI; open draft PR |
+| WU-2 | T-6, T-7, T-10, P-1, T-11 | First end-to-end command: Tier 0, ruff, JSON/human output, CLI; open draft PR |
 | WU-3 | T-8 | Type-checker selection, parsers, and tier added to the pipeline |
 | WU-4 | T-9 | Full pytest tier added to the pipeline |
 | WU-5 | T-12 | Acceptance, failure-mode, path, and timeout coverage |
-| WU-6 | T-13 | Docs, full gate, traceability, convergence check |
+| WU-6 | P-2, T-13 | Docs contract test, full gate, traceability, convergence check |
 
 ### PR and integration policy
 
@@ -67,22 +68,27 @@ start against the two-tier pipeline and are extended as T-8 and T-9 land.
 
 | Module | Responsibility | Change |
 |---|---|---|
-| `src/strictr/core/models.py` | Statuses, diagnostics, tier results, scope, envelope dataclasses | New |
+| `src/strictr/core/__init__.py` | Core package marker | New |
+| `src/strictr/core/models.py` | Statuses, diagnostics, tier/scope/envelope models, `DiscoveryResult`, `ToolResult` | New |
 | `src/strictr/core/paths.py` | Root-relative POSIX path normalization | New |
 | `src/strictr/core/text.py` | Message truncation and secret redaction | New |
 | `src/strictr/core/protocols.py` | `Tier` and `ToolRunner` ports | New |
-| `src/strictr/core/errors.py` | Discovery, config, tool, and output errors | New |
+| `src/strictr/core/errors.py` | Discovery, config, and tool errors | New |
 | `src/strictr/core/pipeline.py` | Ordered execution, fail-fast, status precedence | New |
 | `src/strictr/core/discovery.py` | Root resolution, targets, Git/walk discovery, counters | New |
+| `src/strictr/tools/__init__.py` | Tools package marker | New |
 | `src/strictr/tools/runner.py` | Subprocess execution, timeout, process tree, UTF-8 capture | New |
+| `src/strictr/tools/parsers/__init__.py` | Parsers package marker | New |
 | `src/strictr/tools/parsers/ruff.py` | Pure ruff JSON parser | New |
 | `src/strictr/tools/parsers/mypy.py` | Pure mypy JSON Lines parser | New |
 | `src/strictr/tools/parsers/pyright.py` | Pure pyright JSON parser | New |
 | `src/strictr/tools/parsers/pytest_junit.py` | Pure JUnit XML parser | New |
+| `src/strictr/tiers/__init__.py` | Tiers package marker | New |
 | `src/strictr/tiers/ast_tier.py` | Tier 0 syntax parsing | New |
 | `src/strictr/tiers/ruff_tier.py` | Tier 1a ruff integration | New |
 | `src/strictr/tiers/types_tier.py` | Type-checker selection, execution, normalization | New |
 | `src/strictr/tiers/pytest_tier.py` | Tier 2 full-suite pytest integration | New |
+| `src/strictr/output/__init__.py` | Output package marker | New |
 | `src/strictr/output/json_output.py` | Contract envelope serialization | New |
 | `src/strictr/output/human.py` | Concise human rendering | New |
 | `src/strictr/app.py` | Explicit wiring of discovery, tiers, and result assembly | New |
@@ -94,9 +100,42 @@ start against the two-tier pipeline and are extended as T-8 and T-9 land.
 | `pyproject.toml` | Console script, ruff fixture exclude, test-only `jsonschema` | Modified |
 | `README.md`, `CHANGELOG.md`, `AGENTS.md`, architecture docs | Usage and status | Modified |
 
-Import rules remain as approved: `core` imports only the standard library;
-`tiers` may import `core` and `tools`; `tools` may import `core.errors` and
-`core.models`; `output` may import `core`; `cli`/`app` wire everything.
+Import rules: `core` imports only the standard library; `tiers` may import
+`core` and `tools`; `tools` may import `core.models`, `core.paths`, and
+`core.errors` per ADR 0008, but never `core.pipeline`, `core.discovery`,
+`tiers`, `output`, or `cli`; `output` may import `core`; `cli`/`app` wire
+everything.
+
+### Frozen core interfaces (T-3)
+
+T-3 records these interfaces in code and docstrings; later tasks consume them
+without redefining them.
+
+- Errors: `StrictrError`, `DiscoveryError`, `ConfigError`, `ToolError`,
+  `ToolNotFoundError`, `ToolTimeoutError`, `InvalidToolOutput`.
+- `ToolResult`: `command: tuple[str, ...]`, `returncode: int`, `stdout: str`,
+  `stderr: str`, `duration_ms: int`.
+- `ToolRunner`: `run(command, *, cwd: Path, timeout: float) -> ToolResult` and
+  `which(name: str) -> str | None`. Missing executable and timeout raise the
+  named errors.
+- `Tier`: `id`, `name`, `run(CheckContext) -> TierResult`.
+- `CheckContext`: `root: Path`, `targets: tuple[str, ...]` (root-relative
+  POSIX), `files: tuple[Path, ...]` (absolute), `timeout: float | None`,
+  `type_checker: Literal["mypy", "pyright", "none"] | None`.
+- `TierResult`: the contract fields plus an internal
+  `warnings: tuple[str, ...]`, excluded from JSON serialization.
+- `CheckResult`: envelope fields plus `to_envelope()`; warnings aggregate
+  discovery and tier warnings.
+- `DiscoveryResult`: `root`, `targets`, `files`, `files_skipped`, `warnings`.
+- `Scope`: test counts default to 0. Pipeline copies exactly
+  `tests_collected`, `tests_run`, and `tests_skipped` from `tier2-pytest` meta;
+  no other tier sets them.
+- `run_pipeline(tiers, context, scope, initial_warnings) -> CheckResult` catches
+  `Exception` per tier, not `BaseException`.
+- `relative_posix(path, root)` is pure: it never resolves symlinks and never
+  raises `DiscoveryError`. T-4 owns confinement and resolved-vs-display paths.
+- Text helpers redact before capping. Message cap 2,000 and `meta.error` cap 500
+  include the `" [truncated]"` marker.
 
 ## Contracts
 
@@ -128,9 +167,11 @@ python -m strictr check ...
 3. If no marker exists for any target, use the common ancestor of the targets
    (file targets use their parent), or the current directory when there are no
    targets.
-4. Resolve targets and reject missing paths or paths outside the root.
-5. Normalize targets to root-relative POSIX paths, sorted and de-duplicated. A
-   no-path invocation records `["."]`.
+4. Resolve targets for confinement and reject missing paths or paths outside the
+   root. Resolution is for the confinement check only.
+5. Record the original target paths, not resolved symlink targets, normalized to
+   root-relative POSIX paths, sorted and de-duplicated. A no-path invocation
+   records `["."]`.
 
 ### Discovery
 
@@ -145,11 +186,11 @@ python -m strictr check ...
 - A failing Git command falls back to the walk and adds a warning.
 - Include only existing `.py` and `.pyi` files. Deleted tracked files are
   ignored. Symlinked files that resolve outside the root are an error; directory
-  symlinks are not followed.
+  symlinks are not followed. Display paths are not resolved through symlinks.
 - `files_checked` is the number of discovered Python files.
 - `files_skipped` counts enumerated candidate files rejected by Strictr's own
-  filters, such as escaping symlinks or non-regular files. Gitignored files are
-  outside the candidate set and are not counted.
+  filters, such as non-regular files. Escaping symlinks are errors, not skipped.
+  Gitignored files are outside the candidate set and are not counted.
 - Zero discovered files is an error, not a pass.
 
 ### Tier IDs and tools
@@ -162,7 +203,8 @@ python -m strictr check ...
 | 2 | `tier2-pytest` | `sys.executable -m pytest -q -o junit_family=xunit1 --junitxml=<temp>` |
 
 All commands run from the project root with the inherited environment and an
-argument list; never a shell.
+argument list; never a shell. Pyright uses the module form when the Python
+wrapper is importable, otherwise the `pyright` executable from `shutil.which`.
 
 ### Type-checker selection
 
@@ -180,7 +222,9 @@ Follow ADR 0005 exactly:
 Both configured selects mypy plus a warning. A configured but unavailable
 checker is `error`. `--type-checker none` is `skipped` with
 `disabled_by_user`, is recorded, and does not make the result `partial`. Record
-`meta.checker` and `meta.selection` (`explicit`, `config`, or `available`).
+`meta.checker` and `meta.selection` (`explicit`, `config`, or `available`). The
+checker name and version go in the tier `tool`; `environment` stays
+`python`, `platform`, and `root`.
 
 ### pytest behavior
 
@@ -199,6 +243,13 @@ checker is `error`. `--type-checker none` is `skipped` with
   [tool:pytest]`, `pyproject.toml [tool.pytest.ini_options]`), the tier is
   `error`; otherwise it is `skipped` with `no tests collected`.
 - Invalid or missing XML when pytest did not exit 5 is `error`.
+- `tests_collected`, `tests_run`, and `tests_skipped` are written to the tier
+  `meta` under those exact keys; the pipeline copies them into `scope`.
+- A testcase line of 0 or missing is normalized to 1; if the failure text gives
+  a better `file:line`, use it.
+- The test node ID is reconstructed from `file`, `classname`, and `name`; a
+  collection error without a usable path uses `meta.error`, not a pathless
+  diagnostic.
 
 ### Status and exit model
 
@@ -207,7 +258,8 @@ checker is `error`. `--type-checker none` is `skipped` with
 - A required skipped tier makes the result `partial`; a deliberate
   `disabled_by_user` skip or `no tests collected` does not.
 - Fail-fast stops after the first `fail` or `error`. Later tiers are `skipped`
-  with `earlier_tier_failed` or `earlier_tier_error`.
+  with `earlier_tier_failed`; the overall status records whether the stop was a
+  fail or an error.
 - Exit codes: `pass` 0; `fail` 1; `partial` and `error` 2.
 
 ### Tool-level errors
@@ -221,21 +273,51 @@ use `skipped_reason` plus a capped, redacted `meta.error`:
 | Timeout | `error` | `tool timeout` |
 | Non-zero fatal exit | `error` | `tool failed` |
 | Invalid JSON/XML | `error` | `invalid tool output` |
+| Unexpected tier exception | `error` | `internal error` |
 | Discovery failure | `error` on `tier0` | `discovery failed` |
 | No Python files | `error` on `tier0` | `no Python files found` |
+
+`ToolNotFoundError` maps to `<tool> not found`, `ToolTimeoutError` to
+`tool timeout`, and `InvalidToolOutput` to `invalid tool output`. `meta.error`
+is redacted, capped at 500 characters, and included with the marker
+`" [truncated]"` when capped. The pipeline catches `Exception`, not
+`BaseException`, and stops after an internal error.
 
 ### Envelope and schema
 
 - `schema_version` is `"1"`; `tool.version` is `strictr.__version__` (`0.0.0`).
-- All four tiers appear in execution order, including skipped tiers.
+- All four tiers appear in execution order, including skipped tiers. A
+  discovery failure yields `tier0` `error` with `discovery failed` or
+  `no Python files found`, and the other three tiers `skipped` with
+  `earlier_tier_failed`.
 - `scope` always contains `root`, `targets`, `files_checked`, `files_skipped`,
-  `tests_collected`, `tests_run`, and `tests_skipped`; unrun counts are 0.
+  `tests_collected`, `tests_run`, and `tests_skipped`; unrun counts are 0. The
+  three test counts come only from `tier2-pytest` meta.
 - `trust` is always present with `sandboxed: false` and the approved warning.
-- `warnings` contains non-fatal messages only.
+- `warnings` aggregates discovery and tier warnings. It is non-fatal and does not
+  change `status`. Human and JSON modes write warnings to stderr; JSON also
+  carries the array. The trust warning is printed only in human mode.
+- Argparse usage errors write stderr and exit 2 without an envelope.
 - JSON is compact (`separators=(",", ":")`), UTF-8, and newline-terminated.
 - The schema lives at
   `docs/architecture/verification-contract.schema.json` and is test-only; it is
   not loaded at runtime.
+
+### Truncation and redaction
+
+- Redact known secrets before any cap so truncation cannot split a secret.
+- Cap each diagnostic message at 2,000 characters and each `meta.error` at 500,
+  including a `" [truncated]"` marker in the cap. Sort after redaction/capping,
+  then keep the first 20 diagnostics.
+- `meta.truncated` is true when diagnostics are dropped or any message or
+  `meta.error` is capped. `meta.total_diagnostics` is set only when diagnostics
+  are dropped and records the pre-cap count.
+- Human output shows `N more diagnostics` when `total_diagnostics` exists and
+  `some text truncated` otherwise.
+- Fixed redaction set: PEM private-key blocks, AWS access-key IDs, GitHub
+  tokens, `sk-` keys, Slack tokens, JWTs, bearer tokens, key=value credentials,
+  and URL credentials. Replace matches with `[REDACTED]`; false positives are
+  acceptable, over-broad matching is not. Tests include negative cases.
 
 ### Human output
 
@@ -249,15 +331,17 @@ PASS  12 files checked in 1200 ms
 
 For a failure, print the status line, tier lines, and up to the first five
 diagnostics of the failing tier. Print `skipped` reasons for partial/error.
-Print `... N more diagnostics (use --json)` when truncated. Warnings and the
-trust warning go to stderr. Exit code follows the contract.
+Print `... N more diagnostics (use --json)` when count-truncated; print
+`... some text truncated` when only messages or `meta.error` were capped.
+Human mode prints warnings and the trust warning to stderr; JSON mode prints
+warnings to stderr but not the trust warning. Exit code follows the contract.
 
 ## Failure modes
 
 | Failure | Behavior | Test |
 |---|---|---|
-| Target missing or outside root | `error`, tier0 `discovery failed`, exit 2 | `test_target_outside_root` |
-| No Python files | `error`, `no Python files found`, exit 2 | `test_empty_project_is_error` |
+| Target missing or outside root | `error`, tier0 `discovery failed`, later tiers skipped, exit 2 | `test_target_outside_root` |
+| No Python files | `error`, `no Python files found`, later tiers skipped, exit 2 | `test_empty_project_is_error` |
 | Syntax error | `fail` with path/line/column, later tiers skipped | `test_syntax_error` |
 | Ruff findings | `fail`, later tiers skipped | `test_ruff_failure` |
 | Ruff missing/crash/timeout/invalid JSON | `error`, later tiers skipped | unit runner/parser tests |
@@ -270,8 +354,8 @@ trust warning go to stderr. Exit code follows the contract.
 | pytest exit 2/3/4 | `error` | unit pytest tier test |
 | Invalid JUnit XML | `error` | unit parser/tier test |
 | Tool timeout | `error`, process tree terminated | `test_timeout` |
-| Unexpected tier exception | `error`, fail closed | unit pipeline test |
-| Invalid CLI arguments | stderr message, exit 2 | `test_cli_usage_error` |
+| Unexpected tier exception | `error`, `internal error`, later tiers skipped | unit pipeline test |
+| Invalid CLI arguments | stderr message, exit 2, no JSON envelope | `test_cli_usage_error` |
 
 ## Security and trust boundaries
 
@@ -293,9 +377,10 @@ works best here as a hybrid, not as a planner pre-writing every test:
 - **Planner-owned, written before implementation:** the spec, blueprint, JSON
   Schema, golden fixtures, AC-to-test map, and the cross-cutting black-box
   contract tests (`tests/unit/test_contract.py`,
-  `tests/acceptance/test_cli_contract.py`, `tests/acceptance/test_exit_codes.py`,
-  `tests/unit/test_check_docs.py`). These define the public surface and must not
-  be weakened by a worker.
+  `tests/acceptance/test_cli_contract.py`, `tests/acceptance/test_human_output.py`,
+  `tests/acceptance/test_exit_codes.py`, `tests/unit/test_check_docs.py`). These
+  define the public surface and must not be weakened by a worker. Planner prep
+  sessions P-1 and P-2 write the CLI and docs tests before T-11 and T-13.
 - **Worker-owned, test-first per task:** each task worker writes or extends the
   failing tests for its own task, runs them, implements the minimum, reruns,
   and updates the blueprint checkbox. Examples: discovery, runner, parsers,
@@ -361,15 +446,15 @@ repository created with `git init`.
 - [x] T-2: Add the contract JSON Schema, golden envelope fixtures, and
   `tests/unit/test_contract.py`; add test-only `jsonschema` — verify:
   `uv run pytest tests/unit/test_contract.py -q` — AC: AC-2, AC-15
-- [ ] T-3: Add models, path/text helpers, limits, redaction, and the pipeline
-  with fake tiers — verify: `uv run pytest tests/unit/test_core.py -q` —
-  AC: AC-4, AC-12, AC-14
+- [ ] T-3: Add `core/__init__.py`, models, path/text helpers, errors, limits,
+  redaction, and the pipeline with fake tiers; freeze the interfaces above —
+  verify: `uv run pytest tests/unit/test_core.py -q` — AC: AC-4, AC-12, AC-14
 - [ ] T-4: Add root resolution, target confinement, Git/walk discovery, and
   counters — verify: `uv run pytest tests/unit/test_discovery.py -q` —
   AC: AC-5, AC-6
-- [ ] T-5: Add the subprocess runner with UTF-8 capture, timeouts, and process
-  tree termination — verify: `uv run pytest tests/unit/test_runner.py -q` —
-  AC: AC-13
+- [ ] T-5: Add `tools/__init__.py` and the subprocess runner with UTF-8 capture,
+  timeouts, process-tree termination, `ToolResult`, and the T-3 error types —
+  verify: `uv run pytest tests/unit/test_runner.py -q` — AC: AC-13
 - [ ] T-6: Add Tier 0 syntax parsing — verify:
   `uv run pytest tests/unit/test_tier0.py -q` — AC: AC-7
 - [ ] T-7: Add the ruff parser and tier — verify:
@@ -378,19 +463,23 @@ repository created with `git init`.
   extend as later tiers land — verify:
   `uv run pytest tests/unit/test_output.py -q` — AC: AC-2, AC-3, AC-14
 - [ ] T-11: Wire the app, CLI, `__main__`, and console script; start with Tier 0
-  and ruff, then extend as later tiers land — verify:
-  `uv run pytest tests/acceptance/test_cli_contract.py -q` and
-  `uv run strictr --version` — AC: AC-1..AC-4
+  and ruff, then extend as later tiers land. Implement the discovery/internal
+  error envelope, warnings-to-stderr behavior, and argparse/no-envelope behavior;
+  make the planner-owned CLI tests pass — verify:
+  `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
+  and `uv run strictr --version` — AC: AC-1..AC-4
 - [ ] T-8: Add type-checker selection, mypy/pyright parsers, and the type tier to
   the pipeline — verify: `uv run pytest tests/unit/test_types.py -q` —
   AC: AC-9, AC-10
-- [ ] T-9: Add the JUnit parser and pytest tier to the pipeline — verify:
+- [ ] T-9: Add the JUnit parser and pytest tier to the pipeline; write counts
+  to `meta`, reconstruct node IDs, and normalize missing lines — verify:
   `uv run pytest tests/unit/test_pytest.py -q` — AC: AC-11
 - [ ] T-12: Add fixture excludes to `pyproject.toml` and `tests/conftest.py`,
   then add acceptance fixtures and black-box tests for tiers, discovery, failure
   modes, paths, and timeout — verify: `uv run pytest tests/acceptance -q` —
   AC: AC-1..AC-15
-- [ ] T-13: Add docs, then run the full gate and traceability — verify:
+- [ ] T-13: Add docs and make the planner-owned docs test pass, then run the
+  full gate and traceability — verify:
   `uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest -q`
   and the traceability command — AC: AC-16
 
@@ -428,18 +517,20 @@ traceability, and acceptance suite pass.
 - [ ] Real pyright is not available in CI; pyright coverage is parser unit tests
   plus a fake runner. Document this limitation rather than claiming parity —
   owner, before AC-10 is marked done.
-- [ ] The Tier 0 10 s budget is checked between files and cannot interrupt a
+- [x] The Tier 0 10 s budget is checked between files and cannot interrupt a
   single pathological `ast.parse`; a subprocess parser worker is deferred —
-  owner, accept or upgrade before release.
-- [ ] `files_skipped` does not count Gitignored files; confirm the contract
-  interpretation is acceptable or propose an ADR — owner, before AC-5 is
-  marked done.
+  accepted in ADR 0009.
+- [x] `files_skipped` does not count Gitignored files; the owner approved this
+  interpretation. Escaping symlinks are errors, not skipped — resolved by spec
+  1.2 and Q2.
 - [ ] The timeout acceptance test must assert a generous bound to avoid CI
   flakiness and is the single deliberate `sleep()` exception in the suite —
   integrator, T-12.
 - [ ] Nested-project root selection uses the current directory's marker first;
   confirm this is the intended monorepo behavior — owner, before AC-5 is
   marked done.
+- [x] Tools may import pure core types; execution refinements are recorded in
+  ADR 0008 and ADR 0009.
 
 ## Retrospective
 

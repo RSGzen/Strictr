@@ -9,7 +9,8 @@ Versioning once a public release exists.
 
 ### Changed
 
-- Spec `003-check-command` is approved; implementation has not started.
+- Spec `003-check-command` is in progress; T-1 and T-2 are complete and the
+  spec is at revision 1.2.
 - Architecture is approved; spec 002 is archived, while
   `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
@@ -17,6 +18,8 @@ Versioning once a public release exists.
 
 ### Added
 
+- ADR 0008 (tools may import pure core types) and ADR 0009 (v0.1 execution
+  refinements for pyright, pytest `xunit1`, Tier 0 budget, and timeout scope).
 - SDD workflow roles for Planner, Task Worker, and Integrator, including
   read/write ranges, test ownership, handoffs, the integration gate, and the
   comment/docstring policy.

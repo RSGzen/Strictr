@@ -1,6 +1,6 @@
 # ADR 0003: Subprocess tool execution and project environment
 
-- Status: accepted
+- Status: accepted; execution details refined by [ADR 0009](0009-v0-1-execution-refinements.md)
 - Date: 2026-11-21
 - Decision makers: Ge Rui Sen
 
@@ -53,6 +53,9 @@ python -m mypy --output=json <targets>
 pyright --outputjson <targets>
 python -m pytest -q --junitxml=<temp>
 ```
+
+ADR 0009 refines the pyright and pytest invocations for the Python wrapper and
+JUnit `xunit1` file/line data.
 
 Exact parser compatibility is covered by canned-output tests. A configured tool
 that is not installed is an `error`. A tool that is not configured is handled by

@@ -58,6 +58,8 @@ Responsibilities:
 - Ensure every AC maps to at least one task and one test, and every failure mode
   maps to a test.
 - Resolve ambiguity or record an explicit deferral with an owner and trigger.
+- Schedule a Planner prep session when a cross-cutting contract test must exist
+  before a worker task; the worker implements against the frozen test.
 - Issue one task brief per worker; review contract-impacting changes.
 
 Definition of Ready:
