@@ -9,6 +9,7 @@ Versioning once a public release exists.
 
 ### Changed
 
+- Spec `003-check-command` is approved; implementation has not started.
 - Architecture is approved; spec 002 is archived, while
   `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
@@ -16,6 +17,8 @@ Versioning once a public release exists.
 
 ### Added
 
+- SDD workflow roles for Planner, Task Worker, and Integrator, including
+  read/write ranges, test ownership, handoffs, and the integration gate.
 - Architecture: modular verification pipeline, verification contract v1, and
   ADRs 0002–0007 for execution, statuses, type-checker selection, pytest
   integration, and local trust/timeouts.

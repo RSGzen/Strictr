@@ -6,18 +6,19 @@ Strictr is a deterministic verification tool for LLM-generated Python code. It
 parses candidate code, runs static checks, optionally runs tests, and returns
 compact machine-readable diagnostics.
 
-Current phase: architecture approved (spec `002` archived). The next spec is
-`003-check-command`, the first product slice. There is no product CLI yet.
+Current phase: spec `003-check-command` is approved; implementation has not
+started. There is no product CLI yet.
 
 ## Read order
 
 1. `docs/constitution.md`
-2. `docs/product/vision.md`
-3. `docs/product/evaluation.md`
-4. `docs/architecture/system-overview.md`
-5. `docs/architecture/verification-contract.md`
-6. The active spec in `specs/active/` with status `approved` or `in-progress`
-7. Its `blueprint.md`
+2. `docs/sdd-workflow.md`
+3. `docs/product/vision.md`
+4. `docs/product/evaluation.md`
+5. `docs/architecture/system-overview.md`
+6. `docs/architecture/verification-contract.md`
+7. The active spec in `specs/active/` with status `approved` or `in-progress`
+8. Its `blueprint.md`
 
 Architecture decisions live in `docs/adr/`; read the ones linked from the system
 overview when changing a boundary or execution policy.
@@ -35,6 +36,7 @@ write or clarify the spec first.
 - `specs/archive/` — frozen, completed specs
 - `docs/product/` — durable product vision and evaluation plan
 - `docs/architecture/` — system overview, verification contract, ADRs
+- `docs/sdd-workflow.md` — Planner, Task Worker, and Integrator scopes
 - `docs/` — constitution, testing and setup guides
 - `scripts/` — repository tooling
 - `internal-docs/` — local notes, git-ignored, do not edit
@@ -55,6 +57,8 @@ There is no `strictr` CLI yet. Add the command here when `003` lands.
 ## Workflow
 
 - Do not write behavior code without an approved spec.
+- Read `docs/sdd-workflow.md` before acting as Planner, Task Worker, or
+  Integrator.
 - Plan first if the change touches more than one file or has ambiguity.
 - Work one blueprint task at a time; run its exact verification command.
 - For behavior changes, write or update the failing test before the implementation.
@@ -68,6 +72,9 @@ There is no `strictr` CLI yet. Add the command here when `003` lands.
 - Branch from `main`: `<type>/<NNN>-<slug>`.
   - Spec-required types: `feat`, `fix`, `refactor`, `test`, `perf`.
   - Non-behavioral types: `docs`, `ci`, `chore` (spec ID optional).
+- One spec uses one integration branch and PR. If it grows too large, split the
+  spec into separate specs with independent ACs; do not open partial PRs for one
+  spec.
 - Commit: Conventional Commits with a `Spec: NNN` trailer and optional
   `Refs: AC-n`.
 - PR title: `type(scope): summary [NNN]` when a spec is required.

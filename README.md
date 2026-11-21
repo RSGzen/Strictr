@@ -9,12 +9,13 @@ LLM judge.
 
 ## Status
 
-Architecture approved. The verification CLI does not exist yet. The next spec is
-`003-check-command`. This repository contains the SDD governance, product vision,
-evaluation plan, architecture, verification contract, specification templates,
-traceability tooling, and CI foundation.
+Architecture approved. Spec `003-check-command` is approved; implementation has
+not started. The verification CLI does not exist yet. This repository contains
+the SDD governance, product vision, evaluation plan, architecture, verification
+contract, specification templates, workflow roles, traceability tooling, and CI
+foundation.
 
-The first product slice will be `003-check-command`: `strictr check <paths>
+The first product slice is `003-check-command`: `strictr check <paths>
 [--json]`.
 
 ## Quick start
@@ -33,6 +34,7 @@ uv run mypy
 - `tests/` — unit and acceptance tests
 - `specs/` — active and archived specifications
 - `docs/product/` — product vision and evaluation plan
+- `docs/sdd-workflow.md` — Planner, Task Worker, and Integrator roles
 - `docs/` — constitution, architecture, ADRs, testing and setup guides
 - `scripts/` — repository tooling
 
@@ -45,6 +47,7 @@ active spec.
 - [Product vision](docs/product/vision.md) — problem, users, scope, non-goals
 - [Evaluation plan](docs/product/evaluation.md) — metrics, benchmarks, kill criteria
 - [Engineering constitution](docs/constitution.md)
+- [SDD workflow](docs/sdd-workflow.md) — Planner, Task Worker, and Integrator roles
 - [System overview](docs/architecture/system-overview.md)
 - [Verification contract](docs/architecture/verification-contract.md)
 - [Architecture decisions](docs/adr/)
