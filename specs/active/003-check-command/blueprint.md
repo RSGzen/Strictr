@@ -465,6 +465,11 @@ locked interfaces; this spec is too integrated for safe parallel execution.
 | AC-15 | unit | `tests/unit/test_contract.py` | `uv run pytest tests/unit/test_contract.py -q` | pass |
 | AC-16 | unit | `tests/unit/test_check_docs.py` | `uv run pytest tests/unit/test_check_docs.py -q` | todo |
 
+WU-1 cross-module integration (Phase 4):
+`tests/unit/test_wu1_integration.py` crosses discovery, pipeline, models,
+paths, and the real runner for scope/schema-valid envelopes, fail-fast,
+timeout, missing tool, Unicode paths, and warning aggregation.
+
 Fixture projects:
 
 | Fixture | Purpose |
