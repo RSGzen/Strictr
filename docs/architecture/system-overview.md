@@ -1,6 +1,6 @@
 # System Overview
 
-Status: implemented by spec `003-check-command`
+Status: implemented by spec `003-check-command` (archived)
 Owner: Ge Rui Sen
 Last updated: 2026-11-22
 Related: [verification contract](verification-contract.md),
@@ -18,7 +18,7 @@ In scope:
 - Local execution with an explicit not-a-sandbox warning.
 - Human output and a versioned JSON envelope.
 
-Implementation spec: `003-check-command` (implements the architecture).
+Implementation spec: `003-check-command` (implements the architecture; archived).
 
 Out of scope for v0.1:
 

@@ -9,11 +9,10 @@ LLM judge.
 
 ## Status
 
-Architecture approved. Spec `003-check-command` implements the v0.1 check
-command: Tier 0 syntax parsing, ruff, mypy or pyright, and the full pytest suite.
-The contract schema, golden fixtures, CLI, and acceptance tests are in place.
-The Phase 5 audit passed; the branch is ready for merge. After merge, spec 003 is
-archived and spec 004 starts from the default size targets.
+Architecture approved. Spec `003-check-command` is implemented and archived: the
+v0.1 check command runs Tier 0 syntax parsing, ruff, mypy or pyright, and the full
+pytest suite. The contract schema, golden fixtures, CLI, and acceptance tests are
+in place. Spec `004-verification-hardening` is the active slice.
 
 ## Usage
 

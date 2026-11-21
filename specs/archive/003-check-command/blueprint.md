@@ -1,7 +1,7 @@
 # Blueprint: Check command
 
-- Spec: `specs/active/003-check-command/spec.md`
-- Status: implemented (Phase 5 audit passed; ready for merge)
+- Spec: `specs/archive/003-check-command/spec.md`
+- Status: done (merged; spec archived)
 - Revised: 2026-11-22 — closeout bookkeeping, spec 004 deferral, and traceability reword
 - Owner: Ge Rui Sen
 
@@ -115,7 +115,7 @@ Phase 2 steps.
 | `src/strictr/__main__.py` | `python -m strictr` entry point | New |
 | `docs/architecture/verification-contract.schema.json` | Machine-readable v1 schema | New |
 | `docs/sdd-workflow.md` | Single-agent phase workflow and context gates | New |
-| `specs/active/003-check-command/progress.md` | Current phase, frozen tests, next command | New |
+| `specs/archive/003-check-command/progress.md` | Current phase, frozen tests, next command | New |
 | `tests/conftest.py` | Ignore fixture projects during collection | Modified |
 | `pyproject.toml` | Console script, ruff fixture exclude, test-only `jsonschema` | Modified |
 | `README.md`, `CHANGELOG.md`, `AGENTS.md`, architecture docs | Usage and status | Modified |
@@ -637,4 +637,10 @@ traceability, and acceptance suite pass.
 
 ## Retrospective
 
-Fill after completion: what worked, what did not, one change.
+Spec 003 shipped the first product surface in one integration PR. What worked:
+freezing tests per task, the contract schema and golden fixtures, real fixture
+projects, and failing tests written before each implementation slice. What did
+not: the T-3 freeze commit subject broke traceability and required an approved
+history reword, and the audit found discovery-error target normalization only
+after the final gate. One change: make the commit-subject and path-normalization
+checks part of the Phase 2 checklist rather than late audit items.

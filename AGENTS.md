@@ -6,9 +6,9 @@ Strictr is a deterministic verification tool for LLM-generated Python code. It
 parses candidate code, runs static checks, optionally runs tests, and returns
 compact machine-readable diagnostics.
 
-Current phase: spec `003-check-command` is in closeout. The `strictr check`
-command is implemented, the Phase 5 audit passed, and the branch is ready for
-merge. Spec 004 is next.
+Current phase: spec `003-check-command` is implemented, merged, and archived.
+Spec `004-verification-hardening` is in progress; the `strictr check` command is
+available.
 
 ## Read order
 

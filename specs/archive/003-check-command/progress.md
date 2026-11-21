@@ -1,13 +1,13 @@
 # Progress: Check command
 
-- Phase: 5 Closeout & Audit (complete; ready for merge)
+- Phase: Complete (merged and archived)
 - Work unit: WU-6 complete; T-13 docs, full gate, and traceability pass
-- Task: T-13 complete at `b2fef75`; Phase 5 closeout at `26fd58e`; spec 003 is
-  ready for the owner to merge
+- Task: T-13 complete at `b2fef75`; Phase 5 closeout at `26fd58e`; PR #11 merged
+  to `main` at `5897fc5`; spec archived
 - Spec: 003
-- Branch: feat/003-check-command
-- Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
-- Phase 1 gate: complete; spec 1.5 and blueprint approved (see git log)
+- Branch: feat/003-check-command (merged and deleted)
+- PR: #11 https://github.com/RSGzen/Strictr/pull/11 (merged)
+- Phase 1 gate: complete; spec 1.6 and blueprint approved and archived (see git log)
 - History: the owner approved rewording the T-3 commit on 2026-11-22; every
   commit hash below was remapped to the rebased commit.
 - Phase 2 gate: T-3 frozen at `12dfa43`; T-4 frozen at `4ce53ca`; T-5 frozen at
@@ -84,9 +84,9 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: owner merges PR #11, archives spec 003, and deletes the branch;
-  spec 004 then starts conventionally. The owner may use the PR title and body
-  supplied with the Phase 5 report.
+- Next command: none. Spec 003 is complete; spec 004 verification hardening is
+  the active slice and owns the deferred discovery-error target normalization as
+  AC-9.
 - Spec changes: revision 1.5 records the spec 004 deferral of discovery-error
   `scope.targets` normalization and the traceability history reword; an earlier
   owner correction aligned the T-2 error golden with AC-12
@@ -96,13 +96,13 @@
   uses a 45 s bound; process-tree termination is proven by it. The pipeline is
   now four tiers (Tier 0, ruff, types, pytest); the frozen T-11 tests stay valid
   because pass paths use `--type-checker none`. A CLI-level `partial` exit code is reachable through
-  auto-selection when neither checker is installed. Draft PR #11 is open and
-  ready for the owner. Traceability passes after rewording the T-3 subject to
-  Conventional Commits; all freeze hashes in this file were remapped. Deferred
-  to spec 004: discovery-error target normalization for Windows separators,
-  type-checker config/pyright parity, real pytest redaction/cap tests,
-  nested-cwd ledger semantics, non-UTF8 paths, human-output polish, and
-  traceability main/git path tests.
+  auto-selection when neither checker is installed. PR #11 merged at `5897fc5`;
+  the branch is deleted and this spec is archived. Traceability passed after
+  rewording the T-3 subject to Conventional Commits; all freeze hashes in this
+  file were remapped. Deferred to spec 004: discovery-error target normalization
+  for Windows separators (AC-9), type-checker config/pyright parity, real pytest
+  redaction/cap tests, nested-cwd ledger semantics, non-UTF8 paths, human-output
+  polish, and traceability main/git path tests.
 - T-12 resolution: Phase 3 made CLI stdout/stderr UTF-8 in `cli.py`; the
   Unicode path test passes. The frozen acceptance command is 47 passed,
   1 skipped (symlink creation unavailable locally); the full suite is
@@ -272,5 +272,7 @@
   normalization gap found in the audit was deferred to spec 004. Closeout at
   `26fd58e`; full gate and traceability pass; T-13 checkbox marked. Ready for
   the owner to merge.
-- Next: owner merges PR #11, archives spec 003, deletes the branch, and starts
-  spec 004 from the default size targets.
+- 2026-11-22: PR #11 merged to `main` at `5897fc5`; the branch was deleted and
+  the spec was moved to `specs/archive/003-check-command/`. The deferred
+  discovery-error target normalization is now in spec 004 as AC-9.
+- Next: none. Spec 004 is active.
