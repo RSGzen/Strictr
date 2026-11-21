@@ -1,8 +1,8 @@
 # System Overview
 
-Status: approved (spec `002` archived)
+Status: implemented by spec `003-check-command`
 Owner: Ge Rui Sen
-Last updated: 2026-11-21
+Last updated: 2026-11-22
 Related: [verification contract](verification-contract.md),
 [product vision](../product/vision.md), [evaluation plan](../product/evaluation.md)
 
@@ -18,7 +18,7 @@ In scope:
 - Local execution with an explicit not-a-sandbox warning.
 - Human output and a versioned JSON envelope.
 
-Implementation spec: `003-check-command`, after this architecture is approved.
+Implementation spec: `003-check-command` (implements the architecture).
 
 Out of scope for v0.1:
 
@@ -91,24 +91,31 @@ src/strictr/
 ├── cli.py                 # argparse and output switch
 ├── app.py                 # explicit wiring
 ├── core/
+│   ├── __init__.py
 │   ├── models.py          # Status, Diagnostic, TierResult, CheckResult
+│   ├── paths.py           # root-relative POSIX paths
+│   ├── text.py            # truncation and redaction
 │   ├── pipeline.py        # fail-fast execution and result assembly
 │   ├── discovery.py       # project root, targets, file discovery
 │   ├── protocols.py       # Tier, ToolRunner
 │   └── errors.py
 ├── tiers/
+│   ├── __init__.py
 │   ├── ast_tier.py
 │   ├── ruff_tier.py
 │   ├── types_tier.py
 │   └── pytest_tier.py
 ├── tools/
+│   ├── __init__.py
 │   ├── runner.py
 │   └── parsers/
+│       ├── __init__.py
 │       ├── ruff.py
 │       ├── mypy.py
 │       ├── pyright.py
 │       └── pytest_junit.py
 ├── output/
+│   ├── __init__.py
 │   ├── human.py
 │   └── json_output.py
 └── traceability.py        # repository tooling, not product verification
@@ -118,7 +125,7 @@ src/strictr/
 |---|---|---|---|
 | `core` | Models, pipeline, discovery, protocols | stdlib | `tiers`, `tools`, `output`, `cli` |
 | `tiers` | One verification stage per tier | `core`, `tools` | `cli`, `output` |
-| `tools` | Subprocess runner and pure parsers | stdlib, `core.errors` | `tiers`, `cli`, `output` |
+| `tools` | Subprocess runner and pure parsers | stdlib, `core.models`, `core.paths`, `core.errors` | `core.pipeline`, `core.discovery`, `tiers`, `cli`, `output` |
 | `output` | Render a completed result | `core` | `tiers`, `tools`, `cli` |
 | `cli` / `app` | Parse input, wire adapters, set exit code | all of the above | — |
 | `traceability` | Repository policy checks | stdlib | product runtime code |
@@ -128,7 +135,9 @@ Rules:
 - No generic `engines/base.py` abstraction. Python is the only language.
 - No plugin registry. Add one only when a second language or third-party adapter
   exists.
-- Parsers are pure functions: bytes/JSON/XML in, diagnostics out.
+- Parsers are pure functions: text/JSON/XML in, diagnostics out.
+- `tools` may import `core.models`, `core.paths`, and `core.errors`; it must not
+  import pipeline, discovery, tiers, output, or CLI (ADR 0008).
 - Explicit construction in `app.py`; no dependency-injection framework.
 
 ## Data flow
@@ -186,11 +195,14 @@ Full decision: [ADR 0003](../adr/0003-subprocess-tool-execution.md).
 - Run tools as subprocesses, never as imported libraries.
 - Run from the project root with the project's configuration.
 - Use the project environment: `sys.executable -m mypy`, `sys.executable -m
-  pytest`, and `ruff`/`pyright` resolved from the environment.
+  pytest`, `sys.executable -m pyright` when the Python wrapper is importable,
+  and `ruff` or the fallback `pyright` executable resolved with `shutil.which`.
 - Do not invoke a shell.
 - Capture stdout/stderr, enforce timeouts, and terminate the process tree.
+- Tier 0 uses an in-process budget checked between files; hard process kills
+  apply to subprocess tiers.
 - Decode as UTF-8 with replacement on decoding errors.
-- Record tool versions in the envelope.
+- Record tool versions in the tier result.
 - Missing required tools produce `error` with an actionable message.
 
 This preserves parity with the tools the project already uses and avoids
@@ -219,7 +231,8 @@ reduction of scope and is recorded in the envelope.
 Full decision: [ADR 0006](../adr/0006-pytest-integration.md).
 
 - Run the full test suite by default. No test selection in v0.1.
-- Use `pytest --junitxml=<temp>` and parse the XML with the standard library.
+- Use `pytest -q -o junit_family=xunit1 --junitxml=<temp>` and parse the XML
+  with the standard library. `xunit1` provides testcase file and line data.
 - Map `testcase` `file`/`line`, failure/error text, and test IDs into compact
   diagnostics.
 - `pytest` exit code 5 (no tests collected) is `skipped`, not `fail`.
@@ -278,6 +291,7 @@ part of this architecture.
 | Pytest missing with tests | `error` | `error` | 2 |
 | Tool timeout | `error` | `error` | 2 |
 | Invalid JSON/XML | `error` | `error` | 2 |
+| Unexpected tier exception | `error` | `error` | 2 |
 | Target outside root | `error` | `error` | 2 |
 
 ## Security and redaction
@@ -286,7 +300,8 @@ part of this architecture.
 - Targets are confined to the project root.
 - Temporary JUnit files are created outside the repository and cleaned up.
 - Diagnostics are capped by count and message length.
-- Known secret patterns are redacted from messages and evidence.
+- Known secret patterns are redacted from messages and evidence. The fixed v0.1
+  pattern set is recorded in the `003` blueprint.
 - The local-only warning is not optional.
 - No telemetry in v0.1.
 
@@ -336,3 +351,6 @@ The architecture keeps these seams without implementing them now:
 - [ADR 0005 — Type-checker selection and configuration](../adr/0005-type-checker-selection.md)
 - [ADR 0006 — Pytest integration and full-suite policy](../adr/0006-pytest-integration.md)
 - [ADR 0007 — Local trust boundary, timeouts, and process termination](../adr/0007-trust-boundary-and-timeouts.md)
+- [ADR 0008 — Tools may import pure core types](../adr/0008-tools-core-imports.md)
+- [ADR 0009 — v0.1 execution refinements](../adr/0009-v0-1-execution-refinements.md)
+- [ADR 0010 — One-time size exception for spec 003](../adr/0010-check-command-size-exception.md)

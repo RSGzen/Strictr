@@ -9,13 +9,35 @@ LLM judge.
 
 ## Status
 
-Architecture approved. The verification CLI does not exist yet. The next spec is
-`003-check-command`. This repository contains the SDD governance, product vision,
-evaluation plan, architecture, verification contract, specification templates,
-traceability tooling, and CI foundation.
+Architecture approved. Spec `003-check-command` implements the v0.1 check
+command: Tier 0 syntax parsing, ruff, mypy or pyright, and the full pytest suite.
+The contract schema, golden fixtures, CLI, and acceptance tests are in place.
+The Phase 5 audit passed; the branch is ready for merge. After merge, spec 003 is
+archived and spec 004 starts from the default size targets.
 
-The first product slice will be `003-check-command`: `strictr check <paths>
-[--json]`.
+## Usage
+
+Run the check command from the project root:
+
+```powershell
+uv run strictr check src tests
+uv run strictr check --json
+uv run strictr check . --type-checker pyright --timeout 60
+uv run python -m strictr check
+uv run strictr --version
+```
+
+No paths means `.`. `--json` writes one compact JSON envelope to stdout.
+`--type-checker` accepts `mypy`, `pyright`, or `none`. `--timeout SECONDS`
+overrides every subprocess tier and version check for the run.
+
+Strictr runs tools locally with the user's privileges. It is not a sandbox.
+
+| Exit code | Meaning |
+|---|---|
+| 0 | `pass` |
+| 1 | `fail` |
+| 2 | `partial` or `error` |
 
 ## Quick start
 
@@ -33,6 +55,7 @@ uv run mypy
 - `tests/` — unit and acceptance tests
 - `specs/` — active and archived specifications
 - `docs/product/` — product vision and evaluation plan
+- `docs/sdd-workflow.md` — single-agent phase workflow and context gates
 - `docs/` — constitution, architecture, ADRs, testing and setup guides
 - `scripts/` — repository tooling
 
@@ -45,6 +68,7 @@ active spec.
 - [Product vision](docs/product/vision.md) — problem, users, scope, non-goals
 - [Evaluation plan](docs/product/evaluation.md) — metrics, benchmarks, kill criteria
 - [Engineering constitution](docs/constitution.md)
+- [SDD workflow](docs/sdd-workflow.md) — single-agent phases and context gates
 - [System overview](docs/architecture/system-overview.md)
 - [Verification contract](docs/architecture/verification-contract.md)
 - [Architecture decisions](docs/adr/)

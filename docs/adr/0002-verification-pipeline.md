@@ -1,6 +1,6 @@
 # ADR 0002: Verification pipeline and module boundaries
 
-- Status: accepted
+- Status: accepted; tools imports refined by [ADR 0008](0008-tools-core-imports.md)
 - Date: 2026-11-21
 - Decision makers: Ge Rui Sen
 

@@ -1,0 +1,72 @@
+{
+  "schema_version": "1",
+  "tool": {
+    "name": "strictr",
+    "version": "test"
+  },
+  "status": "pass",
+  "scope": {
+    "root": ".",
+    "targets": ["src", "tests"],
+    "files_checked": 3,
+    "files_skipped": 0,
+    "tests_collected": 1,
+    "tests_run": 1,
+    "tests_skipped": 0
+  },
+  "tiers": [
+    {
+      "id": "tier0",
+      "name": "syntax",
+      "status": "pass",
+      "tool": null,
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": null,
+      "meta": {}
+    },
+    {
+      "id": "tier1-ruff",
+      "name": "lint",
+      "status": "pass",
+      "tool": {"name": "ruff", "version": "test"},
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": null,
+      "meta": {}
+    },
+    {
+      "id": "tier1-types",
+      "name": "types",
+      "status": "pass",
+      "tool": {"name": "mypy", "version": "test"},
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": null,
+      "meta": {}
+    },
+    {
+      "id": "tier2-pytest",
+      "name": "tests",
+      "status": "pass",
+      "tool": {"name": "pytest", "version": "test"},
+      "duration_ms": 0,
+      "diagnostics": [],
+      "skipped_reason": null,
+      "meta": {}
+    }
+  ],
+  "timings": {
+    "total_ms": 0
+  },
+  "environment": {
+    "python": "test",
+    "platform": "test",
+    "root": "."
+  },
+  "trust": {
+    "sandboxed": false,
+    "warning": "Local execution; not a security boundary."
+  },
+  "warnings": []
+}

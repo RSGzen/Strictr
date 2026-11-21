@@ -1,6 +1,6 @@
 # ADR 0003: Subprocess tool execution and project environment
 
-- Status: accepted
+- Status: accepted; execution details refined by [ADR 0009](0009-v0-1-execution-refinements.md)
 - Date: 2026-11-21
 - Decision makers: Ge Rui Sen
 
@@ -39,7 +39,9 @@ Run tools as subprocesses, using the project environment:
 - Execute from the project root with the project's configuration.
 - Use `sys.executable -m mypy` and `sys.executable -m pytest` so the current
   interpreter and site-packages are used.
-- Resolve `ruff` and `pyright` with `shutil.which` from the current environment.
+- Resolve `ruff`, and `pyright` when the Python wrapper is unavailable, with
+  `shutil.which` from the current environment. Prefer `python -m pyright` when
+  the wrapper is importable (ADR 0009).
 - Use argument lists, never `shell=True`.
 - Capture stdout/stderr as UTF-8 with replacement on decoding errors.
 - Record the resolved tool version in the result.
@@ -50,9 +52,12 @@ Commands for v0.1:
 ```text
 ruff check --output-format=json --no-fix <targets>
 python -m mypy --output=json <targets>
-pyright --outputjson <targets>
-python -m pytest -q --junitxml=<temp>
+python -m pyright --outputjson <targets>  # fallback: pyright --outputjson <targets>
+python -m pytest -q -o junit_family=xunit1 --junitxml=<temp>
 ```
+
+ADR 0009 refines the pyright and pytest invocations for the Python wrapper and
+JUnit `xunit1` file/line data.
 
 Exact parser compatibility is covered by canned-output tests. A configured tool
 that is not installed is an `error`. A tool that is not configured is handled by

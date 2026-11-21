@@ -6,6 +6,10 @@ Tests are derived from acceptance criteria, not from source files. A spec is
 implemented when every AC has a passing automated test and the regression suite
 is green.
 
+Phase 2 of `docs/sdd-workflow.md` writes and freezes the failing AC-tagged tests.
+Phase 3 implements against them and does not edit them. Phase 4 adds integration,
+path, timeout, and failure-mode tests.
+
 Each test module declares the spec that owns it, and each AC test carries the AC:
 
 ```python
@@ -36,17 +40,21 @@ This proves a test exists, not that it is good. Review still matters.
 Do not re-test `ruff`, `mypy`, or `pytest`. Use canned output for parsers and
 one real smoke test per integration.
 
-## Test-first evidence
+## Phase 2 test freeze
 
-For behavior changes:
+Phase 2 is the normal test-writing point:
 
-1. Write the acceptance test.
-2. Run it. It must fail for the expected assertion, not an import error.
-3. Record the command and failure in the blueprint or PR.
-4. Implement the minimum.
-5. Run it again; it passes.
-6. Refactor under green.
-7. Add unit and failure-mode tests.
+1. Write annotated stubs/interfaces and the failing AC-tagged tests for the
+   current task or slice.
+2. Run the target command. It must fail for the expected assertion, not an
+   import error.
+3. Record the command and failure in `progress.md`.
+4. Commit the freeze. Record the commit in `progress.md`.
+5. Phase 3 implements against the frozen tests and does not edit them.
+
+Phase 4 adds integration, path, timeout, and failure-mode tests. It must not
+weaken the frozen unit tests. A test correction needs human approval and a new
+freeze commit.
 
 A test that has never failed is not evidence.
 
@@ -55,9 +63,14 @@ A test that has never failed is not evidence.
 - Keep fixture projects tiny and self-contained under `tests/fixtures/projects/`.
 - Copy fixtures to `tmp_path` before running tools. Tools write caches; never
   dirty the repository.
-- No network access.
+- Tests must not require network access. Do not download tools or Node during a
+  test; use canned output or a fake runner for pyright. Real pyright is not
+  installed in CI, so parser and selection coverage is the accepted limitation.
+- Exclude `tests/fixtures` from pytest collection and ruff so intentional
+  failures do not break the repository gate.
 - No shared mutable state between tests.
-- No `sleep()`; use timeouts and stub commands.
+- No `sleep()`; use timeouts and stub commands. The single deliberate timeout
+  fixture may sleep; mark it and assert a generous bound.
 - Test paths with spaces, Unicode, and non-UTF8 input.
 
 ## Failure modes

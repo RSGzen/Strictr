@@ -1,6 +1,6 @@
 # ADR 0005: Type-checker selection and configuration
 
-- Status: accepted
+- Status: accepted; version recording clarified by [ADR 0009](0009-v0-1-execution-refinements.md)
 - Date: 2026-11-21
 - Decision makers: Ge Rui Sen
 
@@ -52,8 +52,8 @@ If a configured checker is not installed, the tier is `error`, not skipped.
 `--type-checker none` is an explicit reduction of scope, recorded as
 `skipped_reason: "disabled_by_user"`; it does not make the run `partial`.
 
-The selected checker and its version are recorded in the tier result and
-environment.
+The selected checker and its version are recorded in the tier result's `tool`
+object. `environment` remains `python`, `platform`, and `root` (ADR 0009).
 
 ## Consequences
 
