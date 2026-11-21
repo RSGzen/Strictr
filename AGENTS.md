@@ -7,8 +7,8 @@ parses candidate code, runs static checks, optionally runs tests, and returns
 compact machine-readable diagnostics.
 
 Current phase: spec `003-check-command` is in closeout. The `strictr check`
-command runs Tier 0, ruff, mypy or pyright, and pytest; the Phase 5 audit is
-next.
+command is implemented, the Phase 5 audit passed, and the branch is ready for
+merge. Spec 004 is next.
 
 ## Read order
 

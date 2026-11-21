@@ -1,8 +1,8 @@
 # Blueprint: Check command
 
 - Spec: `specs/active/003-check-command/spec.md`
-- Status: approved
-- Revised: 2026-11-21 — frozen core interfaces, warnings, truncation, counts, ADR 0008/0009/0010, single-agent phase workflow
+- Status: implemented (Phase 5 audit passed; ready for merge)
+- Revised: 2026-11-22 — closeout bookkeeping, spec 004 deferral, and traceability reword
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -448,22 +448,22 @@ locked interfaces; this spec is too integrated for safe parallel execution.
 
 | AC | Layer | Test module | Command | Status |
 |---|---|---|---|---|
-| AC-1 | acceptance | `tests/acceptance/test_cli_contract.py` | `uv run pytest tests/acceptance/test_cli_contract.py -q` | todo |
-| AC-2 | acceptance, contract | `tests/acceptance/test_cli_contract.py`, `tests/unit/test_contract.py` | same | todo |
-| AC-3 | acceptance | `tests/acceptance/test_human_output.py` | `uv run pytest tests/acceptance/test_human_output.py -q` | todo |
-| AC-4 | acceptance | `tests/acceptance/test_exit_codes.py` | `uv run pytest tests/acceptance/test_exit_codes.py -q` | todo |
-| AC-5 | unit, acceptance | `tests/unit/test_discovery.py`, `tests/acceptance/test_discovery.py` | `uv run pytest tests/unit/test_discovery.py tests/acceptance/test_discovery.py -q` | todo |
-| AC-6 | unit, acceptance | same | same | todo |
-| AC-7 | unit, acceptance | `tests/unit/test_tier0.py`, `tests/acceptance/test_tiers.py` | `uv run pytest tests/unit/test_tier0.py -q` | todo |
-| AC-8 | unit, acceptance | `tests/unit/test_ruff.py`, `tests/acceptance/test_tiers.py` | `uv run pytest tests/unit/test_ruff.py -q` | todo |
-| AC-9 | unit | `tests/unit/test_types.py` | `uv run pytest tests/unit/test_types.py -q` | todo |
-| AC-10 | unit, acceptance | `tests/unit/test_types.py`, `tests/acceptance/test_tiers.py` | same | todo |
-| AC-11 | unit, acceptance | `tests/unit/test_pytest.py`, `tests/acceptance/test_tiers.py` | `uv run pytest tests/unit/test_pytest.py -q` | todo |
-| AC-12 | unit, acceptance | `tests/unit/test_core.py`, `tests/acceptance/test_exit_codes.py` | same | todo |
-| AC-13 | unit, acceptance | `tests/unit/test_runner.py`, `tests/acceptance/test_timeout.py` | `uv run pytest tests/unit/test_runner.py -q` | todo |
-| AC-14 | unit | `tests/unit/test_core.py` | `uv run pytest tests/unit/test_core.py -q` | todo |
+| AC-1 | acceptance | `tests/acceptance/test_cli_contract.py` | `uv run pytest tests/acceptance/test_cli_contract.py -q` | pass |
+| AC-2 | acceptance, contract | `tests/acceptance/test_cli_contract.py`, `tests/unit/test_contract.py` | same | pass |
+| AC-3 | acceptance | `tests/acceptance/test_human_output.py` | `uv run pytest tests/acceptance/test_human_output.py -q` | pass |
+| AC-4 | acceptance | `tests/acceptance/test_exit_codes.py` | `uv run pytest tests/acceptance/test_exit_codes.py -q` | pass |
+| AC-5 | unit, acceptance | `tests/unit/test_discovery.py`, `tests/acceptance/test_discovery.py` | `uv run pytest tests/unit/test_discovery.py tests/acceptance/test_discovery.py -q` | pass |
+| AC-6 | unit, acceptance | same | same | pass |
+| AC-7 | unit, acceptance | `tests/unit/test_tier0.py`, `tests/acceptance/test_tiers.py` | `uv run pytest tests/unit/test_tier0.py -q` | pass |
+| AC-8 | unit, acceptance | `tests/unit/test_ruff.py`, `tests/acceptance/test_tiers.py` | `uv run pytest tests/unit/test_ruff.py -q` | pass |
+| AC-9 | unit | `tests/unit/test_types.py` | `uv run pytest tests/unit/test_types.py -q` | pass |
+| AC-10 | unit, acceptance | `tests/unit/test_types.py`, `tests/acceptance/test_tiers.py` | same | pass |
+| AC-11 | unit, acceptance | `tests/unit/test_pytest.py`, `tests/acceptance/test_tiers.py` | `uv run pytest tests/unit/test_pytest.py -q` | pass |
+| AC-12 | unit, acceptance | `tests/unit/test_core.py`, `tests/acceptance/test_exit_codes.py` | same | pass |
+| AC-13 | unit, acceptance | `tests/unit/test_runner.py`, `tests/acceptance/test_timeout.py` | `uv run pytest tests/unit/test_runner.py -q` | pass |
+| AC-14 | unit | `tests/unit/test_core.py` | `uv run pytest tests/unit/test_core.py -q` | pass |
 | AC-15 | unit | `tests/unit/test_contract.py` | `uv run pytest tests/unit/test_contract.py -q` | pass |
-| AC-16 | unit | `tests/unit/test_check_docs.py` | `uv run pytest tests/unit/test_check_docs.py -q` | todo |
+| AC-16 | unit | `tests/unit/test_check_docs.py` | `uv run pytest tests/unit/test_check_docs.py -q` | pass |
 
 WU-1 cross-module integration (Phase 4):
 `tests/unit/test_wu1_integration.py` crosses discovery, pipeline, models,
@@ -540,7 +540,7 @@ repository created with `git init`.
   and non-pass envelope validation — verify:
   `uv run pytest tests/unit/test_runner_hardening.py tests/unit/test_cli_hardening.py tests/acceptance/test_envelope_schema.py -q`
   — AC: AC-1, AC-4, AC-9, AC-13, AC-15
-- [ ] T-13: Phase 2 writes `tests/unit/test_check_docs.py`, tagged with
+- [x] T-13: Phase 2 writes `tests/unit/test_check_docs.py`, tagged with
   `spec("003")` and AC-16. Phase 4 closeout updates docs, makes that test pass,
   and runs the full gate; Phase 5 is the read-only audit — verify:
   `uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest -q`
@@ -617,22 +617,23 @@ traceability, and acceptance suite pass.
 
 ## Open technical questions
 
-- [ ] Real pyright is not available in CI; pyright coverage is parser unit tests
-  plus a fake runner. Document this limitation rather than claiming parity —
-  owner, before AC-10 is marked done.
+- [x] Real pyright is not available in CI; pyright coverage is parser unit
+  tests plus a fake runner. The limitation is recorded in `progress.md` and
+  `docs/testing.md`; no parity claim is made — accepted 2026-11-22.
 - [x] The Tier 0 10 s budget is checked between files and cannot interrupt a
   single pathological `ast.parse`; a subprocess parser worker is deferred —
   accepted in ADR 0009.
 - [x] `files_skipped` does not count Gitignored files; the owner approved this
   interpretation. Escaping symlinks are errors, not skipped — resolved by spec
   1.2 and the owner decision on 2026-11-21.
-- [ ] The timeout acceptance test must assert a generous bound to avoid CI
-  flakiness and is the single deliberate `sleep()` exception in the suite —
-  Phase 4/T-12.
+- [x] The timeout acceptance test asserts a generous bound and is the single
+  deliberate `sleep()` exception in the suite — completed in T-12.
 - [x] Nested-project root selection uses the current directory's marker first;
   nested targets use the outer root — accepted 2026-11-21.
 - [x] Tools may import pure core types; execution refinements are recorded in
   ADR 0008 and ADR 0009.
+- [x] Discovery-error `scope.targets` normalization for Windows separators is
+  deferred to spec 004 — owner decision 2026-11-22.
 
 ## Retrospective
 

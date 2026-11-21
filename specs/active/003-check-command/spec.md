@@ -4,7 +4,7 @@ title: "Check command"
 status: in-progress
 owner: "Ge Rui Sen"
 created: 2026-11-21
-updated: 2026-11-21
+updated: 2026-11-22
 branch: "feat/003-check-command"
 ---
 
@@ -213,6 +213,8 @@ Deferred to later specs:
 - Sandbox isolation and a changed trust model.
 - Color output and additional human-output polish.
 - Performance measurements against the evaluation plan.
+- Discovery-error `scope.targets` normalization for Windows separators
+  (AC-5 error envelope); deferred to spec 004 by the owner, 2026-11-22.
 
 ## Revision log
 
@@ -224,3 +226,4 @@ Deferred to later specs:
 | 2026-11-21 | 1.2 | Clarified JSON usage errors, `earlier_tier_failed`, symlink confinement, and pyright resolution | Ge Rui Sen |
 | 2026-11-21 | 1.3 | Clarified version scope, Tier 0 budget, files ledger, warnings, and network boundary | Ge Rui Sen |
 | 2026-11-21 | 1.4 | Recorded ADR 0010 one-time size exception and phase-workflow alignment | Ge Rui Sen |
+| 2026-11-22 | 1.5 | Deferred discovery-error target normalization to spec 004; reworded the T-3 commit subject for traceability | Ge Rui Sen |

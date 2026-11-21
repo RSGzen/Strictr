@@ -1,6 +1,6 @@
 # SDD Workflow: Single Agent, Phase Gates
 
-Status: approved · Owner: Ge Rui Sen · Last updated: 2026-11-21
+Status: approved · Owner: Ge Rui Sen · Last updated: 2026-11-22
 
 This is the tracked operational workflow for spec-driven work. It replaces the
 former multi-role split with one writer agent and five phase gates. The human
@@ -26,6 +26,13 @@ spec. If this document conflicts with them, they win.
    human approval.
 7. **No `handoff.md`.** `progress.md` is the only session-state file. The
    blueprint owns durable task briefs.
+
+## Comments and docstrings
+
+Write comments only for the reason behind non-obvious code: constraints,
+tradeoffs, and surprising behavior. Explain why, not what. Public modules and
+functions have docstrings that state their contract. Delete stale or duplicated
+comments instead of leaving them for later.
 
 ## Artifacts
 

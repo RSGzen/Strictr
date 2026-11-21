@@ -64,7 +64,8 @@ A test that has never failed is not evidence.
 - Copy fixtures to `tmp_path` before running tools. Tools write caches; never
   dirty the repository.
 - Tests must not require network access. Do not download tools or Node during a
-  test; use canned output or a fake runner for pyright.
+  test; use canned output or a fake runner for pyright. Real pyright is not
+  installed in CI, so parser and selection coverage is the accepted limitation.
 - Exclude `tests/fixtures` from pytest collection and ruff so intentional
   failures do not break the repository gate.
 - No shared mutable state between tests.
