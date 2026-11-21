@@ -1,19 +1,20 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-10 complete; next T-11 Phase 2)
-- Work unit: WU-2 in progress (T-6, T-7, and T-10 complete; T-11 next)
-- Task: T-10 complete; next T-11 CLI wiring
+- Phase: 2 Stub & Test (T-11 written; awaiting test freeze)
+- Work unit: WU-2 in progress (T-6, T-7, T-10 complete; T-11 Phase 2 written)
+- Task: T-11 Phase 2 written; awaiting freeze
 - Spec: 003
 - Branch: feat/003-check-command
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
-  `47099f4`
+  `47099f4`; T-11 candidate at `f15bc2d`
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
   `tests/unit/test_tier0.py` at `a080b62`; `tests/unit/test_ruff.py`
-  at `1ee081c`; `tests/unit/test_output.py` at `47099f4`
+  at `1ee081c`; `tests/unit/test_output.py` at `47099f4`; none for T-11 yet
+  (candidate: `tests/acceptance/` at `f15bc2d`)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -37,15 +38,18 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: Phase 2 for T-11; write app/CLI/`__main__` stubs and the three
-  acceptance test modules, then run
+- Next command: owner review and T-11 freeze at `f15bc2d`; then Phase 3 with
   `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
 - Open items: real pyright is not in CI; the timeout acceptance test needs a
   generous bound; process-tree termination is proven by the Phase 4/T-12
-  acceptance test; discovery-failure envelope mapping stays with T-11
+  acceptance test; discovery-failure envelope mapping stays with T-11.
+  T-11 tests exercise only the WU-2 two-tier pipeline (Tier 0 + ruff); pass
+  paths use `--type-checker none` so they stay valid when T-8/T-9 extend it.
+  A CLI-level `partial` exit code is not reachable until T-8; AC-4's
+  partial/error mapping remains covered by the frozen T-3 unit test.
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -110,4 +114,11 @@
   `output/json_output.py` and `output/human.py` at `00cb02d`; all 11 frozen
   tests pass. Full gate `uv run pytest -q` 175 passed, 2 skipped; format, lint,
   and strict types pass. T-10 checkbox marked.
-- Next: Phase 2 for T-11 (app, CLI, `__main__`, and CLI acceptance tests).
+- 2026-11-21: T-11 Phase 2 stubs (`app.py`, `cli.py`, `__main__.py`), console
+  script, and `tests/acceptance/test_cli_contract.py`,
+  `test_human_output.py`, and `test_exit_codes.py` written at `f15bc2d`.
+  `uv run ruff format --check .` and `uv run ruff check .` pass; `uv run mypy`
+  reports no issues in 24 source files. The target command fails 32/32 with
+  `NotImplementedError`; the console script is installed and reachable.
+  Awaiting owner review and the T-11 test freeze.
+- Next: owner review and T-11 freeze, then Phase 3 CLI wiring.
