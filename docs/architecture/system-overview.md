@@ -1,8 +1,8 @@
 # System Overview
 
-Status: approved (spec `002` archived)
+Status: implemented by spec `003-check-command`
 Owner: Ge Rui Sen
-Last updated: 2026-11-21
+Last updated: 2026-11-22
 Related: [verification contract](verification-contract.md),
 [product vision](../product/vision.md), [evaluation plan](../product/evaluation.md)
 
@@ -18,7 +18,7 @@ In scope:
 - Local execution with an explicit not-a-sandbox warning.
 - Human output and a versioned JSON envelope.
 
-Implementation spec: `003-check-command` (in progress).
+Implementation spec: `003-check-command` (implements the architecture).
 
 Out of scope for v0.1:
 

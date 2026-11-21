@@ -9,8 +9,8 @@ Versioning once a public release exists.
 
 ### Changed
 
-- Spec `003-check-command` is in progress; T-1 and T-2 are complete and the
-  spec is at revision 1.4.
+- Spec `003-check-command` is in closeout; the check command, contract schema,
+  and acceptance tests are implemented.
 - Architecture is approved; spec 002 is archived, while
   `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
@@ -18,6 +18,9 @@ Versioning once a public release exists.
 
 ### Added
 
+- `strictr check` command with Tier 0 syntax parsing, ruff, mypy or pyright, and
+  the full pytest suite, plus human/JSON output, fail-closed envelopes, and exit
+  codes (`003-check-command`).
 - ADR 0008 (tools may import pure core types), ADR 0009 (v0.1 execution
   refinements for pyright, pytest `xunit1`, Tier 0 budget, and timeout scope),
   and ADR 0010 (owner-approved one-time size exception for spec 003).

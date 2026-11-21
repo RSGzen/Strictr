@@ -6,8 +6,9 @@ Strictr is a deterministic verification tool for LLM-generated Python code. It
 parses candidate code, runs static checks, optionally runs tests, and returns
 compact machine-readable diagnostics.
 
-Current phase: spec `003-check-command` is in progress. Phase 1 is complete;
-Phase 2 for T-3 is next. There is no product CLI yet.
+Current phase: spec `003-check-command` is in closeout. The `strictr check`
+command runs Tier 0, ruff, mypy or pyright, and pytest; the Phase 5 audit is
+next.
 
 ## Read order
 
@@ -51,9 +52,10 @@ write or clarify the spec first.
 - Format check: `uv run ruff format --check .`
 - Format: `uv run ruff format .`
 - Types: `uv run mypy`
+- Check: `uv run strictr check [paths]`
+- Check (module): `uv run python -m strictr check [paths]`
+- Version: `uv run strictr --version`
 - Traceability: `uv run python scripts/check_traceability.py` (requires PR environment variables; see `docs/repo-setup.md`)
-
-There is no `strictr` CLI yet. Add the command here when `003` lands.
 
 ## Workflow
 

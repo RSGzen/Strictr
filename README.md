@@ -9,15 +9,35 @@ LLM judge.
 
 ## Status
 
-Architecture approved. Spec `003-check-command` is in progress; Phase 1 is
-complete and Phase 2 for the core slice is next. The contract schema and golden
-fixtures have landed, but the verification CLI does not exist yet. This
-repository contains the SDD governance, product vision, evaluation plan,
-architecture, verification contract, specification templates, phase workflow,
-traceability tooling, and CI foundation.
+Architecture approved. Spec `003-check-command` implements the v0.1 check
+command: Tier 0 syntax parsing, ruff, mypy or pyright, and the full pytest suite.
+The contract schema, golden fixtures, CLI, and acceptance tests are in place.
+Spec 003 is in closeout; the durable architecture and product documents remain
+current.
 
-The first product slice is `003-check-command`: `strictr check <paths>
-[--json]`.
+## Usage
+
+Run the check command from the project root:
+
+```powershell
+uv run strictr check src tests
+uv run strictr check --json
+uv run strictr check . --type-checker pyright --timeout 60
+uv run python -m strictr check
+uv run strictr --version
+```
+
+No paths means `.`. `--json` writes one compact JSON envelope to stdout.
+`--type-checker` accepts `mypy`, `pyright`, or `none`. `--timeout SECONDS`
+overrides every subprocess tier and version check for the run.
+
+Strictr runs tools locally with the user's privileges. It is not a sandbox.
+
+| Exit code | Meaning |
+|---|---|
+| 0 | `pass` |
+| 1 | `fail` |
+| 2 | `partial` or `error` |
 
 ## Quick start
 
