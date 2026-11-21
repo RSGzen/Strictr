@@ -20,6 +20,7 @@ from strictr.core.pipeline import run_pipeline
 from strictr.core.protocols import Tier, ToolRunner
 from strictr.tiers.ast_tier import AstTier
 from strictr.tiers.ruff_tier import RuffTier
+from strictr.tiers.types_tier import TypesTier
 from strictr.tools.runner import SubprocessRunner
 
 _NO_FILES_MESSAGE = "no Python files found"
@@ -71,8 +72,8 @@ def run_check(
 
 
 def _pipeline_tiers(tier0: Tier, runner: ToolRunner) -> tuple[Tier, ...]:
-    """WU-2 runs Tier 0 and ruff; T-8/T-9 extend this order."""
-    return (tier0, RuffTier(runner))
+    """Run Tier 0, ruff, then the type checker; T-9 appends pytest."""
+    return (tier0, RuffTier(runner), TypesTier(runner))
 
 
 def _discovery_result(
