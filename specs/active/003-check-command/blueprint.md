@@ -509,7 +509,7 @@ repository created with `git init`.
   `uv run pytest tests/unit/test_tier0.py -q` — AC: AC-7
 - [x] T-7: Add the ruff parser and tier — verify:
   `uv run pytest tests/unit/test_ruff.py -q` — AC: AC-8
-- [ ] T-10: Add JSON and human renderers; start with the two-tier pipeline and
+- [x] T-10: Add JSON and human renderers; start with the two-tier pipeline and
   extend as later tiers land — verify:
   `uv run pytest tests/unit/test_output.py -q` — AC: AC-2, AC-3, AC-14
 - [ ] T-11: Phase 2 writes `tests/acceptance/test_cli_contract.py`,

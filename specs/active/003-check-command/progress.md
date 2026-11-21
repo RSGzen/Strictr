@@ -1,8 +1,8 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-10 frozen; next implement)
-- Work unit: WU-2 in progress (T-6 and T-7 complete; T-10 frozen)
-- Task: T-10 frozen at `47099f4`; next implement output renderers
+- Phase: 3 Implement & Reconcile (T-10 complete; next T-11 Phase 2)
+- Work unit: WU-2 in progress (T-6, T-7, and T-10 complete; T-11 next)
+- Task: T-10 complete; next T-11 CLI wiring
 - Spec: 003
 - Branch: feat/003-check-command
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
@@ -29,13 +29,17 @@
 - T-7 gate: complete at `013cbb0`; `uv run pytest tests/unit/test_ruff.py -q`
   -> 18 passed; full gate `uv run pytest -q` -> 164 passed, 2 skipped; format,
   lint, and strict types pass
+- T-10 gate: complete at `00cb02d`; `uv run pytest tests/unit/test_output.py -q`
+  -> 11 passed; full gate `uv run pytest -q` -> 175 passed, 2 skipped; format,
+  lint, and strict types pass
 - WU-1 Phase 4 evidence at `bd67d2c`:
   `uv run pytest tests/unit/test_wu1_integration.py -q` -> 6 passed; full gate
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: Phase 3 for T-10; implement both renderers, then
-  `uv run pytest tests/unit/test_output.py -q` must pass
+- Next command: Phase 2 for T-11; write app/CLI/`__main__` stubs and the three
+  acceptance test modules, then run
+  `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -102,6 +106,8 @@
   reports no issues in 21 source files. The target command fails 11/11 as
   expected with `NotImplementedError`; full suite is 164 passed, 2 skipped,
   11 expected failures. Awaiting owner review and the T-10 test freeze.
-- 2026-11-21: Owner approved the T-10 freeze at `47099f4`. Next: Phase 3
-  implements `output/json_output.py` and `output/human.py` until the 11 frozen
-  tests pass. Do not edit `tests/unit/test_output.py`.
+- 2026-11-21: Owner approved the T-10 freeze at `47099f4`. Phase 3 implemented
+  `output/json_output.py` and `output/human.py` at `00cb02d`; all 11 frozen
+  tests pass. Full gate `uv run pytest -q` 175 passed, 2 skipped; format, lint,
+  and strict types pass. T-10 checkbox marked.
+- Next: Phase 2 for T-11 (app, CLI, `__main__`, and CLI acceptance tests).
