@@ -1,7 +1,7 @@
 ---
 id: "003"
 title: "Check command"
-status: approved
+status: in-progress
 owner: "Ge Rui Sen"
 created: 2026-11-21
 updated: 2026-11-21
@@ -204,3 +204,4 @@ Deferred to later specs:
 |---|---|---|---|
 | 2026-11-21 | 0.1 | Initial draft; planning decisions Q1–Q6 recorded | Ge Rui Sen |
 | 2026-11-21 | 1.0 | ACs and blueprint approved; implementation not started | Ge Rui Sen |
+| 2026-11-21 | 1.1 | Implementation started; T-2 contract schema work | Ge Rui Sen |
