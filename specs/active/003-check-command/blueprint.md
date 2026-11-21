@@ -470,6 +470,12 @@ WU-1 cross-module integration (Phase 4):
 paths, and the real runner for scope/schema-valid envelopes, fail-fast,
 timeout, missing tool, Unicode paths, and warning aggregation.
 
+T-12b hardening (Phase 2/4):
+`tests/unit/test_runner_hardening.py`, `tests/unit/test_cli_hardening.py`, and
+`tests/acceptance/test_envelope_schema.py` cover bounded timeout cleanup,
+interrupt termination, CLI exit 130, partial exit 2, and non-pass schema
+validation.
+
 Fixture projects:
 
 | Fixture | Purpose |
@@ -530,7 +536,7 @@ repository created with `git init`.
   then add acceptance fixtures and black-box tests for tiers, discovery, failure
   modes, paths, and timeout — verify: `uv run pytest tests/acceptance -q` —
   AC: AC-1..AC-15
-- [ ] T-12b: Harden runner timeout and interruption cleanup; add CLI partial
+- [x] T-12b: Harden runner timeout and interruption cleanup; add CLI partial
   and non-pass envelope validation — verify:
   `uv run pytest tests/unit/test_runner_hardening.py tests/unit/test_cli_hardening.py tests/acceptance/test_envelope_schema.py -q`
   — AC: AC-1, AC-4, AC-9, AC-13, AC-15
