@@ -523,7 +523,7 @@ repository created with `git init`.
 - [x] T-8: Add type-checker selection, mypy/pyright parsers, and the type tier to
   the pipeline — verify: `uv run pytest tests/unit/test_types.py -q` —
   AC: AC-9, AC-10
-- [ ] T-9: Add the JUnit parser and pytest tier to the pipeline; write counts
+- [x] T-9: Add the JUnit parser and pytest tier to the pipeline; write counts
   to `meta`, reconstruct node IDs, and normalize missing lines — verify:
   `uv run pytest tests/unit/test_pytest.py -q` — AC: AC-11
 - [ ] T-12: Add fixture excludes to `pyproject.toml` and `tests/conftest.py`,
