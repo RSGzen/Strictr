@@ -512,7 +512,7 @@ repository created with `git init`.
 - [x] T-10: Add JSON and human renderers; start with the two-tier pipeline and
   extend as later tiers land — verify:
   `uv run pytest tests/unit/test_output.py -q` — AC: AC-2, AC-3, AC-14
-- [ ] T-11: Phase 2 writes `tests/acceptance/test_cli_contract.py`,
+- [x] T-11: Phase 2 writes `tests/acceptance/test_cli_contract.py`,
   `test_human_output.py`, and `test_exit_codes.py`, tagged with `spec("003")`
   and the covered ACs. Phase 3 wires the app, CLI, `__main__`, and console
   script, starting with Tier 0 and ruff, and makes those tests pass. Implement
