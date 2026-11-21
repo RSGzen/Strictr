@@ -49,7 +49,7 @@ pipeline and are extended as T-8 and T-9 land.
 | WU-2 | T-6, T-7, T-10, T-11 | First end-to-end command: Tier 0, ruff, JSON/human output, CLI; open draft PR |
 | WU-3 | T-8 | Type-checker selection, parsers, and tier added to the pipeline |
 | WU-4 | T-9 | Full pytest tier added to the pipeline |
-| WU-5 | T-12 | Acceptance, failure-mode, path, and timeout coverage |
+| WU-5 | T-12, T-12b | Acceptance, failure-mode, path, timeout, and runner hardening |
 | WU-6 | T-13 | Docs, full gate, traceability, convergence check |
 
 ### Phase execution
@@ -530,6 +530,10 @@ repository created with `git init`.
   then add acceptance fixtures and black-box tests for tiers, discovery, failure
   modes, paths, and timeout — verify: `uv run pytest tests/acceptance -q` —
   AC: AC-1..AC-15
+- [ ] T-12b: Harden runner timeout and interruption cleanup; add CLI partial
+  and non-pass envelope validation — verify:
+  `uv run pytest tests/unit/test_runner_hardening.py tests/unit/test_cli_hardening.py tests/acceptance/test_envelope_schema.py -q`
+  — AC: AC-1, AC-4, AC-9, AC-13, AC-15
 - [ ] T-13: Phase 2 writes `tests/unit/test_check_docs.py`, tagged with
   `spec("003")` and AC-16. Phase 4 closeout updates docs, makes that test pass,
   and runs the full gate; Phase 5 is the read-only audit — verify:
@@ -555,6 +559,7 @@ schema, frozen tests, or another task's modules to make a test pass.
 | T-8 | mypy/pyright parser and type-tier stubs; `tests/unit/test_types.py` | Selection, execution, normalization, warnings, `--type-checker none` | `uv run pytest tests/unit/test_types.py -q` | AC-9, AC-10 |
 | T-9 | JUnit parser and pytest-tier stubs; `tests/unit/test_pytest.py` | Full suite, xunit1, counts, node IDs, exit mapping, errors | `uv run pytest tests/unit/test_pytest.py -q` | AC-11 |
 | T-12 | Fixtures and acceptance tests | Integration, failure modes, paths, timeout, exit codes | `uv run pytest tests/acceptance -q` | AC-1..AC-15 |
+| T-12b | `tests/unit/test_runner_hardening.py`, `tests/unit/test_cli_hardening.py`, `tests/acceptance/test_envelope_schema.py` | Bounded timeout cleanup, child termination on interrupt, partial and non-pass schema coverage | `uv run pytest tests/unit/test_runner_hardening.py tests/unit/test_cli_hardening.py tests/acceptance/test_envelope_schema.py -q` | AC-1, AC-4, AC-9, AC-13, AC-15 |
 | T-13 | `tests/unit/test_check_docs.py` | Docs, full gate, traceability | Full gate + traceability | AC-16 |
 
 Key notes:
