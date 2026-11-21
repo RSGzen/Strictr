@@ -16,16 +16,16 @@ Spec `003-check-command` delivered the `strictr check` CLI and its four tiers.
 The post-`003` audit found remaining gaps in paths that are hard to reach but
 important to trust: nested working directories, symlink display paths, non-UTF8
 filenames on POSIX, human-output visibility for skipped/error evidence, real
-configuration parity, redaction through real tool output, and the traceability
-entry point's I/O failure paths.
+configuration parity, redaction through real tool output, discovery-error target
+normalization, and the traceability entry point's I/O failure paths.
 
 This spec closes those gaps without changing the v1 verification contract. Most
 of the behavior already exists; the work is to make it explicit, test it through
 the CLI, and fix the small number of paths that are currently unsafe or silent.
 No new configuration file, flag, tier, dependency, or JSON field is introduced.
 
-This spec depends on `003` being merged to `main` first. The branch is based on
-`main`; rebase it after `003` lands.
+Spec `003` is merged to `main`; this branch is rebased onto `main` at `5897fc5`.
+The v1 contract remains unchanged.
 
 ## Goals
 
@@ -38,6 +38,8 @@ This spec depends on `003` being merged to `main` first. The branch is based on
 - Prove type-checker and pytest configuration parity through the real CLI,
   including pyright through an importable test module.
 - Prove redaction and truncation on real pytest/ruff output.
+- Normalize discovery-error `scope.targets` relative to the recorded root, with
+  POSIX separators, sorted and de-duplicated.
 - Cover the traceability entry point's environment, git, spec, and AC-report
   failure paths without changing its policy.
 - Preserve the v1 contract, exit codes, and existing `003` frozen tests.
@@ -55,6 +57,8 @@ This spec depends on `003` being merged to `main` first. The branch is based on
 - No broader `.pyi` acceptance matrix; existing `003` Tier 0 coverage remains.
 - No Windows non-regular-file coverage; the POSIX FIFO test is the skipped-file
   case.
+- No change to discovery success semantics, root selection, or the error status
+  model; only discovery-error target display is normalized.
 - No human color output.
 - No performance or detection claims; no measurements in this spec.
 
@@ -82,6 +86,9 @@ This spec depends on `003` being merged to `main` first. The branch is based on
    human output shows how many were hidden.
 10. Traceability runs with missing environment variables or a failing git
     command. It exits 1 with a stderr message; a valid configuration exits 0.
+11. A missing or outside target is passed with Windows separators. Discovery
+    fails, the envelope records normalized, sorted, de-duplicated targets, and
+    exit code is 2.
 
 ## Acceptance criteria
 
@@ -123,11 +130,17 @@ This spec depends on `003` being merged to `main` first. The branch is based on
   environment, a git collection failure, a malformed spec/AC report, or a policy
   error SHALL write a message to stderr and exit 1. The pure traceability policy
   SHALL remain unchanged.
+- **AC-9:** WHEN discovery fails, the CLI SHALL record `scope.targets` relative
+  to the recorded `scope.root`, sorted and de-duplicated, using `/` separators,
+  and the error envelope SHALL remain schema-valid. On Windows, separator
+  backslashes SHALL normalize to `/`; on POSIX, a literal backslash in a filename
+  SHALL be preserved. Discovery SHALL still fail with exit code 2 and the
+  existing `discovery failed` or `no Python files found` reason.
 
 ## Constraints
 
-- `003` must be merged to `main` before implementation starts. Rebase this branch
-  on `main` after `003` lands.
+- `003` is merged to `main`; this branch is rebased on `main` at `5897fc5`.
+  Implementation starts from this rebased branch.
 - The v1 verification contract, schema, statuses, and exit codes are unchanged.
   Human output changes are additive lines; existing `003` frozen tests must not
   be edited.
@@ -154,6 +167,10 @@ Resolved by this spec:
   format in the blueprint are approved — owner, 2026-11-22.
 - [x] Non-UTF8 output: lone surrogates are escaped while valid Unicode remains
   readable — owner, 2026-11-22.
+- [x] Discovery-error targets: normalize relative to the recorded `scope.root`
+  (`.` when no root is available), sort and de-duplicate, and use POSIX
+  separators; on POSIX a literal backslash remains part of the filename — owner,
+  2026-11-22.
 
 Deferred to later specs:
 
@@ -173,3 +190,4 @@ Deferred to later specs:
 |---|---|---|---|
 | 2026-11-22 | 0.1 | Initial draft for the post-`003` hardening slice | Ge Rui Sen |
 | 2026-11-22 | 1.0 | Phase 1 approved; nested-cwd, human-output, and non-UTF8 decisions resolved | Ge Rui Sen |
+| 2026-11-22 | 1.1 | Added AC-9 for discovery-error target normalization; rebased after `003` merged | Ge Rui Sen |

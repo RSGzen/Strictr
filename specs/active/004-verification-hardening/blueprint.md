@@ -2,6 +2,7 @@
 
 - Spec: `specs/active/004-verification-hardening/spec.md`
 - Status: approved
+- Revised: 2026-11-22 — adds AC-9/T-9 for discovery-error target normalization
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -17,12 +18,13 @@ Order of work:
 2. Add non-UTF8 output tests; add one surrogate-safe output helper and apply it
    to both renderers.
 3. Add human-output visibility tests; extend the human renderer.
-4. Add real config-parity, redaction, and truncation coverage; change production
+4. Normalize discovery-error targets in `app.py`; add acceptance coverage.
+5. Add real config-parity, redaction, and truncation coverage; change production
    code only if a test exposes a defect.
-5. Cover traceability entry-point I/O; keep policy behavior unchanged.
-6. Run the full gate and update the changelog.
+6. Cover traceability entry-point I/O; keep policy behavior unchanged.
+7. Run the full gate and update the changelog.
 
-`003` must be merged first. Rebase this branch on `main` after it lands. Do not
+`003` is merged to `main`; this branch is rebased on `main` at `5897fc5`. Do not
 edit `003` frozen tests; add new test modules.
 
 ## Modules and boundaries
@@ -32,8 +34,10 @@ edit `003` frozen tests; add new test modules.
 | `src/strictr/core/text.py` | Redaction, caps, and surrogate-safe output text | Modified: add a small internal helper |
 | `src/strictr/output/json_output.py` | Compact JSON rendering | Modified: safe UTF-8 output |
 | `src/strictr/output/human.py` | Concise human rendering | Modified: skipped count, error evidence, safe output |
+| `src/strictr/app.py` | Discovery result assembly | Modified: normalize discovery-error targets |
 | `src/strictr/cli.py` | Output switch and exit code | Unchanged unless renderers need wiring |
 | `tests/acceptance/test_scope_paths.py` | Nested-cwd and absolute-target CLI behavior | New |
+| `tests/acceptance/test_discovery_error_paths.py` | Discovery-error target normalization | New |
 | `tests/unit/test_path_display.py` | In-root symlink display semantics | New |
 | `tests/unit/test_output_non_utf8.py` | Synthetic surrogate rendering and schema validity | New |
 | `tests/acceptance/test_non_utf8_paths.py` | POSIX non-UTF8 filename through the CLI | New |
@@ -90,6 +94,14 @@ No behavior change is planned.
 If the owner chooses the alternative `targets: ["."]` semantics, stop and
 revise the spec/blueprint before writing T-1.
 
+### Discovery errors
+
+No success-path behavior changes. `scope.root` and the existing error reason stay
+as they are. `scope.targets` is normalized relative to that root, sorted, and
+de-duplicated, with `/` separators. On Windows, separator backslashes become
+`/`; on POSIX, a literal backslash is part of the filename and is preserved. The
+error envelope still validates against the v1 schema and exits 2.
+
 ### Type-checker and pytest parity
 
 No behavior change is planned; tests use the real CLI and real mypy/pytest.
@@ -118,6 +130,7 @@ fail the lint tier before the tier under test runs.
 |---|---|---|
 | CLI run from a subdirectory | Ledger records `root` and `targets` relative to the correct roots | `test_nested_cwd_ledger` |
 | In-root symlink | Display path is the link, not the resolved target | `test_in_root_symlink_uses_link_path` |
+| Discovery error with Windows separators | Targets are normalized, sorted, de-duplicated POSIX paths; schema valid; exit 2 | `test_discovery_error_targets` |
 | Non-UTF8 POSIX filename | JSON is valid UTF-8; no renderer crash | `test_non_utf8_path_json`, `test_non_utf8_json_render` |
 | Skipped non-regular file | Human output shows skipped count; JSON records it | `test_human_reports_skipped_files` |
 | Pytest collection error | Human output includes collection evidence | `test_human_collection_error_shows_evidence` |
@@ -152,6 +165,7 @@ fail the lint tier before the tier under test runs.
 | AC-6 | acceptance | `tests/acceptance/test_pytest_config.py` | `uv run pytest tests/acceptance/test_pytest_config.py -q` | todo |
 | AC-7 | acceptance | `tests/acceptance/test_redaction_truncation.py` | `uv run pytest tests/acceptance/test_redaction_truncation.py -q` | todo |
 | AC-8 | unit | `tests/unit/test_traceability_entry.py` | `uv run pytest tests/unit/test_traceability_entry.py -q` | todo |
+| AC-9 | acceptance | `tests/acceptance/test_discovery_error_paths.py` | `uv run pytest tests/acceptance/test_discovery_error_paths.py -q` | todo |
 
 Full gate:
 
@@ -178,8 +192,11 @@ Full gate:
   `uv run pytest tests/acceptance/test_redaction_truncation.py -q` — AC: AC-7
 - [ ] T-8: Add traceability entry-point failure-path tests — verify:
   `uv run pytest tests/unit/test_traceability_entry.py -q` — AC: AC-8
-- [ ] T-9: Update `CHANGELOG.md`, run the full gate, and open the PR — verify:
-  the full gate above — AC: AC-1..AC-8
+- [ ] T-9: Normalize discovery-error targets and add acceptance coverage —
+  verify: `uv run pytest tests/acceptance/test_discovery_error_paths.py -q` —
+  AC: AC-9
+- [ ] T-10: Update `CHANGELOG.md`, run the full gate, and open the PR — verify:
+  the full gate above — AC: AC-1..AC-9
 
 ## Task briefs
 
@@ -193,11 +210,13 @@ Full gate:
 | T-6 | `tests/acceptance/test_pytest_config.py` | Fix only if a parity defect appears | `uv run pytest tests/acceptance/test_pytest_config.py -q` | AC-6 |
 | T-7 | `tests/acceptance/test_redaction_truncation.py` | Fix only if a redaction/cap defect appears | `uv run pytest tests/acceptance/test_redaction_truncation.py -q` | AC-7 |
 | T-8 | `tests/unit/test_traceability_entry.py` | Fix only if an entry-path defect appears; no policy change | `uv run pytest tests/unit/test_traceability_entry.py -q` | AC-8 |
-| T-9 | None | `CHANGELOG.md`, full gate, PR evidence | Full gate | AC-1..AC-8 |
+| T-9 | `tests/acceptance/test_discovery_error_paths.py` | `app.py` discovery-error target normalization | `uv run pytest tests/acceptance/test_discovery_error_paths.py -q` | AC-9 |
+| T-10 | None | `CHANGELOG.md`, full gate, PR evidence | Full gate | AC-1..AC-9 |
 
 ## Phase protocol
 
-Follow `docs/sdd-workflow.md` after `003` merges. Until then:
+Follow `docs/sdd-workflow.md`. `003` is merged and this branch is rebased on
+`main`.
 
 - Do not edit `003` frozen tests.
 - For each task, write or update the test first, run its exact command, then
@@ -231,6 +250,9 @@ Deferred:
   behavior in `004`.
 - [x] Real pyright is not in CI; do not claim parity beyond the fake-module
   boundary.
+- [x] Discovery-error targets are normalized relative to the recorded root,
+  sorted, de-duplicated, and POSIX-normalized; no root-selection change —
+  accepted 2026-11-22.
 
 ## Retrospective
 
