@@ -9,6 +9,8 @@ Versioning once a public release exists.
 
 ### Changed
 
+- Architecture is approved; spec 002 is archived, while
+  `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
   remain in `docs/product/`.
 

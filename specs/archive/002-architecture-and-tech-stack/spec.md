@@ -1,7 +1,7 @@
 ---
 id: "002"
 title: "Architecture and verification contract"
-status: in-progress
+status: done
 owner: "Ge Rui Sen"
 created: 2026-11-21
 updated: 2026-11-21
@@ -104,3 +104,4 @@ Deferred to later specs:
 |---|---|---|---|
 | 2026-11-21 | 0.1 | Initial architecture and contract spec | Ge Rui Sen |
 | 2026-11-21 | 0.2 | Architecture docs, contract, and six ADRs implemented; awaiting PR | Ge Rui Sen |
+| 2026-11-21 | 1.0 | Architecture merged and spec archived | Ge Rui Sen |

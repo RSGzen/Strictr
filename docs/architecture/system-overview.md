@@ -1,6 +1,6 @@
 # System Overview
 
-Status: architecture in progress (spec `002`)
+Status: approved (spec `002` archived)
 Owner: Ge Rui Sen
 Last updated: 2026-11-21
 Related: [verification contract](verification-contract.md),

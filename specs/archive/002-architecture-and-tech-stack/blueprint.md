@@ -1,7 +1,7 @@
 # Blueprint: Architecture and verification contract
 
-- Spec: `specs/active/002-architecture-and-tech-stack/spec.md`
-- Status: in-progress (all tasks verified locally; awaiting PR)
+- Spec: `specs/archive/002-architecture-and-tech-stack/spec.md`
+- Status: done (architecture merged; spec archived)
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -99,4 +99,11 @@ the implementation spec defines the exact code.
 
 ## Retrospective
 
-Fill after merge.
+- Worked: writing the contract before the architecture forced statuses, skips,
+  and exit codes to be explicit; the docs tests caught two drift errors before
+  the PR.
+- Did not work: the first traceability pass exposed that AC reports were global
+  across specs; the report is now scoped by `pytest.mark.spec`.
+- Next change: implementation learnings that do not change a decision belong in
+  the `003` spec/blueprint; changes to a decision need a new ADR, not a reopened
+  002.
