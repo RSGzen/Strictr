@@ -45,10 +45,9 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: owner decision on rewording the T-3 freeze commit; do not start
-  T-8 in this session. If approved, reword `d2f85f9` to a Conventional Commits
-  subject, rebase the branch, `--force-with-lease`, and update the recorded
-  freeze hashes before resuming T-8.
+- Next command: none in this session; T-8 Phase 2 is not started. The owner
+  decided on 2026-11-21 to leave history as-is, so the T-3 commit-subject
+  traceability blocker remains open and must be resolved before the merge gate.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -63,7 +62,9 @@
   non-Conventional subject on the T-3 freeze commit `d2f85f9`
   (`t3-stub&test: ...`). The second blocker will remain after all AC tests
   exist. Rewriting that commit needs owner approval because it changes the
-  frozen T-3 hash and every later commit hash recorded here.
+  frozen T-3 hash and every later commit hash recorded here. Owner decided on
+  2026-11-21 to leave history as-is; the commit-subject blocker therefore stays
+  open until a later approved resolution. Do not weaken the checker.
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -145,6 +146,8 @@
   subject of the T-3 freeze commit `d2f85f9`. A local run with
   `HEAD_REF=feat/003-check-command`,
   `PR_TITLE=feat(check): add check command for tier 0 and ruff [003]`, and
-  `BASE_REF=main` reproduces both. Paused before T-8 pending the owner's
-  history-rewrite decision.
-- Next: owner decision, then either the reword/rebase or T-8 Phase 2.
+  `BASE_REF=main` reproduces both.
+- 2026-11-21: Owner chose to leave branch history as-is. The T-3 commit-subject
+  blocker remains open; no rewrite, no T-8 work in this session.
+- Next: owner direction. Traceability cannot pass the merge gate until the
+  commit-subject blocker is resolved by an owner-approved route.
