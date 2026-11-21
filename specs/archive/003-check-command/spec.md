@@ -1,7 +1,7 @@
 ---
 id: "003"
 title: "Check command"
-status: in-progress
+status: done
 owner: "Ge Rui Sen"
 created: 2026-11-21
 updated: 2026-11-22
@@ -227,3 +227,4 @@ Deferred to later specs:
 | 2026-11-21 | 1.3 | Clarified version scope, Tier 0 budget, files ledger, warnings, and network boundary | Ge Rui Sen |
 | 2026-11-21 | 1.4 | Recorded ADR 0010 one-time size exception and phase-workflow alignment | Ge Rui Sen |
 | 2026-11-22 | 1.5 | Deferred discovery-error target normalization to spec 004; reworded the T-3 commit subject for traceability | Ge Rui Sen |
+| 2026-11-22 | 1.6 | Spec archived after the PR merged and the deferral moved into spec 004 | Ge Rui Sen |

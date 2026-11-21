@@ -9,10 +9,11 @@ Versioning once a public release exists.
 
 ### Changed
 
-- Spec `003-check-command` implements the `strictr check` command; the Phase 5
-  audit passed and the branch is ready for merge.
-- Discovery-error `scope.targets` normalization for Windows separators is
-  deferred to spec 004; discovery failures still return a valid error envelope.
+- Spec `003-check-command` is implemented, merged, and archived; the
+  `strictr check` command and its tests remain in the repository.
+- Spec `004-verification-hardening` is the active slice. Discovery-error
+  `scope.targets` normalization for Windows separators is tracked there as AC-9;
+  discovery failures still return a valid error envelope.
 - Architecture is approved; spec 002 is archived, while
   `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
