@@ -1,15 +1,16 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-8 complete)
-- Work unit: WU-3 complete (T-8); next is T-9 (WU-4)
-- Task: T-8 complete at `2f0a617`; T-9 Phase 2 is next
+- Phase: 2 Stub & Test (T-9); T-8 and WU-3 complete
+- Work unit: WU-4 started (T-9 Phase 2)
+- Task: T-9 Phase 2 stubs and failing tests written at `313d54e`; awaiting owner freeze
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
-  `47099f4`; T-11 frozen at `f15bc2d`; T-8 frozen at `88405bf`
+  `47099f4`; T-11 frozen at `f15bc2d`; T-8 frozen at `88405bf`; T-9 written at
+  `313d54e`, not yet frozen
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
@@ -18,6 +19,7 @@
   `tests/acceptance/test_cli_contract.py`, `test_human_output.py`, and
   `test_exit_codes.py` at `f15bc2d`
 - T-8 tests: `tests/unit/test_types.py` at `88405bf` (frozen)
+- T-9 tests: `tests/unit/test_pytest.py` at `313d54e`; not frozen
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -51,11 +53,11 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: start T-9 Phase 2 in a new session; write
-  `tests/unit/test_pytest.py` and the JUnit/pytest-tier stubs, then
-  `uv run pytest tests/unit/test_pytest.py -q`. The owner decided on 2026-11-21
-  to leave history as-is, so the T-3 commit-subject traceability blocker
-  remains open and must be resolved before the merge gate.
+- Next command: owner review and freeze T-9 tests at `313d54e`; then Phase 3
+  runs `uv run pytest tests/unit/test_pytest.py -q` and wires `PytestTier` into
+  `app._pipeline_tiers`. The owner decided on 2026-11-21 to leave history as-is,
+  so the T-3 commit-subject traceability blocker remains open and must be
+  resolved before the merge gate.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -74,6 +76,13 @@
   frozen T-3 hash and every later commit hash recorded here. Owner decided on
   2026-11-21 to leave history as-is; the commit-subject blocker therefore stays
   open until a later approved resolution. Do not weaken the checker.
+- T-9 freeze review: `tests_run` is collected minus skipped; xunit2 paths are
+  derived from the testcase classname; pathless failures and collection errors
+  use the parser `error` for `meta.error`; collection errors use
+  `collection-error` with the test file path as `test`. The target command fails
+  48/48 as expected (46 `NotImplementedError` and 2 pipeline assertions against
+  the stub); full suite is 260 passed, 2 skipped, 48 expected failures. mypy
+  reports no issues in 29 source files; format and lint pass.
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -173,5 +182,11 @@
   260 passed, 2 skipped; format, lint, and strict types pass. Real CLI smoke
   covered explicit/auto mypy, `none`, and missing pyright. T-8 checkbox marked;
   WU-3 complete.
-- Next: T-9 Phase 2 in a new session. Traceability cannot pass the merge gate
-  until the commit-subject blocker is resolved by an owner-approved route.
+- 2026-11-22: T-9 Phase 2 stubs (`tools/parsers/pytest_junit.py`,
+  `tiers/pytest_tier.py`) and `tests/unit/test_pytest.py` written at `313d54e`.
+  `uv run ruff format --check .` and `uv run ruff check .` pass;
+  `uv run mypy` reports no issues in 29 source files. The target command fails
+  48/48 as expected. Awaiting owner review and the T-9 test freeze.
+- Next: owner review and freeze T-9 at `313d54e`, then Phase 3 wires
+  `PytestTier` into the pipeline. Traceability cannot pass the merge gate until
+  the commit-subject blocker is resolved by an owner-approved route.
