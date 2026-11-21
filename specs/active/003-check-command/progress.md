@@ -1,15 +1,15 @@
 # Progress: Check command
 
-- Phase: 2 Stub & Test (T-8); T-11 and WU-2 complete
-- Work unit: WU-3 started (T-8 Phase 2)
-- Task: T-8 Phase 2 stubs and failing tests written at `88405bf`; awaiting owner freeze
+- Phase: 3 Implement & Reconcile (T-8 complete)
+- Work unit: WU-3 complete (T-8); next is T-9 (WU-4)
+- Task: T-8 complete at `2f0a617`; T-9 Phase 2 is next
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
-  `47099f4`; T-11 frozen at `f15bc2d`; T-8 written at `88405bf`, not yet frozen
+  `47099f4`; T-11 frozen at `f15bc2d`; T-8 frozen at `88405bf`
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
@@ -17,7 +17,7 @@
   at `1ee081c`; `tests/unit/test_output.py` at `47099f4`;
   `tests/acceptance/test_cli_contract.py`, `test_human_output.py`, and
   `test_exit_codes.py` at `f15bc2d`
-- T-8 tests: `tests/unit/test_types.py` at `88405bf`; not frozen
+- T-8 tests: `tests/unit/test_types.py` at `88405bf` (frozen)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -41,26 +41,32 @@
   -> 32 passed; `uv run strictr --version` -> 0.0.0; full gate
   `uv run pytest -q` -> 207 passed, 2 skipped; format, lint, and strict types
   pass
+- T-8 gate: complete at `2f0a617`; `uv run pytest tests/unit/test_types.py -q`
+  -> 53 passed; full gate `uv run pytest -q` -> 260 passed, 2 skipped; format,
+  lint, and strict types pass. Real CLI smoke: explicit mypy reports a
+  diagnostic and exits 1, auto selects mypy, `none` skips with exit 0, and
+  missing pyright errors with `pyright not found` and exit 2
 - WU-1 Phase 4 evidence at `bd67d2c`:
   `uv run pytest tests/unit/test_wu1_integration.py -q` -> 6 passed; full gate
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: owner review and freeze of `tests/unit/test_types.py` at
-  `88405bf`; then T-8 Phase 3 starts with
-  `uv run pytest tests/unit/test_types.py -q`. The owner decided on 2026-11-21
+- Next command: start T-9 Phase 2 in a new session; write
+  `tests/unit/test_pytest.py` and the JUnit/pytest-tier stubs, then
+  `uv run pytest tests/unit/test_pytest.py -q`. The owner decided on 2026-11-21
   to leave history as-is, so the T-3 commit-subject traceability blocker
   remains open and must be resolved before the merge gate.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
-- Open items: real pyright is not in CI; the timeout acceptance test needs a
-  generous bound; process-tree termination is proven by the Phase 4/T-12
-  acceptance test. T-11 tests exercise only the WU-2 two-tier pipeline
-  (Tier 0 + ruff); pass paths use `--type-checker none` so they stay valid when
-  T-8/T-9 extend it. A CLI-level `partial` exit code is not reachable until
-  T-8; AC-4's partial/error mapping remains covered by the frozen T-3 unit
-  test. Draft PR #11 is open. Traceability has two blockers: the expected
+- Open items: real pyright is not in CI; T-8 parser and selection tests use a
+  fake runner, and the real CLI smoke covered mypy only. The timeout acceptance
+  test needs a generous bound; process-tree termination is proven by the
+  Phase 4/T-12 acceptance test. The current pipeline is three tiers (Tier 0,
+  ruff, types); T-9 appends pytest and the frozen T-11/T-12 tests stay valid
+  because pass paths use `--type-checker none`. A CLI-level `partial` exit code
+  is now reachable through auto-selection when neither checker is installed.
+  Draft PR #11 is open. Traceability has two blockers: the expected
   missing tags for AC-11 and AC-16 (T-9/T-13), and the
   non-Conventional subject on the T-3 freeze commit `d2f85f9`
   (`t3-stub&test: ...`). The second blocker will remain after all AC tests
@@ -68,13 +74,6 @@
   frozen T-3 hash and every later commit hash recorded here. Owner decided on
   2026-11-21 to leave history as-is; the commit-subject blocker therefore stays
   open until a later approved resolution. Do not weaken the checker.
-- T-8 Phase 2 status: `uv run pytest tests/unit/test_types.py -q` fails 53/53
-  as expected (50 `NotImplementedError`, 3 pipeline assertions against the
-  stub); `uv run ruff format --check .`, `uv run ruff check .`, and
-  `uv run mypy` pass; full suite is 207 passed, 2 skipped, 53 failed.
-- T-8 Phase 3 must wire `TypesTier` into `app._pipeline_tiers` between the ruff
-  and pytest tiers. Existing acceptance pass paths use `--type-checker none`
-  and must stay green.
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -167,7 +166,12 @@
   expected: 50 `NotImplementedError` and 3 pipeline assertions against the
   stub. Full suite is 207 passed, 2 skipped, 53 expected failures. Awaiting
   owner review and the T-8 test freeze.
-- Next: owner reviews and freezes the T-8 tests at `88405bf`; Phase 3 then
-  implements tier 1b and wires it into `app._pipeline_tiers`. Traceability
-  cannot pass the merge gate until the commit-subject blocker is resolved by an
-  owner-approved route.
+- 2026-11-22: Owner approved the T-8 freeze at `88405bf` (Q1-Q5). Phase 3
+  implemented `tools/parsers/mypy.py`, `tools/parsers/pyright.py`, and
+  `tiers/types_tier.py`, and wired `TypesTier` into `app._pipeline_tiers` at
+  `2f0a617`. All 53 frozen tests pass; full gate `uv run pytest -q` is
+  260 passed, 2 skipped; format, lint, and strict types pass. Real CLI smoke
+  covered explicit/auto mypy, `none`, and missing pyright. T-8 checkbox marked;
+  WU-3 complete.
+- Next: T-9 Phase 2 in a new session. Traceability cannot pass the merge gate
+  until the commit-subject blocker is resolved by an owner-approved route.

@@ -520,7 +520,7 @@ repository created with `git init`.
   argparse/no-envelope behavior — verify:
   `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
   and `uv run strictr --version` — AC: AC-1..AC-4
-- [ ] T-8: Add type-checker selection, mypy/pyright parsers, and the type tier to
+- [x] T-8: Add type-checker selection, mypy/pyright parsers, and the type tier to
   the pipeline — verify: `uv run pytest tests/unit/test_types.py -q` —
   AC: AC-9, AC-10
 - [ ] T-9: Add the JUnit parser and pytest tier to the pipeline; write counts
