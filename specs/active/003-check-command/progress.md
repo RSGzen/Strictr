@@ -1,8 +1,8 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-7 complete; next T-10 Phase 2)
-- Work unit: WU-2 in progress (T-6 and T-7 complete; T-10 next)
-- Task: T-7 complete; next T-10 output renderers
+- Phase: 2 Stub & Test (T-10 written; awaiting freeze)
+- Work unit: WU-2 in progress (T-6 and T-7 complete; T-10 in Phase 2)
+- Task: T-10 Phase 2 written; awaiting test freeze
 - Spec: 003
 - Branch: feat/003-check-command
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
@@ -33,8 +33,9 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: Phase 2 for T-10; write JSON and human renderer stubs plus
-  `tests/unit/test_output.py`, then run `uv run pytest tests/unit/test_output.py -q`
+- Next command: `uv run pytest tests/unit/test_output.py -q` (currently 11
+  expected `NotImplementedError` failures); after owner freeze, implement the
+  output renderers in Phase 3
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -95,4 +96,10 @@
   `tools/parsers/ruff.py` and `tiers/ruff_tier.py` at `013cbb0`; all 18 frozen
   tests pass. Full gate `uv run pytest -q` 164 passed, 2 skipped; format, lint,
   and strict types pass. T-7 checkbox marked.
-- Next: start T-10 Phase 2 (output renderers).
+- 2026-11-21: T-10 Phase 2 stubs (`output/json_output.py`,
+  `output/human.py`) and `tests/unit/test_output.py` written at `47099f4`.
+  `uv run ruff format --check .` and `uv run ruff check .` pass; `uv run mypy`
+  reports no issues in 21 source files. The target command fails 11/11 as
+  expected with `NotImplementedError`; full suite is 164 passed, 2 skipped,
+  11 expected failures. Awaiting owner review and the T-10 test freeze.
+- Next: after the T-10 freeze, implement the JSON and human renderers.
