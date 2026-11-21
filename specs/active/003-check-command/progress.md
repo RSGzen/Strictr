@@ -1,17 +1,18 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-6 complete; next WU-2/T-7 Phase 2)
-- Work unit: WU-2 in progress (T-6 complete; T-7 next)
-- Task: T-6 complete; next T-7 ruff parser and tier
+- Phase: 2 Stub & Test (T-7 stubs and failing tests written; awaiting freeze)
+- Work unit: WU-2 in progress (T-6 complete; T-7 Phase 2)
+- Task: T-7 ruff parser and tier; Phase 2 candidate written
 - Spec: 003
 - Branch: feat/003-check-command
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
-  `5a58bd9`; T-6 frozen at `a080b62`
+  `5a58bd9`; T-6 frozen at `a080b62`; T-7 candidate at `1ee081c` (unfrozen)
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
   `tests/unit/test_tier0.py` at `a080b62`
+- T-7 candidate tests: `tests/unit/test_ruff.py` at `1ee081c` (unfrozen)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -29,14 +30,15 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: Phase 2 for T-7; write the ruff parser and tier stubs plus
-  `tests/unit/test_ruff.py`, then run `uv run pytest tests/unit/test_ruff.py -q`
+- Next command: owner review and freeze of T-7 at `1ee081c`; then Phase 3 runs
+  `uv run pytest tests/unit/test_ruff.py -q`
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
 - Open items: real pyright is not in CI; the timeout acceptance test needs a
   generous bound; process-tree termination is proven by the Phase 4/T-12
-  acceptance test; discovery-failure envelope mapping stays with T-11
+  acceptance test; discovery-failure envelope mapping stays with T-11; confirm
+  the T-7 `ruff-error` fallback code for null/empty ruff codes at freeze
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -81,4 +83,10 @@
   `tiers/ast_tier.py` at `a23aebe`; all 7 frozen tests pass. Full gate
   `uv run pytest -q` 146 passed, 2 skipped; format, lint, and strict types pass.
   T-6 checkbox marked.
-- Next: start T-7 Phase 2 (ruff parser and tier).
+- 2026-11-21: T-7 Phase 2 stubs (`tools/parsers/ruff.py`,
+  `tiers/ruff_tier.py`) and `tests/unit/test_ruff.py` written at `1ee081c`.
+  `uv run ruff format --check .` and `uv run ruff check .` pass; `uv run mypy`
+  reports no issues in 18 source files. The target command fails 18/18 as
+  expected: 17 `NotImplementedError` and one pipeline assertion against the
+  stub. Awaiting owner review and the T-7 test freeze.
+- Next: owner freezes T-7; Phase 3 implements the parser and tier.
