@@ -6,6 +6,10 @@ Tests are derived from acceptance criteria, not from source files. A spec is
 implemented when every AC has a passing automated test and the regression suite
 is green.
 
+Phase 2 of `docs/sdd-workflow.md` writes and freezes the failing AC-tagged tests.
+Phase 3 implements against them and does not edit them. Phase 4 adds integration,
+path, timeout, and failure-mode tests.
+
 Each test module declares the spec that owns it, and each AC test carries the AC:
 
 ```python

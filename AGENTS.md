@@ -6,8 +6,8 @@ Strictr is a deterministic verification tool for LLM-generated Python code. It
 parses candidate code, runs static checks, optionally runs tests, and returns
 compact machine-readable diagnostics.
 
-Current phase: spec `003-check-command` is in progress. T-1 and T-2 are
-complete; T-3 is next. There is no product CLI yet.
+Current phase: spec `003-check-command` is in progress. Phase 1 is complete;
+Phase 2 for T-3 is next. There is no product CLI yet.
 
 ## Read order
 
@@ -36,10 +36,10 @@ write or clarify the spec first.
 - `specs/archive/` — frozen, completed specs
 - `docs/product/` — durable product vision and evaluation plan
 - `docs/architecture/` — system overview, verification contract, ADRs
-- `docs/sdd-workflow.md` — Planner, Task Worker, and Integrator scopes
+- `docs/sdd-workflow.md` — single-agent phase workflow and context gates
 - `docs/` — constitution, testing and setup guides
 - `scripts/` — repository tooling
-- `internal-docs/` — local notes, git-ignored, do not edit
+- `internal-docs/` — local notes, git-ignored, owner-managed
 
 ## Commands
 
@@ -57,10 +57,10 @@ There is no `strictr` CLI yet. Add the command here when `003` lands.
 ## Workflow
 
 - Do not write behavior code without an approved spec.
-- Read `docs/sdd-workflow.md` before acting as Planner, Task Worker, or
-  Integrator.
+- Read `docs/sdd-workflow.md` before starting or resuming a phase.
 - Follow the comment and docstring policy in `docs/sdd-workflow.md`; explain why,
   not what.
+- Use `progress.md` as the only session-state file; do not create `handoff.md`.
 - Plan first if the change touches more than one file or has ambiguity.
 - Work one blueprint task at a time; run its exact verification command.
 - For behavior changes, write or update the failing test before the implementation.
@@ -104,7 +104,7 @@ Refs: AC-1, AC-2
   and a spec revision.
 - Do not commit secrets, credentials, or local environment files.
 - Do not run destructive git commands without explicit approval.
-- Do not edit `internal-docs/` or `specs/archive/`.
+- Do not edit `internal-docs/` without owner approval or `specs/archive/`.
 - Do not modify unrelated files.
 - Do not treat a missing tool, crash, or timeout as a pass.
 

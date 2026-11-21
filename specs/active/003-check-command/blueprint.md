@@ -2,7 +2,7 @@
 
 - Spec: `specs/active/003-check-command/spec.md`
 - Status: approved
-- Revised: 2026-11-21 — frozen core interfaces, warnings, truncation, counts, ADR 0008/0009
+- Revised: 2026-11-21 — frozen core interfaces, warnings, truncation, counts, ADR 0008/0009, single-agent phase workflow
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -21,9 +21,9 @@ generic engine, async runtime, cache, daemon, or sandbox. Fail-closed semantics
 are tested at every boundary. A worker may not invent a public interface or
 change the contract; the blueprint and schema are the shared interface.
 
-Durable role scopes, read/write ranges, test ownership, and handoff rules are
-defined in `docs/sdd-workflow.md`. This blueprint records only the 003-specific
-work units, commands, and decisions.
+The single-agent phase workflow is defined in `docs/sdd-workflow.md`. This
+blueprint records 003-specific design, task briefs, and verification commands;
+`progress.md` records the current phase and session state.
 
 ### Milestones
 
@@ -45,11 +45,28 @@ start against the two-tier pipeline and are extended as T-8 and T-9 land.
 | Unit | Tasks | Outcome |
 |---|---|---|
 | WU-1 | T-2, T-3, T-4, T-5 | Contract, core, discovery, and runner foundation |
-| WU-2 | T-6, T-7, T-10, P-1, T-11 | First end-to-end command: Tier 0, ruff, JSON/human output, CLI; open draft PR |
+| WU-2 | T-6, T-7, T-10, T-11 | First end-to-end command: Tier 0, ruff, JSON/human output, CLI; open draft PR |
 | WU-3 | T-8 | Type-checker selection, parsers, and tier added to the pipeline |
 | WU-4 | T-9 | Full pytest tier added to the pipeline |
 | WU-5 | T-12 | Acceptance, failure-mode, path, and timeout coverage |
-| WU-6 | P-2, T-13 | Docs contract test, full gate, traceability, convergence check |
+| WU-6 | T-13 | Docs, full gate, traceability, convergence check |
+
+### Phase execution
+
+Phases 2–4 run per work unit, not across the whole spec at once. Phase 1 and
+Phase 5 cover the whole spec.
+
+| Phase | Scope | Output |
+|---|---|---|
+| 1 Specify & Plan | Whole spec | `spec.md`, `blueprint.md`, `progress.md`; no `src/` writes |
+| 2 Stub & Test | Each WU | Annotated stubs, failing AC-tagged tests, frozen test commit |
+| 3 Implement & Reconcile | Each WU | Implementation until frozen tests pass |
+| 4 Integrate & Verify | WU-5 primarily | Acceptance and failure-mode tests; docs/changelog; PR readiness |
+| 5 Closeout & Audit | Whole spec | Read-only audit, full gate, traceability; archive after merge |
+
+WU-2 Phase 2 also writes the CLI contract/human/exit tests. WU-6 Phase 2 writes
+the docs contract test. Separate contract-test sessions are folded into those
+Phase 2 steps.
 
 ### PR and integration policy
 
@@ -95,7 +112,8 @@ start against the two-tier pipeline and are extended as T-8 and T-9 land.
 | `src/strictr/cli.py` | argparse, output switch, exit codes | New |
 | `src/strictr/__main__.py` | `python -m strictr` entry point | New |
 | `docs/architecture/verification-contract.schema.json` | Machine-readable v1 schema | New |
-| `docs/sdd-workflow.md` | Durable Planner/Task Worker/Integrator contract | New |
+| `docs/sdd-workflow.md` | Single-agent phase workflow and context gates | New |
+| `specs/active/003-check-command/progress.md` | Current phase, frozen tests, next command | New |
 | `tests/conftest.py` | Ignore fixture projects during collection | Modified |
 | `pyproject.toml` | Console script, ruff fixture exclude, test-only `jsonschema` | Modified |
 | `README.md`, `CHANGELOG.md`, `AGENTS.md`, architecture docs | Usage and status | Modified |
@@ -401,37 +419,28 @@ warnings to stderr but not the trust warning. Exit code follows the contract.
 - Running pytest or a type checker can execute arbitrary code with the user's
   privileges. This is documented and must not be described as isolation.
 
-## Test ownership and method
+## Phase ownership and test method
 
-Durable role definitions and handoff rules are in `docs/sdd-workflow.md`. SDD
-works best here as a hybrid, not as a planner pre-writing every test:
+The workflow is defined in `docs/sdd-workflow.md`; this section records how 003
+applies it.
 
-- **Planner-owned, written before implementation:** the spec, blueprint, JSON
-  Schema, golden fixtures, AC-to-test map, and the cross-cutting black-box
-  contract tests (`tests/unit/test_contract.py`,
-  `tests/acceptance/test_cli_contract.py`, `tests/acceptance/test_human_output.py`,
-  `tests/acceptance/test_exit_codes.py`, `tests/unit/test_check_docs.py`). These
-  define the public surface and must not be weakened by a worker. Planner prep
-  sessions P-1 and P-2 write the CLI and docs tests before T-11 and T-13. All
-  planner-owned tests declare `pytest.mark.spec("003")` and tag every covered
-  AC.
-- **Worker-owned, test-first per task:** each task worker writes or extends the
-  failing tests for its own task, runs them, implements the minimum, reruns,
-  and updates the blueprint checkbox. Examples: discovery, runner, parsers,
-  tiers, output rendering.
-- **Integrator-owned:** the full acceptance suite, failure-mode pass, format,
-  lint, types, full tests, traceability, and docs.
+- **Phase 1:** spec, blueprint, `progress.md`, JSON Schema, golden fixtures, and
+  the contract test. T-2 is complete and frozen.
+- **Phase 2:** for each work unit, write annotated stubs/interfaces and failing
+  AC-tagged tests. Run `mypy`, `ruff`, and the target test command. Freeze the
+  tests at a commit and record it in `progress.md`.
+- **Phase 3:** implement until the frozen tests pass. Do not edit frozen tests.
+- **Phase 4:** add integration, acceptance, failure-mode, path, and timeout
+  tests; fix implementation edge cases.
+- **Phase 5:** fresh read-only audit, full gate, traceability, and PR readiness.
 
-Pre-writing every unit test before the interfaces exist tends to encode
-guessed internals and then force the implementation to match the guess. Writing
-no tests first lets workers weaken the contract. The split above keeps the
-contract fixed and lets each vertical slice prove itself.
+The former separate contract-test sessions are folded into Phase 2 of the
+relevant work unit. `progress.md` is the only session-state file;
+`blueprint.md` owns the durable task briefs.
 
-One worker per task, sequential by default. Parallel workers are acceptable only
-when their files are disjoint and they share the locked interfaces; this spec
-is too integrated for safe parallel execution. A final integration pass is
-mandatory but is not the first time the suite runs: every task runs its exact
-command, and the full gate runs after each merge-sized task group.
+One work unit at a time, sequential by default. Parallel work is acceptable only
+with disjoint files and locked interfaces; this spec is too integrated for safe
+parallel execution.
 
 ## Test plan
 
@@ -496,14 +505,12 @@ repository created with `git init`.
 - [ ] T-10: Add JSON and human renderers; start with the two-tier pipeline and
   extend as later tiers land — verify:
   `uv run pytest tests/unit/test_output.py -q` — AC: AC-2, AC-3, AC-14
-- [ ] P-1: Planner writes the black-box CLI contract, human-output, and exit-code
-  tests, tagged with `spec("003")` and the covered ACs — verify:
-  `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
-  is expected red until T-11 — AC: AC-1..AC-4
-- [ ] T-11: Wire the app, CLI, `__main__`, and console script; start with Tier 0
-  and ruff, then extend as later tiers land. Implement the discovery/internal
-  error envelope, warnings-to-stderr behavior, and argparse/no-envelope behavior;
-  make the planner-owned CLI tests pass — verify:
+- [ ] T-11: Phase 2 writes `tests/acceptance/test_cli_contract.py`,
+  `test_human_output.py`, and `test_exit_codes.py`, tagged with `spec("003")`
+  and the covered ACs. Phase 3 wires the app, CLI, `__main__`, and console
+  script, starting with Tier 0 and ruff, and makes those tests pass. Implement
+  the discovery/internal error envelope, warnings-to-stderr behavior, and
+  argparse/no-envelope behavior — verify:
   `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
   and `uv run strictr --version` — AC: AC-1..AC-4
 - [ ] T-8: Add type-checker selection, mypy/pyright parsers, and the type tier to
@@ -516,34 +523,71 @@ repository created with `git init`.
   then add acceptance fixtures and black-box tests for tiers, discovery, failure
   modes, paths, and timeout — verify: `uv run pytest tests/acceptance -q` —
   AC: AC-1..AC-15
-- [ ] P-2: Planner writes the docs contract test, tagged with `spec("003")` and
-  AC-16 — verify: `uv run pytest tests/unit/test_check_docs.py -q` is expected
-  red until T-13 — AC: AC-16
-- [ ] T-13: Add docs and make the planner-owned docs test pass, then run the
-  full gate and traceability — verify:
+- [ ] T-13: Phase 2 writes `tests/unit/test_check_docs.py`, tagged with
+  `spec("003")` and AC-16. Phase 4 closeout updates docs, makes that test pass,
+  and runs the full gate; Phase 5 is the read-only audit — verify:
   `uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest -q`
   and the traceability command — AC: AC-16
 
-## Work unit protocol
+## Task briefs
 
-Role scopes, read/write ranges, and the task brief template are in
-`docs/sdd-workflow.md`. Each worker session:
+All tasks read `AGENTS.md`, `docs/sdd-workflow.md`, the spec, this blueprint, the
+contract, `docs/testing.md`, and the linked modules/tests. Write only the listed
+files plus the task checkbox and `progress.md`. Do not edit the spec, contract,
+schema, frozen tests, or another task's modules to make a test pass.
+
+| Task | Stubs/tests (Phase 2/4) | Implementation/docs (Phase 3/4/5) | Verify | ACs |
+|---|---|---|---|---|
+| T-3 | `core/__init__.py`; models, paths, text, protocols, errors, pipeline stubs; `tests/unit/test_core.py` | Fill the pipeline, limits, redaction, warnings, counts, and `internal error` behavior | `uv run pytest tests/unit/test_core.py -q` | AC-4, AC-12, AC-14 |
+| T-4 | `core/discovery.py` stub; `tests/unit/test_discovery.py` | Root/targets, Git/walk discovery, symlink confinement, counters, warnings | `uv run pytest tests/unit/test_discovery.py -q` | AC-5, AC-6 |
+| T-5 | `tools/__init__.py`; `tools/runner.py` stub; `tests/unit/test_runner.py` | Subprocess, UTF-8 capture, timeouts, process tree, T-3 error types | `uv run pytest tests/unit/test_runner.py -q` | AC-13 |
+| T-6 | `tiers/__init__.py`; Tier 0 stub; `tests/unit/test_tier0.py` | `ast.parse`, syntax diagnostics, in-process budget → `error` | `uv run pytest tests/unit/test_tier0.py -q` | AC-7 |
+| T-7 | parsers package; ruff parser/tier stubs; `tests/unit/test_ruff.py` | Ruff command, JSON normalization, version, failures | `uv run pytest tests/unit/test_ruff.py -q` | AC-8 |
+| T-10 | output package; renderer stubs; `tests/unit/test_output.py` | Compact JSON, human output, warnings, truncation notices | `uv run pytest tests/unit/test_output.py -q` | AC-2, AC-3, AC-14 |
+| T-11 | app/CLI/`__main__` stubs; console script; CLI contract/human/exit tests | Wire the two-tier pipeline, error envelope, argparse behavior, then extend | CLI tests + `uv run strictr --version` | AC-1..AC-4 |
+| T-8 | mypy/pyright parser and type-tier stubs; `tests/unit/test_types.py` | Selection, execution, normalization, warnings, `--type-checker none` | `uv run pytest tests/unit/test_types.py -q` | AC-9, AC-10 |
+| T-9 | JUnit parser and pytest-tier stubs; `tests/unit/test_pytest.py` | Full suite, xunit1, counts, node IDs, exit mapping, errors | `uv run pytest tests/unit/test_pytest.py -q` | AC-11 |
+| T-12 | Fixtures and acceptance tests | Integration, failure modes, paths, timeout, exit codes | `uv run pytest tests/acceptance -q` | AC-1..AC-15 |
+| T-13 | `tests/unit/test_check_docs.py` | Docs, full gate, traceability | Full gate + traceability | AC-16 |
+
+Key notes:
+
+- T-3 freezes the interfaces in the section above. Later tasks consume them.
+- T-4 resolves targets only for confinement; display original paths. Escaping
+  symlinks are errors, not `files_skipped`.
+- T-5 raises `ToolNotFoundError` and `ToolTimeoutError`; it does not encode
+  failures in magic messages.
+- T-6 over-budget is `error`, not `fail`.
+- T-7/T-8/T-9 use `core.text` for redaction/truncation and return contract
+  diagnostics; no pathless tool diagnostics.
+- T-9 writes counts to tier meta, reconstructs node IDs, and copies parsed
+  counts even on pytest error when XML exists.
+- T-11 starts with Tier 0 + ruff; T-8/T-9 extend the pipeline later. Do not
+  assert a final four-tier pass at WU-2; T-12 owns the complete envelope.
+- T-13 runs in Phase 5 and is read-only on code/tests except docs.
+
+## Phase protocol
+
+Follow `docs/sdd-workflow.md` and `progress.md`. Each session:
 
 1. Read `AGENTS.md`, `docs/sdd-workflow.md`, the spec, this blueprint, the
-   contract, and the task's linked modules/tests.
-2. Confirm the branch is `feat/003-check-command` and the worktree is clean.
-3. Write or extend the failing test first; run the exact task command and record
-   the expected failure. A test that has never failed is not evidence.
-4. Implement the minimum; rerun the exact command; do not weaken, skip, or
-   delete tests.
+   contract, and `progress.md`.
+2. Confirm the phase, branch `feat/003-check-command`, expected commit, and a
+   clean worktree.
+3. Do only the work of the current phase. Phase 2 writes stubs and failing tests;
+   Phase 3 implements against frozen tests; Phase 4 writes integration tests;
+   Phase 5 is read-only.
+4. Run the exact task command. In Phase 2, record the expected failure. In
+   Phase 3/4, it must pass.
 5. Run `uv run ruff format .`, `uv run ruff check .`, and `uv run mypy` for
-   touched modules before committing.
-6. Update only the task's checkbox after its command passes.
-7. Commit with a Conventional Commit subject and a `Spec: 003` trailer; include
-   `Refs: AC-n` for the covered criteria.
+   touched code before committing.
+6. Commit atomically with `Spec: 003` and `Refs: AC-n`; update `progress.md` and
+   the task checkbox only at the appropriate gate.
+7. At a phase gate, stop and record the result in `progress.md`.
 
-Workers must not edit the spec, blueprint, contract, schema, or public module
-interfaces to make a test pass. Raise the conflict to the planner instead.
+Do not edit frozen tests in Phase 3. Do not change an AC, non-goal, contract, or
+module boundary without human approval. Do not create a `handoff.md`;
+`progress.md` is the only session-state file.
 
 ## Rollback
 
@@ -566,7 +610,7 @@ traceability, and acceptance suite pass.
   1.2 and the owner decision on 2026-11-21.
 - [ ] The timeout acceptance test must assert a generous bound to avoid CI
   flakiness and is the single deliberate `sleep()` exception in the suite —
-  integrator, T-12.
+  Phase 4/T-12.
 - [x] Nested-project root selection uses the current directory's marker first;
   nested targets use the outer root — accepted 2026-11-21.
 - [x] Tools may import pure core types; execution refinements are recorded in

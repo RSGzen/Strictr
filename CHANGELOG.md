@@ -20,9 +20,11 @@ Versioning once a public release exists.
 
 - ADR 0008 (tools may import pure core types) and ADR 0009 (v0.1 execution
   refinements for pyright, pytest `xunit1`, Tier 0 budget, and timeout scope).
-- SDD workflow roles for Planner, Task Worker, and Integrator, including
-  read/write ranges, test ownership, handoffs, the integration gate, and the
-  comment/docstring policy.
+- SDD workflow replaced role handoffs with a single-agent phase model:
+  specify/plan, stub/test, implement, integrate, and audit, with human gates,
+  frozen tests, `progress.md` state, and 60%/70% context thresholds.
+- Removed the separate `handoff.md`; `progress.md` is the only session-state
+  file and the blueprint owns task briefs.
 - Architecture: modular verification pipeline, verification contract v1, and
   ADRs 0002–0007 for execution, statuses, type-checker selection, pytest
   integration, and local trust/timeouts.

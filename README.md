@@ -9,11 +9,12 @@ LLM judge.
 
 ## Status
 
-Architecture approved. Spec `003-check-command` is approved and in progress; the
-contract schema and golden fixtures have landed, but the verification CLI does
-not exist yet. This repository contains the SDD governance, product vision,
-evaluation plan, architecture, verification contract, specification templates,
-workflow roles, traceability tooling, and CI foundation.
+Architecture approved. Spec `003-check-command` is in progress; Phase 1 is
+complete and Phase 2 for the core slice is next. The contract schema and golden
+fixtures have landed, but the verification CLI does not exist yet. This
+repository contains the SDD governance, product vision, evaluation plan,
+architecture, verification contract, specification templates, phase workflow,
+traceability tooling, and CI foundation.
 
 The first product slice is `003-check-command`: `strictr check <paths>
 [--json]`.
@@ -34,7 +35,7 @@ uv run mypy
 - `tests/` — unit and acceptance tests
 - `specs/` — active and archived specifications
 - `docs/product/` — product vision and evaluation plan
-- `docs/sdd-workflow.md` — Planner, Task Worker, and Integrator roles
+- `docs/sdd-workflow.md` — single-agent phase workflow and context gates
 - `docs/` — constitution, architecture, ADRs, testing and setup guides
 - `scripts/` — repository tooling
 
@@ -47,7 +48,7 @@ active spec.
 - [Product vision](docs/product/vision.md) — problem, users, scope, non-goals
 - [Evaluation plan](docs/product/evaluation.md) — metrics, benchmarks, kill criteria
 - [Engineering constitution](docs/constitution.md)
-- [SDD workflow](docs/sdd-workflow.md) — Planner, Task Worker, and Integrator roles
+- [SDD workflow](docs/sdd-workflow.md) — single-agent phases and context gates
 - [System overview](docs/architecture/system-overview.md)
 - [Verification contract](docs/architecture/verification-contract.md)
 - [Architecture decisions](docs/adr/)
