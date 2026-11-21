@@ -19,6 +19,7 @@ from strictr.core.paths import relative_posix
 from strictr.core.pipeline import run_pipeline
 from strictr.core.protocols import Tier, ToolRunner
 from strictr.tiers.ast_tier import AstTier
+from strictr.tiers.pytest_tier import PytestTier
 from strictr.tiers.ruff_tier import RuffTier
 from strictr.tiers.types_tier import TypesTier
 from strictr.tools.runner import SubprocessRunner
@@ -72,8 +73,8 @@ def run_check(
 
 
 def _pipeline_tiers(tier0: Tier, runner: ToolRunner) -> tuple[Tier, ...]:
-    """Run Tier 0, ruff, then the type checker; T-9 appends pytest."""
-    return (tier0, RuffTier(runner), TypesTier(runner))
+    """Run Tier 0, ruff, the type checker, then the full test suite."""
+    return (tier0, RuffTier(runner), TypesTier(runner), PytestTier(runner))
 
 
 def _discovery_result(
