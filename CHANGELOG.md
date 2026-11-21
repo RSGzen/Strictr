@@ -18,7 +18,8 @@ Versioning once a public release exists.
 ### Added
 
 - SDD workflow roles for Planner, Task Worker, and Integrator, including
-  read/write ranges, test ownership, handoffs, and the integration gate.
+  read/write ranges, test ownership, handoffs, the integration gate, and the
+  comment/docstring policy.
 - Architecture: modular verification pipeline, verification contract v1, and
   ADRs 0002–0007 for execution, statuses, type-checker selection, pytest
   integration, and local trust/timeouts.

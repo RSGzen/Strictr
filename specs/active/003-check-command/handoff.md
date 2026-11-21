@@ -22,16 +22,19 @@ workers in parallel on this branch.
 1. Start a new session with the role and task below.
 2. Read `AGENTS.md`, `docs/sdd-workflow.md`, the spec, the blueprint, the
    contract, and the task's linked modules/tests.
-3. Check `git status --short` and `git log --oneline -1`. Stop if the worktree
+3. Follow the comment and docstring policy in `docs/sdd-workflow.md`: no
+   redundant inline comments; docstrings only for public contracts and
+   non-obvious invariants; explain why, not what.
+4. Check `git status --short` and `git log --oneline -1`. Stop if the worktree
    is dirty or the commit is not the expected latest commit.
-4. Write the failing test first. Run the exact command and record the expected
+5. Write the failing test first. Run the exact command and record the expected
    failure. A test that has never failed is not evidence.
-5. Implement the minimum. Rerun the exact command.
-6. Run format, lint, and types for touched code.
-7. Update only the task checkbox in the blueprint.
-8. Commit atomically with `Spec: 003` and `Refs: AC-n`.
-9. Report the commit hash, exact commands/results, files changed, and risks.
-10. Push at the end of each work unit or after a substantial session.
+6. Implement the minimum. Rerun the exact command.
+7. Run format, lint, and types for touched code.
+8. Update only the task checkbox in the blueprint.
+9. Commit atomically with `Spec: 003` and `Refs: AC-n`.
+10. Report the commit hash, exact commands/results, files changed, and risks.
+11. Push at the end of each work unit or after a substantial session.
 
 Do not edit the spec, contract, schema, public interfaces, `AGENTS.md`, the
 constitution, `.github/`, `internal-docs/`, or `specs/archive/`.
@@ -72,7 +75,8 @@ T-10 and T-11 may share one session with two commits. Keep T-3..T-5 separate.
 - Notes: pure pipeline with fake tiers; status precedence; fail-fast; scope,
   diagnostic, tier, envelope dataclasses; 20-diagnostic and 2,000-character
   limits; deterministic ordering; secret redaction; `ToolResult` shape for the
-  runner port.
+  runner port. Comment policy: one-line docstrings on public models, protocols,
+  and pipeline only; no field-by-field narration or duplicated contract text.
 
 ### T-4 — Discovery
 

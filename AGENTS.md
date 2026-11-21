@@ -59,6 +59,8 @@ There is no `strictr` CLI yet. Add the command here when `003` lands.
 - Do not write behavior code without an approved spec.
 - Read `docs/sdd-workflow.md` before acting as Planner, Task Worker, or
   Integrator.
+- Follow the comment and docstring policy in `docs/sdd-workflow.md`; explain why,
+  not what.
 - Plan first if the change touches more than one file or has ambiguity.
 - Work one blueprint task at a time; run its exact verification command.
 - For behavior changes, write or update the failing test before the implementation.

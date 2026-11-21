@@ -103,11 +103,35 @@ Definition of Done for a task:
 - The exact verification command passes.
 - Format, lint, and strict types pass for touched code.
 - No skipped or weakened tests.
+- Comments and docstrings follow the policy; no redundant narration.
 - Checkbox updated; commit trailer present.
 - Files changed match the task brief.
 
 Stop and escalate when the task needs an interface change, a new dependency, a
 cross-cutting refactor, a file outside the allowed range, or a change to an AC.
+
+## Comment and docstring policy
+
+All roles follow these rules. Comments explain why; code explains what.
+
+- Do not restate code or duplicate the spec, contract, blueprint, or ADR.
+- Public modules, classes, protocols, and functions get a concise docstring when
+  their contract or invariant is not obvious. Follow the existing one-line style
+  in `src/strictr/traceability.py`.
+- Private helpers need no docstring when names, types, and tests make behavior
+  clear.
+- Inline comments are for non-obvious constraints, invariants, platform
+  workarounds, or ADR/spec references. Keep them to one line where possible.
+- No commented-out code. No TODO without a spec or task reference. No
+  attribution or changelog comments.
+- If a comment conflicts with code, tests, the contract, or the docs, treat the
+  comment as a bug and update or delete it in the same change.
+- Do not copy contract fields, status tables, or blueprint decisions into
+  comments. Link to the path or ADR instead.
+
+Class-level implementation details are not documented step by step. Document the
+public contract and non-obvious invariants; otherwise improve names, types,
+structure, and tests.
 
 ## Integrator scope
 
@@ -119,7 +143,7 @@ Responsibilities:
 - Verify every AC has a tagged passing test, every blueprint failure mode has a
   test, and no orphan tags exist.
 - Review the diff for scope creep, hidden skips, weakened tests, absolute paths,
-  versions in golden files, and missing docs.
+  versions in golden files, stale or duplicated comments, and missing docs.
 - Resolve mechanical conflicts and integration glue. Send behavior defects back
   to a worker; do not quietly rewrite behavior.
 - Update the blueprint statuses, changelog, usage docs, and PR evidence.
@@ -214,6 +238,7 @@ Before the Integrator marks integration ready:
 - [ ] Format, lint, and strict types pass.
 - [ ] Traceability passes for the active spec.
 - [ ] Golden files contain no absolute paths or volatile versions.
+- [ ] Comments and docstrings follow the policy; no stale or duplicated comments.
 - [ ] No hidden skips, weakened tests, or unexplained exclusions.
 - [ ] Docs, changelog, and spec/blueprint statuses are consistent.
 - [ ] The human owner has the exact commands and results.
