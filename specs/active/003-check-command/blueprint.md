@@ -497,7 +497,7 @@ repository created with `git init`.
 - [x] T-4: Add root resolution, target confinement, Git/walk discovery, and
   counters — verify: `uv run pytest tests/unit/test_discovery.py -q` —
   AC: AC-5, AC-6
-- [ ] T-5: Add `tools/__init__.py` and the subprocess runner with UTF-8 capture,
+- [x] T-5: Add `tools/__init__.py` and the subprocess runner with UTF-8 capture,
   timeouts, process-tree termination, `ToolResult`, and the T-3 error types —
   verify: `uv run pytest tests/unit/test_runner.py -q` — AC: AC-13
 - [ ] T-6: Add Tier 0 syntax parsing — verify:
