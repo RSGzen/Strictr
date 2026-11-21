@@ -1,8 +1,8 @@
 # Progress: Check command
 
-- Phase: 2 Stub & Test (T-12b)
-- Work unit: WU-5 hardening (T-12b); T-13 next
-- Task: T-12b Phase 2 frozen at `1891a9d`; Phase 3 next
+- Phase: 4 Integrate & Verify (T-12b complete)
+- Work unit: WU-5 complete (T-12, T-12b); next is T-13 (WU-6)
+- Task: T-12b complete at `e20715e`; T-13 Phase 2 is next
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
@@ -23,7 +23,8 @@
 - T-12 tests: `tests/acceptance/test_discovery.py`, `test_tiers.py`, and
   `test_timeout.py` at `5c30bae` (frozen)
 - T-12b tests: `tests/unit/test_runner_hardening.py` and
-  `tests/unit/test_cli_hardening.py` at `1891a9d` (frozen)
+  `tests/unit/test_cli_hardening.py` at `1891a9d` (frozen);
+  `tests/acceptance/test_envelope_schema.py` at `e20715e` (Phase 4)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -59,17 +60,20 @@
 - T-12 gate: complete at `b492e57`; `uv run pytest tests/acceptance -q`
   -> 47 passed, 1 skipped; full gate `uv run pytest -q` -> 323 passed,
   3 skipped; format, lint, and strict types pass
+- T-12b gate: complete at `e20715e`; target command
+  `uv run pytest tests/unit/test_runner_hardening.py tests/unit/test_cli_hardening.py tests/acceptance/test_envelope_schema.py -q`
+  -> 11 passed; `uv run pytest tests/acceptance -q` -> 54 passed, 1 skipped;
+  full gate `uv run pytest -q` -> 334 passed, 3 skipped; format, lint, and
+  strict types pass
 - WU-1 Phase 4 evidence at `bd67d2c`:
   `uv run pytest tests/unit/test_wu1_integration.py -q` -> 6 passed; full gate
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: T-12b Phase 3 implements bounded timeout cleanup and interrupt
-  termination, then runs
-  `uv run pytest tests/unit/test_runner_hardening.py tests/unit/test_cli_hardening.py -q`.
-  The owner decided on 2026-11-21 to leave history as-is, so the T-3
-  commit-subject traceability blocker remains open and must be resolved before
-  the merge gate.
+- Next command: start T-13 Phase 2 and write `tests/unit/test_check_docs.py`
+  (AC-16), then T-13 Phase 4 closeout and Phase 5 audit. The owner decided on
+  2026-11-21 to leave history as-is, so the T-3 commit-subject traceability
+  blocker remains open and must be resolved before the merge gate.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -90,6 +94,11 @@
   Unicode path test passes. The frozen acceptance command is 47 passed,
   1 skipped (symlink creation unavailable locally); the full suite is
   323 passed, 3 skipped.
+- T-12b resolution: timeout cleanup is bounded even when tree termination fails,
+  Ctrl+C terminates the child tree, and CLI partial exit 2 plus non-pass schema
+  validation are covered. Deferred to spec 004: type-checker config/pyright
+  parity, real pytest redaction/cap tests, nested-cwd ledger semantics,
+  non-UTF8 paths, human-output polish, and traceability main/git path tests.
 - T-12 test infrastructure: added `tests/unit/__init__.py` and
   `tests/acceptance/__init__.py` so the duplicate `test_discovery.py` basename
   collects in both packages; no product behavior changes.
@@ -228,5 +237,11 @@
   when tree termination does nothing, `OSError` escaping when termination fails,
   and no child cleanup on `KeyboardInterrupt`. The CLI 130 test passes.
   Format, lint, and strict types pass. Awaiting Phase 3.
-- Next: T-12b Phase 3. Traceability cannot pass the merge gate
+- 2026-11-22: Owner approved the T-12b hardening slice. Phase 3 implemented
+  bounded timeout cleanup and interrupt termination in `tools/runner.py` at
+  `19921db`. Phase 4 added `tests/acceptance/test_envelope_schema.py` at
+  `e20715e`; target command -> 11 passed, acceptance -> 54 passed, 1 skipped,
+  full gate -> 334 passed, 3 skipped; format, lint, and strict types pass.
+  T-12b checkbox marked.
+- Next: T-13 Phase 2 docs contract test. Traceability cannot pass the merge gate
   until the commit-subject blocker is resolved by an owner-approved route.
