@@ -1,8 +1,8 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-12 complete)
-- Work unit: WU-5 complete (T-12); next is T-13 (WU-6)
-- Task: T-12 complete at `b492e57`; T-13 Phase 2 is next
+- Phase: 2 Stub & Test (T-12b)
+- Work unit: WU-5 hardening (T-12b); T-13 next
+- Task: T-12b Phase 2 frozen at `1891a9d`; Phase 3 next
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
@@ -10,7 +10,7 @@
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
   `47099f4`; T-11 frozen at `f15bc2d`; T-8 frozen at `88405bf`; T-9 frozen at
-  `313d54e`; T-12 frozen at `5c30bae`
+  `313d54e`; T-12 frozen at `5c30bae`; T-12b frozen at `1891a9d`
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
@@ -22,6 +22,8 @@
 - T-9 tests: `tests/unit/test_pytest.py` at `313d54e` (frozen)
 - T-12 tests: `tests/acceptance/test_discovery.py`, `test_tiers.py`, and
   `test_timeout.py` at `5c30bae` (frozen)
+- T-12b tests: `tests/unit/test_runner_hardening.py` and
+  `tests/unit/test_cli_hardening.py` at `1891a9d` (frozen)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -62,10 +64,12 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: start T-13 Phase 2 and write `tests/unit/test_check_docs.py`
-  (AC-16), then T-13 Phase 4 closeout and Phase 5 audit. The owner decided on
-  2026-11-21 to leave history as-is, so the T-3 commit-subject traceability
-  blocker remains open and must be resolved before the merge gate.
+- Next command: T-12b Phase 3 implements bounded timeout cleanup and interrupt
+  termination, then runs
+  `uv run pytest tests/unit/test_runner_hardening.py tests/unit/test_cli_hardening.py -q`.
+  The owner decided on 2026-11-21 to leave history as-is, so the T-3
+  commit-subject traceability blocker remains open and must be resolved before
+  the merge gate.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
@@ -219,5 +223,10 @@
   changing the frozen tests. `uv run pytest tests/acceptance -q` -> 47 passed,
   1 skipped; full gate `uv run pytest -q` -> 323 passed, 3 skipped; format,
   lint, and strict types pass. T-12 checkbox marked; WU-5 complete.
-- Next: T-13 Phase 2 docs contract test. Traceability cannot pass the merge gate
+- 2026-11-22: T-12b Phase 2 hardening tests frozen at `1891a9d`.
+  `tests/unit/test_runner_hardening.py` fails 3/3 as expected: unbounded cleanup
+  when tree termination does nothing, `OSError` escaping when termination fails,
+  and no child cleanup on `KeyboardInterrupt`. The CLI 130 test passes.
+  Format, lint, and strict types pass. Awaiting Phase 3.
+- Next: T-12b Phase 3. Traceability cannot pass the merge gate
   until the commit-subject blocker is resolved by an owner-approved route.
