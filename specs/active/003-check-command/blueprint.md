@@ -2,7 +2,7 @@
 
 - Spec: `specs/active/003-check-command/spec.md`
 - Status: approved
-- Revised: 2026-11-21 — frozen core interfaces, warnings, truncation, counts, ADR 0008/0009, single-agent phase workflow
+- Revised: 2026-11-21 — frozen core interfaces, warnings, truncation, counts, ADR 0008/0009/0010, single-agent phase workflow
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -39,8 +39,9 @@ merge until WU-6 passes.
 
 ### Work units
 
-Tasks are numbered for reference; execution follows these units. T-10 and T-11
-start against the two-tier pipeline and are extended as T-8 and T-9 land.
+Tasks are numbered for reference; WUs are checkpoints, not session scope.
+Phases 2–4 run per task or small slice. T-10 and T-11 start against the two-tier
+pipeline and are extended as T-8 and T-9 land.
 
 | Unit | Tasks | Outcome |
 |---|---|---|
@@ -53,15 +54,15 @@ start against the two-tier pipeline and are extended as T-8 and T-9 land.
 
 ### Phase execution
 
-Phases 2–4 run per work unit, not across the whole spec at once. Phase 1 and
-Phase 5 cover the whole spec.
+Phases 2–4 run per task or small slice, not across the whole spec at once.
+WUs are checkpoints. Phase 1 and Phase 5 cover the whole spec.
 
 | Phase | Scope | Output |
 |---|---|---|
 | 1 Specify & Plan | Whole spec | `spec.md`, `blueprint.md`, `progress.md`; no `src/` writes |
-| 2 Stub & Test | Each WU | Annotated stubs, failing AC-tagged tests, frozen test commit |
-| 3 Implement & Reconcile | Each WU | Implementation until frozen tests pass |
-| 4 Integrate & Verify | WU-5 primarily | Acceptance and failure-mode tests; docs/changelog; PR readiness |
+| 2 Stub & Test | Each task/slice | Annotated stubs, failing AC-tagged tests, frozen test commit |
+| 3 Implement & Reconcile | Each task/slice | Implementation until frozen tests pass |
+| 4 Integrate & Verify | Task/slice plus WU-5 | Acceptance and failure-mode tests; docs/changelog; PR readiness |
 | 5 Closeout & Audit | Whole spec | Read-only audit, full gate, traceability; archive after merge |
 
 WU-2 Phase 2 also writes the CLI contract/human/exit tests. WU-6 Phase 2 writes
@@ -71,13 +72,14 @@ Phase 2 steps.
 ### PR and integration policy
 
 - One spec, one integration branch (`feat/003-check-command`), one PR.
-- Sequential workers commit to the integration branch; do not run parallel
-  workers on overlapping files.
+- ADR 0010 records the owner-approved one-time size exception for 003. The
+  default size and branch-age targets return for later specs.
+- Sequential work; do not run parallel writers on overlapping files.
 - The draft PR opens after WU-2. A red traceability check before all AC tests
   exist is expected and must not be worked around by weakening the checker.
 - Do not merge until the WU-6 full gate, acceptance suite, and traceability
   check pass. The human owner merges.
-- If the single integration PR becomes unreviewable, split the work into
+- If this single integration PR becomes unreviewable, split the work into
   separate specs with independent AC sets. Do not open partial PRs for one spec:
   the traceability checker requires every AC in the spec on every PR.
 
@@ -438,9 +440,9 @@ The former separate contract-test sessions are folded into Phase 2 of the
 relevant work unit. `progress.md` is the only session-state file;
 `blueprint.md` owns the durable task briefs.
 
-One work unit at a time, sequential by default. Parallel work is acceptable only
-with disjoint files and locked interfaces; this spec is too integrated for safe
-parallel execution.
+One task or small slice at a time, sequential by default. A WU is a checkpoint,
+not a session scope. Parallel work is acceptable only with disjoint files and
+locked interfaces; this spec is too integrated for safe parallel execution.
 
 ## Test plan
 
@@ -574,9 +576,9 @@ Follow `docs/sdd-workflow.md` and `progress.md`. Each session:
    contract, and `progress.md`.
 2. Confirm the phase, branch `feat/003-check-command`, expected commit, and a
    clean worktree.
-3. Do only the work of the current phase. Phase 2 writes stubs and failing tests;
-   Phase 3 implements against frozen tests; Phase 4 writes integration tests;
-   Phase 5 is read-only.
+3. Do only the work of the current phase for one task or small slice. A WU is a
+   checkpoint. Phase 2 writes stubs and failing tests; Phase 3 implements against
+   frozen tests; Phase 4 writes integration tests; Phase 5 is read-only.
 4. Run the exact task command. In Phase 2, record the expected failure. In
    Phase 3/4, it must pass.
 5. Run `uv run ruff format .`, `uv run ruff check .`, and `uv run mypy` for

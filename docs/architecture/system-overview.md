@@ -353,3 +353,4 @@ The architecture keeps these seams without implementing them now:
 - [ADR 0007 — Local trust boundary, timeouts, and process termination](../adr/0007-trust-boundary-and-timeouts.md)
 - [ADR 0008 — Tools may import pure core types](../adr/0008-tools-core-imports.md)
 - [ADR 0009 — v0.1 execution refinements](../adr/0009-v0-1-execution-refinements.md)
+- [ADR 0010 — One-time size exception for spec 003](../adr/0010-check-command-size-exception.md)

@@ -27,7 +27,10 @@ spec: full v0.1 scope, no verification-contract change, a test-only JSON Schema
 dependency, an approved `AGENTS.md` update, version `0.0.0`, and an in-process
 Tier 0 budget with real subprocess timeouts for later tiers. ADR 0008 records
 the tools-to-core import boundary; ADR 0009 records the v0.1 execution
-refinements.
+refinements. ADR 0010 records the owner-approved one-time size exception: 003
+uses one integration branch and PR because splitting the command-chaining slice
+would risk a misleading partial command. Future specs return to the default
+size and branch-age targets.
 
 ## Goals
 
@@ -220,3 +223,4 @@ Deferred to later specs:
 | 2026-11-21 | 1.1 | Implementation started; T-2 contract schema work | Ge Rui Sen |
 | 2026-11-21 | 1.2 | Clarified JSON usage errors, `earlier_tier_failed`, symlink confinement, and pyright resolution | Ge Rui Sen |
 | 2026-11-21 | 1.3 | Clarified version scope, Tier 0 budget, files ledger, warnings, and network boundary | Ge Rui Sen |
+| 2026-11-21 | 1.4 | Recorded ADR 0010 one-time size exception and phase-workflow alignment | Ge Rui Sen |

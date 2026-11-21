@@ -93,7 +93,7 @@ Run:
 Gate:
 
 - Interfaces compile and match the blueprint.
-- Every AC has a tagged failing test.
+- Every AC assigned to the current task/slice has a tagged failing test.
 - Tests reflect the spec, not the intended implementation.
 - The human reviews the diff and freezes the tests at a commit.
 - Record the freeze commit in `progress.md`.
@@ -153,8 +153,12 @@ Check:
 - docs, changelog, and statuses are consistent;
 - no stale or duplicated comments.
 
-Report findings. The human owner approves the merge. Archive the spec only after
-merge; do not archive before the final gate.
+Report findings. The human owner approves the merge.
+
+**Post-merge closeout:** the owner or a delegated agent moves the spec to
+`specs/archive/`, sets status `done`, records the retrospective, updates the
+changelog/release notes, and deletes the branch. Do not archive before the final
+gate.
 
 ## `progress.md` template
 
@@ -192,9 +196,11 @@ At session start:
 At session end:
 
 1. Run the phase's verify command.
-2. Commit atomically with `Spec: NNN` and `Refs: AC-n`.
+2. Commit the phase work atomically with `Spec: NNN` and `Refs: AC-n`.
 3. Update `progress.md` with the new commit and next command.
-4. If at a phase gate, write the gate result and stop.
+4. Commit the progress update separately (for example,
+   `docs: record phase state`) or amend the phase commit before pushing.
+5. If at a phase gate, write the gate result and stop.
 
 ## Session commands
 
@@ -257,11 +263,19 @@ run the next command. Do not trust the summary as a contract.
 
 ## Large specs
 
-Apply Phases 2–4 per **vertical slice**, not across the whole spec. WU-1 stubs
-and tests, implements, and integrates before WU-2 starts. This keeps each
-session small and makes failures local.
+Apply Phases 2–4 per **task or small vertical slice**, not across the whole
+spec and not necessarily per work unit. A work unit is a checkpoint, not a
+session scope. WU-1's tasks can be stubbed, implemented, and integrated one at a
+time before WU-2 starts.
 
 Phase 1 covers the whole spec. Phase 5 covers the whole spec after all slices.
+
+### One-time size exceptions
+
+The default size and branch-age targets remain in force. A spec may exceed them
+only with an explicit owner-approved ADR and a note in the spec and PR. Spec 003
+uses ADR 0010 for this one-time exception. Future specs return to the default;
+large work splits into separate specs.
 
 ## PR and integration policy
 
@@ -269,7 +283,9 @@ This repository's traceability checker requires every AC in the active spec to
 have a tagged test on every PR. Therefore:
 
 - One spec, one integration branch, one PR.
-- Open the PR as a draft after the first end-to-end vertical slice.
+- Open the PR as a draft after the first end-to-end vertical slice. Draft checks
+  may be red until all AC tests and code exist.
+- Run the full local gate before marking the PR ready for review.
 - Traceability may be red on the draft until all AC tests exist. Never weaken
   the checker, add fake tests, or merge a red gate.
 - Merge only after the Phase 5 gate passes.
