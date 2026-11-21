@@ -1,8 +1,8 @@
 # Progress: Check command
 
-- Phase: 3 Implement & Reconcile (T-9 complete)
-- Work unit: WU-4 complete (T-9); next is T-12 (WU-5)
-- Task: T-9 complete at `16bee61`; T-12 Phase 2 is next
+- Phase: 2 Stub & Test (T-12)
+- Work unit: WU-5 in progress (T-12)
+- Task: T-12 Phase 2 freeze candidate at `5c30bae`; awaiting owner approval
 - Spec: 003
 - Branch: feat/003-check-command
 - Draft PR: #11 https://github.com/RSGzen/Strictr/pull/11
@@ -10,7 +10,7 @@
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
   `47099f4`; T-11 frozen at `f15bc2d`; T-8 frozen at `88405bf`; T-9 frozen at
-  `313d54e`
+  `313d54e`; T-12 candidate at `5c30bae` (awaiting owner approval)
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
@@ -20,6 +20,8 @@
   `test_exit_codes.py` at `f15bc2d`
 - T-8 tests: `tests/unit/test_types.py` at `88405bf` (frozen)
 - T-9 tests: `tests/unit/test_pytest.py` at `313d54e` (frozen)
+- T-12 tests: `tests/acceptance/test_discovery.py`, `test_tiers.py`, and
+  `test_timeout.py` at `5c30bae` (freeze candidate, awaiting owner approval)
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -57,9 +59,9 @@
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: start T-12 Phase 2 in a new session; add fixture excludes and
-  acceptance fixtures/tests, then `uv run pytest tests/acceptance -q`. The owner
-  decided on 2026-11-21 to leave history as-is, so the T-3 commit-subject
+- Next command: owner review and freeze T-12 at `5c30bae`; then T-12 Phase 3
+  fixes the UTF-8 stdout gap and runs `uv run pytest tests/acceptance -q`. The
+  owner decided on 2026-11-21 to leave history as-is, so the T-3 commit-subject
   traceability blocker remains open and must be resolved before the merge gate.
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
@@ -78,6 +80,15 @@
   frozen T-3 hash and every later commit hash recorded here. Owner decided on
   2026-11-21 to leave history as-is; the commit-subject blocker therefore stays
   open until a later approved resolution. Do not weaken the checker.
+- T-12 findings: `test_path_with_spaces_and_unicode` fails because the CLI
+  writes stdout with the Windows locale encoding (cp1252) rather than UTF-8;
+  AC-2 requires UTF-8. This is the expected Phase 2 failure, not a test bug.
+  T-12 Phase 3 must make CLI stdout/stderr UTF-8. The acceptance target command
+  is 46 passed, 1 failed, 1 skipped (symlink creation unavailable locally); the
+  full suite is 322 passed, 3 skipped, 1 failed.
+- T-12 test infrastructure: added `tests/unit/__init__.py` and
+  `tests/acceptance/__init__.py` so the duplicate `test_discovery.py` basename
+  collects in both packages; no product behavior changes.
 - T-9 implementation notes: `tests_run` is collected minus skipped; xunit2 paths
   are derived from the testcase classname; pathless failures and collection
   errors use the parser `error` for `meta.error`; collection errors use
@@ -193,6 +204,15 @@
   strict types pass. Real CLI smoke on a failing test reports tier2 `fail`, node
   ID, line 7, `AssertionError`, and counts 2/2/0. T-9 checkbox marked; WU-4
   complete.
-- Next: T-12 Phase 2 fixtures and acceptance tests. Traceability cannot pass the
-  merge gate until the commit-subject blocker is resolved by an owner-approved
-  route.
+- 2026-11-22: T-12 Phase 2 fixtures and acceptance tests written at `5c30bae`.
+  Added `tests/fixtures/projects/` (clean, syntax-error, ruff-error, type-error,
+  test-failure, no-tests, empty, `path with space-ü`, timeout), fixture excludes
+  in `tests/conftest.py` and Ruff `extend-exclude`, and acceptance modules
+  `test_discovery.py`, `test_tiers.py`, and `test_timeout.py`.
+  `uv run ruff format --check .`, `uv run ruff check .`, and `uv run mypy` pass.
+  Target command `uv run pytest tests/acceptance -q` fails only at
+  `test_path_with_spaces_and_unicode`: locale-encoded stdout violates AC-2's
+  UTF-8 requirement. Full suite is 322 passed, 3 skipped, 1 expected failure.
+  Awaiting owner review and the T-12 freeze.
+- Next: T-12 Phase 3 fixes UTF-8 stdout. Traceability cannot pass the merge gate
+  until the commit-subject blocker is resolved by an owner-approved route.
