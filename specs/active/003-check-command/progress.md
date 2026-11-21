@@ -1,20 +1,21 @@
 # Progress: Check command
 
-- Phase: 2 Stub & Test (T-11 written; awaiting test freeze)
-- Work unit: WU-2 in progress (T-6, T-7, T-10 complete; T-11 Phase 2 written)
-- Task: T-11 Phase 2 written; awaiting freeze
+- Phase: 3 Implement & Reconcile (T-11 complete; next T-8 Phase 2)
+- Work unit: WU-2 complete (T-6, T-7, T-10, T-11); next WU-3 with T-8
+- Task: T-11 complete; next T-8 Phase 2
 - Spec: 003
 - Branch: feat/003-check-command
 - Phase 1 gate: complete; spec 1.4 and blueprint approved (see git log)
 - Phase 2 gate: T-3 frozen at `d2f85f9`; T-4 frozen at `85536ef`; T-5 frozen at
   `5a58bd9`; T-6 frozen at `a080b62`; T-7 frozen at `1ee081c`; T-10 frozen at
-  `47099f4`; T-11 candidate at `f15bc2d`
+  `47099f4`; T-11 frozen at `f15bc2d`
 - Frozen tests: `tests/unit/test_contract.py` (Phase 1/T-2);
   `tests/unit/test_core.py` at `d2f85f9`; `tests/unit/test_discovery.py`
   at `85536ef`; `tests/unit/test_runner.py` at `5a58bd9`;
   `tests/unit/test_tier0.py` at `a080b62`; `tests/unit/test_ruff.py`
-  at `1ee081c`; `tests/unit/test_output.py` at `47099f4`; none for T-11 yet
-  (candidate: `tests/acceptance/` at `f15bc2d`)
+  at `1ee081c`; `tests/unit/test_output.py` at `47099f4`;
+  `tests/acceptance/test_cli_contract.py`, `test_human_output.py`, and
+  `test_exit_codes.py` at `f15bc2d`
 - T-3 gate: complete at `7e47daa`; `uv run pytest tests/unit/test_core.py -q`
   -> 38 passed; `uv run ruff format --check .`, `uv run ruff check .`,
   `uv run mypy`, and `uv run pytest -q` pass (106 passed)
@@ -33,23 +34,30 @@
 - T-10 gate: complete at `00cb02d`; `uv run pytest tests/unit/test_output.py -q`
   -> 11 passed; full gate `uv run pytest -q` -> 175 passed, 2 skipped; format,
   lint, and strict types pass
+- T-11 gate: complete at `244d4e8`;
+  `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
+  -> 32 passed; `uv run strictr --version` -> 0.0.0; full gate
+  `uv run pytest -q` -> 207 passed, 2 skipped; format, lint, and strict types
+  pass
 - WU-1 Phase 4 evidence at `bd67d2c`:
   `uv run pytest tests/unit/test_wu1_integration.py -q` -> 6 passed; full gate
   `uv run pytest -q` -> 139 passed, 2 skipped; format, lint, and strict types
   pass. Coverage: discovery-to-envelope scope, real subprocess fail-fast,
   timeout, missing tool, Unicode paths, warning aggregation
-- Next command: owner review and T-11 freeze at `f15bc2d`; then Phase 3 with
-  `uv run pytest tests/acceptance/test_cli_contract.py tests/acceptance/test_human_output.py tests/acceptance/test_exit_codes.py -q`
+- Next command: Phase 2 for T-8; write the mypy/pyright parser and type-tier
+  stubs plus `tests/unit/test_types.py`, then run
+  `uv run pytest tests/unit/test_types.py -q`
 - Spec changes: none; owner approved correcting the T-2 error golden from
   `earlier_tier_error` to `earlier_tier_failed` to match AC-12
 - Size exception: ADR 0010 (one spec/one PR); future specs return to default
 - Open items: real pyright is not in CI; the timeout acceptance test needs a
   generous bound; process-tree termination is proven by the Phase 4/T-12
-  acceptance test; discovery-failure envelope mapping stays with T-11.
-  T-11 tests exercise only the WU-2 two-tier pipeline (Tier 0 + ruff); pass
-  paths use `--type-checker none` so they stay valid when T-8/T-9 extend it.
-  A CLI-level `partial` exit code is not reachable until T-8; AC-4's
-  partial/error mapping remains covered by the frozen T-3 unit test.
+  acceptance test. T-11 tests exercise only the WU-2 two-tier pipeline
+  (Tier 0 + ruff); pass paths use `--type-checker none` so they stay valid when
+  T-8/T-9 extend it. A CLI-level `partial` exit code is not reachable until
+  T-8; AC-4's partial/error mapping remains covered by the frozen T-3 unit
+  test. WU-2 is complete but the draft PR is not open because `gh` is not
+  installed; that is an owner action.
 - Session state: no `handoff.md`; task briefs are in `blueprint.md`
 
 ## Phase log
@@ -121,4 +129,9 @@
   reports no issues in 24 source files. The target command fails 32/32 with
   `NotImplementedError`; the console script is installed and reachable.
   Awaiting owner review and the T-11 test freeze.
-- Next: owner review and T-11 freeze, then Phase 3 CLI wiring.
+- 2026-11-21: Owner approved the T-11 freeze at `f15bc2d`. Phase 3 wired
+  `app.py` and `cli.py` at `244d4e8`; all 32 frozen acceptance tests pass,
+  `uv run strictr --version` prints 0.0.0, and the full gate
+  `uv run pytest -q` is 207 passed, 2 skipped. Format, lint, and strict types
+  pass. T-11 checkbox marked; WU-2 complete.
+- Next: Phase 2 for T-8 (type-checker selection, parsers, and tier).
