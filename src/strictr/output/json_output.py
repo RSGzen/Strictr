@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from strictr.core.models import CheckResult
 
 
@@ -10,4 +12,4 @@ def render_json(result: CheckResult) -> str:
 
     Warnings stay inside the envelope; the caller still writes them to stderr.
     """
-    raise NotImplementedError
+    return json.dumps(result.to_envelope(), ensure_ascii=False, separators=(",", ":")) + "\n"
