@@ -131,9 +131,68 @@ class CheckResult:
 
     def to_envelope(self) -> dict[str, Any]:
         """Serialize to the contract shape; tier warnings stay internal."""
-        raise NotImplementedError
+        return {
+            "schema_version": self.schema_version,
+            "tool": {"name": self.tool.name, "version": self.tool.version},
+            "status": self.status,
+            "scope": {
+                "root": self.scope.root,
+                "targets": list(self.scope.targets),
+                "files_checked": self.scope.files_checked,
+                "files_skipped": self.scope.files_skipped,
+                "tests_collected": self.scope.tests_collected,
+                "tests_run": self.scope.tests_run,
+                "tests_skipped": self.scope.tests_skipped,
+            },
+            "tiers": [
+                {
+                    "id": tier.id,
+                    "name": tier.name,
+                    "status": tier.status,
+                    "tool": (
+                        None
+                        if tier.tool is None
+                        else {"name": tier.tool.name, "version": tier.tool.version}
+                    ),
+                    "duration_ms": tier.duration_ms,
+                    "diagnostics": [
+                        {
+                            "tier": diagnostic.tier,
+                            "source": diagnostic.source,
+                            "path": diagnostic.path,
+                            "line": diagnostic.line,
+                            "column": diagnostic.column,
+                            "end_line": diagnostic.end_line,
+                            "end_column": diagnostic.end_column,
+                            "code": diagnostic.code,
+                            "severity": diagnostic.severity,
+                            "message": diagnostic.message,
+                            "test": diagnostic.test,
+                            "exception": diagnostic.exception,
+                            "url": diagnostic.url,
+                        }
+                        for diagnostic in tier.diagnostics
+                    ],
+                    "skipped_reason": tier.skipped_reason,
+                    "meta": dict(tier.meta),
+                }
+                for tier in self.tiers
+            ],
+            "timings": {"total_ms": self.timings.total_ms},
+            "environment": {
+                "python": self.environment.python,
+                "platform": self.environment.platform,
+                "root": self.environment.root,
+            },
+            "trust": {"sandboxed": self.trust.sandboxed, "warning": self.trust.warning},
+            "warnings": list(self.warnings),
+        }
 
 
 def exit_code_for(status: OverallStatus) -> int:
     """Map an overall status to the CLI exit code."""
-    raise NotImplementedError
+    if status == "pass":
+        return 0
+    if status == "fail":
+        return 1
+    return 2
