@@ -2,7 +2,8 @@
 
 - Branch: `feat/003-check-command`
 - Base: `main`
-- Current commit: `6737891`
+- T-2 commit: `6737891`
+- Current tip: run `git log --oneline -1` before starting
 - Spec: `specs/active/003-check-command/spec.md` (`in-progress`)
 - Blueprint: `specs/active/003-check-command/blueprint.md`
 - Completed: T-1, T-2
