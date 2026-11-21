@@ -8,6 +8,20 @@ from pathlib import Path
 
 import pytest
 
+FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "projects"
+
+
+@pytest.fixture
+def copy_fixture(tmp_path: Path) -> Callable[..., Path]:
+    """Return a factory that copies a fixture project into *tmp_path*."""
+
+    def copy(name: str, destination: str | None = None) -> Path:
+        target = tmp_path / (destination or name)
+        shutil.copytree(FIXTURES / name, target)
+        return target
+
+    return copy
+
 
 @pytest.fixture
 def make_project(tmp_path: Path) -> Callable[..., Path]:

@@ -5,6 +5,9 @@ from pathlib import Path
 
 import pytest
 
+# Fixture projects contain intentional failures and a hung test; never collect them.
+collect_ignore = ["fixtures/projects"]
+
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Write a spec-scoped AC-to-test map for the traceability checker."""
