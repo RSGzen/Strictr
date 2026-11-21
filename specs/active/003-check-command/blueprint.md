@@ -491,7 +491,7 @@ repository created with `git init`.
 - [x] T-2: Add the contract JSON Schema, golden envelope fixtures, and
   `tests/unit/test_contract.py`; add test-only `jsonschema` — verify:
   `uv run pytest tests/unit/test_contract.py -q` — AC: AC-2, AC-15
-- [ ] T-3: Add `core/__init__.py`, models, path/text helpers, errors, limits,
+- [x] T-3: Add `core/__init__.py`, models, path/text helpers, errors, limits,
   redaction, and the pipeline with fake tiers; freeze the interfaces above —
   verify: `uv run pytest tests/unit/test_core.py -q` — AC: AC-4, AC-12, AC-14
 - [ ] T-4: Add root resolution, target confinement, Git/walk discovery, and
