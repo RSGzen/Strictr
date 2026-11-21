@@ -18,6 +18,7 @@ _TYPE_CHECKERS = ("mypy", "pyright", "none")
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Parse *argv*, run the check, write output, and return the exit code."""
+    _configure_stdio()
     args = _build_parser().parse_args(argv)
     try:
         result = run_check(
@@ -36,6 +37,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.stdout.write(render_human(result))
         sys.stderr.write(render_stderr(result, include_trust=True))
     return exit_code_for(result.status)
+
+
+def _configure_stdio() -> None:
+    """Emit UTF-8 regardless of the platform locale.
+
+    Paths and diagnostics are arbitrary Unicode, and the JSON contract requires
+    UTF-8; the Windows locale encoding would replace characters instead.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8")
 
 
 def _build_parser() -> argparse.ArgumentParser:

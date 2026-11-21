@@ -526,7 +526,7 @@ repository created with `git init`.
 - [x] T-9: Add the JUnit parser and pytest tier to the pipeline; write counts
   to `meta`, reconstruct node IDs, and normalize missing lines — verify:
   `uv run pytest tests/unit/test_pytest.py -q` — AC: AC-11
-- [ ] T-12: Add fixture excludes to `pyproject.toml` and `tests/conftest.py`,
+- [x] T-12: Add fixture excludes to `pyproject.toml` and `tests/conftest.py`,
   then add acceptance fixtures and black-box tests for tiers, discovery, failure
   modes, paths, and timeout — verify: `uv run pytest tests/acceptance -q` —
   AC: AC-1..AC-15
