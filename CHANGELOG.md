@@ -14,6 +14,9 @@ Versioning once a public release exists.
 
 ### Added
 
+- Architecture: modular verification pipeline, verification contract v1, and
+  ADRs 0002–0007 for execution, statuses, type-checker selection, pytest
+  integration, and local trust/timeouts.
 - SDD bootstrap: `AGENTS.md`, engineering constitution, system overview, ADR
   0001, spec and blueprint templates.
 - Traceability checker with unit tests and AC collection report.

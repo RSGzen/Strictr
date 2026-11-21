@@ -46,6 +46,8 @@ active spec.
 - [Evaluation plan](docs/product/evaluation.md) — metrics, benchmarks, kill criteria
 - [Engineering constitution](docs/constitution.md)
 - [System overview](docs/architecture/system-overview.md)
+- [Verification contract](docs/architecture/verification-contract.md)
+- [Architecture decisions](docs/adr/)
 - [Testing guide](docs/testing.md)
 - [Repository setup](docs/repo-setup.md)
 

@@ -16,8 +16,12 @@ slice. There is no product CLI yet.
 2. `docs/product/vision.md`
 3. `docs/product/evaluation.md`
 4. `docs/architecture/system-overview.md`
-5. The active spec in `specs/active/` with status `approved` or `in-progress`
-6. Its `blueprint.md`
+5. `docs/architecture/verification-contract.md`
+6. The active spec in `specs/active/` with status `approved` or `in-progress`
+7. Its `blueprint.md`
+
+Architecture decisions live in `docs/adr/`; read the ones linked from the system
+overview when changing a boundary or execution policy.
 
 If there is no approved or in-progress spec for the requested behavior, stop and
 write or clarify the spec first.
@@ -31,7 +35,8 @@ write or clarify the spec first.
 - `specs/active/` — in-flight specs
 - `specs/archive/` — frozen, completed specs
 - `docs/product/` — durable product vision and evaluation plan
-- `docs/` — constitution, architecture, ADRs, testing and setup guides
+- `docs/architecture/` — system overview, verification contract, ADRs
+- `docs/` — constitution, testing and setup guides
 - `scripts/` — repository tooling
 - `internal-docs/` — local notes, git-ignored, do not edit
 
@@ -87,6 +92,8 @@ Refs: AC-1, AC-2
 - Do not edit `AGENTS.md`, `docs/constitution.md`, `.github/`, or release
   configuration without human approval.
 - Do not add a runtime dependency without an ADR.
+- Do not change the verification contract or a module boundary without an ADR
+  and a spec revision.
 - Do not commit secrets, credentials, or local environment files.
 - Do not run destructive git commands without explicit approval.
 - Do not edit `internal-docs/` or `specs/archive/`.
@@ -114,5 +121,6 @@ Refs: AC-1, AC-2
 ## Decisions
 
 - Durable decisions go to `docs/adr/`.
+- The verification contract is binding; implementation follows it.
 - Ephemeral design details go to the blueprint.
 - Behavior changes go to the spec first.
