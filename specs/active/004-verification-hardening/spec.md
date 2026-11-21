@@ -1,7 +1,7 @@
 ---
 id: "004"
 title: "Verification hardening and edge-case coverage"
-status: draft
+status: approved
 owner: "Ge Rui Sen"
 created: 2026-11-22
 updated: 2026-11-22
@@ -145,30 +145,31 @@ This spec depends on `003` being merged to `main` first. The branch is based on
 
 ## Open questions
 
-Owner decisions to confirm at Phase 1 approval:
+Resolved by this spec:
 
-- [ ] Nested-cwd ledger: the current behavior (`root` relative to the invocation
-  directory, `targets` relative to the root) is the intended contract — owner,
-  before T-1.
-- [ ] Human output format: the exact skipped-count suffix and error-evidence
-  indentation in the blueprint are approved — owner, before T-4.
-- [ ] Non-UTF8 output: escaping lone surrogates while keeping valid Unicode
-  readable is the approved representation — owner, before T-3.
+- [x] Nested-cwd ledger: `scope.root` is relative to the invocation directory
+  and `scope.targets` is relative to the root, so running from `project/src`
+  records `root: ".."`, `targets: ["src"]` — owner, 2026-11-22.
+- [x] Human output format: the skipped-count suffix and indented error-evidence
+  format in the blueprint are approved — owner, 2026-11-22.
+- [x] Non-UTF8 output: lone surrogates are escaped while valid Unicode remains
+  readable — owner, 2026-11-22.
 
 Deferred to later specs:
 
-- [ ] Pyright wrapper-to-executable fallback when the importable wrapper fails
-  its probe.
-- [ ] Fail-closed handling of unreadable or invalid project configuration
+- Pyright wrapper-to-executable fallback when the importable wrapper fails its
+  probe.
+- Fail-closed handling of unreadable or invalid project configuration
   (`ConfigError` is currently unused).
-- [ ] `.pyi`-specific CLI acceptance coverage.
-- [ ] Windows coverage for non-regular `.py` candidates; POSIX FIFO coverage is
-  used instead.
-- [ ] Human-output color and richer formatting.
-- [ ] Traceability policy expansion beyond the current gate.
+- `.pyi`-specific CLI acceptance coverage.
+- Windows coverage for non-regular `.py` candidates; POSIX FIFO coverage is used
+  instead.
+- Human-output color and richer formatting.
+- Traceability policy expansion beyond the current gate.
 
 ## Revision log
 
 | Date | Version | Change | Author |
 |---|---|---|---|
 | 2026-11-22 | 0.1 | Initial draft for the post-`003` hardening slice | Ge Rui Sen |
+| 2026-11-22 | 1.0 | Phase 1 approved; nested-cwd, human-output, and non-UTF8 decisions resolved | Ge Rui Sen |

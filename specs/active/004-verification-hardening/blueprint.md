@@ -1,7 +1,7 @@
 # Blueprint: Verification hardening and edge-case coverage
 
 - Spec: `specs/active/004-verification-hardening/spec.md`
-- Status: draft
+- Status: approved
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -159,8 +159,7 @@ Full gate:
 
 ## Tasks
 
-- [ ] T-1: Add nested-cwd and absolute-target acceptance tests; confirm the
-  ledger wording — verify:
+- [ ] T-1: Add nested-cwd and absolute-target acceptance tests — verify:
   `uv run pytest tests/acceptance/test_scope_paths.py -q` — AC: AC-1
 - [ ] T-2: Add in-root symlink display tests — verify:
   `uv run pytest tests/unit/test_path_display.py -q` — AC: AC-2
@@ -186,7 +185,7 @@ Full gate:
 
 | Task | Stubs/tests (Phase 2/4) | Implementation/docs (Phase 3/4) | Verify | ACs |
 |---|---|---|---|---|
-| T-1 | `tests/acceptance/test_scope_paths.py` | Clarify any blueprint wording; no product behavior change | `uv run pytest tests/acceptance/test_scope_paths.py -q` | AC-1 |
+| T-1 | `tests/acceptance/test_scope_paths.py` | None expected; no product behavior change | `uv run pytest tests/acceptance/test_scope_paths.py -q` | AC-1 |
 | T-2 | `tests/unit/test_path_display.py` | None expected | `uv run pytest tests/unit/test_path_display.py -q` | AC-2 |
 | T-3 | `tests/unit/test_output_non_utf8.py`, `tests/acceptance/test_non_utf8_paths.py` | Surrogate-safe helper in `core/text.py`; apply in both renderers | `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q` | AC-3 |
 | T-4 | `tests/unit/test_human_hardening.py`, `tests/acceptance/test_human_errors.py` | `output/human.py` skipped count, error evidence, truncation for error tiers | `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q` | AC-4 |
@@ -216,16 +215,21 @@ consumer problem, keep the tests and revert the renderer change separately.
 
 ## Open technical questions
 
-- [ ] Nested-cwd ledger semantics: confirm the current behavior before T-1 —
-  owner.
-- [ ] Human output wording and error-evidence indentation: approve the contract
-  above before T-4 — owner.
-- [ ] Surrogate escaping representation: confirm that JSON `\uDCxx` escapes and
-  readable valid Unicode are acceptable before T-3 — owner.
-- [ ] Pyright wrapper-to-executable fallback is deferred; do not add it in `004`.
-- [ ] Config parse errors (`ConfigError`) are deferred; do not change fail-open
+Phase 1 approved 2026-11-22:
+
+- [x] Nested-cwd ledger semantics: `root` is relative to the invocation
+  directory and `targets` is relative to the root — owner.
+- [x] Human output wording and error-evidence indentation: approved as written
+  above — owner.
+- [x] Surrogate escaping representation: JSON `\uDCxx` escapes with readable
+  valid Unicode are approved — owner.
+
+Deferred:
+
+- [x] Pyright wrapper-to-executable fallback is deferred; do not add it in `004`.
+- [x] Config parse errors (`ConfigError`) are deferred; do not change fail-open
   behavior in `004`.
-- [ ] Real pyright is not in CI; do not claim parity beyond the fake-module
+- [x] Real pyright is not in CI; do not claim parity beyond the fake-module
   boundary.
 
 ## Retrospective
