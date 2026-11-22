@@ -1,20 +1,23 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 2 Stub & Test — T-2 tests written, awaiting owner review/freeze
+- Phase: 2 Stub & Test — T-2 frozen; T-3 on hold per owner
 - Spec: 004
 - Branch: feat/004-verification-hardening
 - Base: main at `5897fc5`
 - Dependency: `003-check-command` is merged; this branch is rebased onto `main`.
 - Last gate: Phase 1 approved by the owner on 2026-11-22 at `6010728`;
-  T-1 freeze approved on 2026-11-22 at `558dfde`.
+  T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`.
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
-  T-2 tests at `ae77ab2` await the owner freeze
-- Next command: `uv run pytest tests/unit/test_path_display.py -q`
+  `tests/unit/test_path_display.py` at `ae77ab2` (AC-2)
+- Next command: POSIX CI run of
+  `uv run pytest tests/unit/test_path_display.py -q`; T-3 is on hold per the
+  owner and must not start.
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
 - Open items: spec 003 archive closeout is pending; T-1 has no Phase 3 because
-  no production change was needed. T-2 symlink tests skip locally on Windows
-  (`WinError 1314`); POSIX CI must provide their execution evidence.
+  no production change was needed. T-2 tests remain skipped locally on Windows
+  (`WinError 1314`); its completion checkbox and AC-2 pass status await real
+  POSIX execution evidence. T-3 not started.
 
 ## Phase log
 
@@ -43,3 +46,7 @@
   `.py`/`.pyi` links and an explicitly targeted link, asserting link display
   paths in discovery and Tier 0 diagnostics. Format, lint, and strict types
   pass. Awaiting owner review and the T-2 freeze; POSIX CI must run the tests.
+- 2026-11-22: Owner approved the T-2 freeze at `ae77ab2` and put T-3 on hold.
+  The freeze is recorded. T-2's checkbox and AC-2 pass status stay open until a
+  POSIX run exercises the symlink tests; a local skip is not treated as a pass.
+  No T-3 work started.
