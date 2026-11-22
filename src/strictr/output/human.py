@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from strictr.core.models import CheckResult, Diagnostic, TierResult
+from strictr.core.text import escape_surrogates
 
 _DIAGNOSTIC_PREVIEW_LIMIT = 5
 
@@ -28,7 +29,7 @@ def render_human(result: CheckResult) -> str:
         if notice is not None:
             lines.append(notice)
 
-    return "\n".join(lines) + "\n"
+    return escape_surrogates("\n".join(lines)) + "\n"
 
 
 def render_stderr(result: CheckResult, *, include_trust: bool) -> str:
