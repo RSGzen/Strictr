@@ -1,28 +1,29 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 2 Stub & Test — T-3 tests written, awaiting owner freeze
+- Phase: 3 Implement & Reconcile — T-3 implemented; POSIX acceptance pending
 - Spec: 004
 - Branch: feat/004-verification-hardening
 - Base: main at `5897fc5`
 - Dependency: `003-check-command` is merged; this branch is rebased onto `main`.
 - Last gate: Phase 1 approved by the owner on 2026-11-22 at `6010728`;
-  T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`.
+  T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`;
+  T-3 freeze approved at `585bfd6`.
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
   `tests/unit/test_path_display.py` at `ae77ab2` (AC-2);
   `tests/unit/test_output_non_utf8.py` and
-  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6` (AC-3, pending freeze)
-- Next command: after the T-3 freeze, implement the surrogate-safe helper in
-  `core/text.py`, apply it in both renderers, then run
-  `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q`.
-  The unit tests are expected red until that implementation; the acceptance
-  module requires POSIX and skips on Windows.
+  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6` (AC-3)
+- Next command: T-4 Phase 2 in a new session — write
+  `tests/unit/test_human_hardening.py` and
+  `tests/acceptance/test_human_errors.py`, then run
+  `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q`.
+  Before T-10, POSIX CI must run the T-2 and T-3 acceptance modules.
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
 - Open items: spec 003 archive closeout is pending; T-1 has no Phase 3 because
   no production change was needed. T-2 tests remain skipped locally on Windows
   (`WinError 1314`); its completion checkbox and AC-2 pass status await real
-  POSIX execution evidence. The owner lifted the T-3 hold on 2026-11-22; T-3
-  Phase 3 and POSIX acceptance evidence are pending.
+  POSIX execution evidence. T-3 is implemented at `bf9d277`; its checkbox and
+  AC-3 pass status await the frozen acceptance tests on POSIX CI.
 
 ## Phase log
 
@@ -62,3 +63,11 @@
   -> 2 failed (`UnicodeEncodeError` in both renderers), 2 skipped (POSIX-only).
   Format, lint, and strict types pass. No production code changed; the
   surrogate-safe helper belongs to Phase 3. Awaiting owner review and freeze.
+- 2026-11-22: Owner approved the T-3 freeze at `585bfd6` and assigned Phase 3.
+  Implemented `escape_surrogates` in `core/text.py` and applied it in
+  `render_json` and `render_human` at `bf9d277`. Exact command -> 2 passed,
+  2 skipped on Windows. A stdlib-only POSIX smoke check in Ubuntu WSL passed:
+  JSON strictly decoded as UTF-8 with `\udcff` escaped and `módulo.py` readable;
+  human mode exited 1 without a traceback. Full suite -> 343 passed, 8 skipped;
+  format, lint, and strict types pass. The T-3 checkbox and AC-3 pass status
+  stay open until the frozen acceptance tests run on POSIX CI.
