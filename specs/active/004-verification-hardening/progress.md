@@ -1,18 +1,18 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 2 Stub & Test — T-1 tests written, awaiting owner review/freeze
+- Phase: 2 Stub & Test — T-1 frozen; T-2 not started
 - Spec: 004
 - Branch: feat/004-verification-hardening
 - Base: main at `5897fc5`
 - Dependency: `003-check-command` is merged; this branch is rebased onto `main`.
 - Last gate: Phase 1 approved by the owner on 2026-11-22 at `6010728`;
-  spec revision 1.1 adds AC-9.
-- Frozen tests: none yet; T-1 tests at `558dfde` await the owner freeze
-- Next command: `uv run pytest tests/acceptance/test_scope_paths.py -q`
+  T-1 freeze approved on 2026-11-22 at `558dfde`.
+- Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1)
+- Next command: T-2 Phase 2, `uv run pytest tests/unit/test_path_display.py -q`
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
-- Open items: spec 003 archive closeout is pending; T-1 Phase 3 is a no-op if
-  the tests are frozen as-is (no production change needed).
+- Open items: spec 003 archive closeout is pending; T-1 has no Phase 3 because
+  no production change was needed.
 
 ## Phase log
 
@@ -32,3 +32,6 @@
   passed; format, lint, and strict types pass. The tests pass against existing
   `003` behavior, so T-1 needs no production change. Awaiting owner review and
   the T-1 freeze.
+- 2026-11-22: Owner approved the T-1 freeze at `558dfde` and confirmed no Phase 3
+  is needed. T-1 is complete and the blueprint checkbox is marked. Next is T-2
+  Phase 2; no work started on it.

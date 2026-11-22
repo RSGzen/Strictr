@@ -157,7 +157,7 @@ fail the lint tier before the tier under test runs.
 
 | AC | Layer | Test module | Command | Status |
 |---|---|---|---|---|
-| AC-1 | acceptance | `tests/acceptance/test_scope_paths.py` | `uv run pytest tests/acceptance/test_scope_paths.py -q` | todo |
+| AC-1 | acceptance | `tests/acceptance/test_scope_paths.py` | `uv run pytest tests/acceptance/test_scope_paths.py -q` | pass |
 | AC-2 | unit | `tests/unit/test_path_display.py` | `uv run pytest tests/unit/test_path_display.py -q` | todo |
 | AC-3 | unit, acceptance | `tests/unit/test_output_non_utf8.py`, `tests/acceptance/test_non_utf8_paths.py` | `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q` | todo |
 | AC-4 | unit, acceptance | `tests/unit/test_human_hardening.py`, `tests/acceptance/test_human_errors.py` | `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q` | todo |
@@ -173,7 +173,7 @@ Full gate:
 
 ## Tasks
 
-- [ ] T-1: Add nested-cwd and absolute-target acceptance tests — verify:
+- [x] T-1: Add nested-cwd and absolute-target acceptance tests — verify:
   `uv run pytest tests/acceptance/test_scope_paths.py -q` — AC: AC-1
 - [ ] T-2: Add in-root symlink display tests — verify:
   `uv run pytest tests/unit/test_path_display.py -q` — AC: AC-2
