@@ -1,6 +1,6 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 2 Stub & Test — T-2 frozen; T-3 on hold per owner
+- Phase: 2 Stub & Test — T-3 tests written, awaiting owner freeze
 - Spec: 004
 - Branch: feat/004-verification-hardening
 - Base: main at `5897fc5`
@@ -8,16 +8,21 @@
 - Last gate: Phase 1 approved by the owner on 2026-11-22 at `6010728`;
   T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`.
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
-  `tests/unit/test_path_display.py` at `ae77ab2` (AC-2)
-- Next command: POSIX CI run of
-  `uv run pytest tests/unit/test_path_display.py -q`; T-3 is on hold per the
-  owner and must not start.
+  `tests/unit/test_path_display.py` at `ae77ab2` (AC-2);
+  `tests/unit/test_output_non_utf8.py` and
+  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6` (AC-3, pending freeze)
+- Next command: after the T-3 freeze, implement the surrogate-safe helper in
+  `core/text.py`, apply it in both renderers, then run
+  `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q`.
+  The unit tests are expected red until that implementation; the acceptance
+  module requires POSIX and skips on Windows.
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
 - Open items: spec 003 archive closeout is pending; T-1 has no Phase 3 because
   no production change was needed. T-2 tests remain skipped locally on Windows
   (`WinError 1314`); its completion checkbox and AC-2 pass status await real
-  POSIX execution evidence. T-3 not started.
+  POSIX execution evidence. The owner lifted the T-3 hold on 2026-11-22; T-3
+  Phase 3 and POSIX acceptance evidence are pending.
 
 ## Phase log
 
@@ -50,3 +55,10 @@
   The freeze is recorded. T-2's checkbox and AC-2 pass status stay open until a
   POSIX run exercises the symlink tests; a local skip is not treated as a pass.
   No T-3 work started.
+- 2026-11-22: Owner lifted the T-3 hold and assigned T-3 Phase 2. Wrote
+  `tests/unit/test_output_non_utf8.py` and
+  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6`. The exact command
+  `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q`
+  -> 2 failed (`UnicodeEncodeError` in both renderers), 2 skipped (POSIX-only).
+  Format, lint, and strict types pass. No production code changed; the
+  surrogate-safe helper belongs to Phase 3. Awaiting owner review and freeze.
