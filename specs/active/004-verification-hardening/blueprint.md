@@ -161,10 +161,10 @@ fail the lint tier before the tier under test runs.
 | AC-2 | unit | `tests/unit/test_path_display.py` | `uv run pytest tests/unit/test_path_display.py -q` | todo |
 | AC-3 | unit, acceptance | `tests/unit/test_output_non_utf8.py`, `tests/acceptance/test_non_utf8_paths.py` | `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q` | todo |
 | AC-4 | unit, acceptance | `tests/unit/test_human_hardening.py`, `tests/acceptance/test_human_errors.py` | `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q` | todo |
-| AC-5 | acceptance | `tests/acceptance/test_type_config.py` | `uv run pytest tests/acceptance/test_type_config.py -q` | todo |
-| AC-6 | acceptance | `tests/acceptance/test_pytest_config.py` | `uv run pytest tests/acceptance/test_pytest_config.py -q` | todo |
-| AC-7 | acceptance | `tests/acceptance/test_redaction_truncation.py` | `uv run pytest tests/acceptance/test_redaction_truncation.py -q` | todo |
-| AC-8 | unit | `tests/unit/test_traceability_entry.py` | `uv run pytest tests/unit/test_traceability_entry.py -q` | todo |
+| AC-5 | acceptance | `tests/acceptance/test_type_config.py` | `uv run pytest tests/acceptance/test_type_config.py -q` | pass |
+| AC-6 | acceptance | `tests/acceptance/test_pytest_config.py` | `uv run pytest tests/acceptance/test_pytest_config.py -q` | pass |
+| AC-7 | acceptance | `tests/acceptance/test_redaction_truncation.py` | `uv run pytest tests/acceptance/test_redaction_truncation.py -q` | pass |
+| AC-8 | unit | `tests/unit/test_traceability_entry.py` | `uv run pytest tests/unit/test_traceability_entry.py -q` | pass |
 | AC-9 | acceptance | `tests/acceptance/test_discovery_error_paths.py` | `uv run pytest tests/acceptance/test_discovery_error_paths.py -q` | todo |
 
 Full gate:
@@ -184,13 +184,13 @@ Full gate:
 - [ ] T-4: Add human skipped/error evidence tests and renderer changes — verify:
   `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q`
   — AC: AC-4
-- [ ] T-5: Add type-checker configuration and fake-pyright acceptance tests —
+- [x] T-5: Add type-checker configuration and fake-pyright acceptance tests —
   verify: `uv run pytest tests/acceptance/test_type_config.py -q` — AC: AC-5
-- [ ] T-6: Add pytest `testpaths` parity acceptance test — verify:
+- [x] T-6: Add pytest `testpaths` parity acceptance test — verify:
   `uv run pytest tests/acceptance/test_pytest_config.py -q` — AC: AC-6
-- [ ] T-7: Add real redaction/truncation acceptance tests — verify:
+- [x] T-7: Add real redaction/truncation acceptance tests — verify:
   `uv run pytest tests/acceptance/test_redaction_truncation.py -q` — AC: AC-7
-- [ ] T-8: Add traceability entry-point failure-path tests — verify:
+- [x] T-8: Add traceability entry-point failure-path tests — verify:
   `uv run pytest tests/unit/test_traceability_entry.py -q` — AC: AC-8
 - [ ] T-9: Normalize discovery-error targets and add acceptance coverage —
   verify: `uv run pytest tests/acceptance/test_discovery_error_paths.py -q` —

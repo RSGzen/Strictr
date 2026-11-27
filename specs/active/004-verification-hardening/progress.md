@@ -1,24 +1,30 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 2 Stub & Test for the grouped T-4..T-9 slice; T-1..T-3 are
-  implemented and frozen, with POSIX evidence pending
+- Phase: 3 Implement & Reconcile for T-4 and T-9; T-1..T-3 and T-5..T-8 are
+  implemented/frozen, with POSIX evidence pending for T-2 and T-3
 - Spec: 004
 - Branch: feat/004-verification-hardening
 - Base: main at `5897fc5`
 - Dependency: `003-check-command` is merged; this branch is rebased onto `main`.
 - Last gate: Phase 1 approved by the owner on 2026-11-22 at `6010728`;
   T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`;
-  T-3 freeze approved at `585bfd6`.
+  T-3 freeze approved at `585bfd6`; T-4..T-9 freeze approved at `ac7818c`
+  on 2026-11-27.
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
   `tests/unit/test_path_display.py` at `ae77ab2` (AC-2);
   `tests/unit/test_output_non_utf8.py` and
-  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6` (AC-3).
-  T-4..T-9 tests are written at `ac7818c` and await the owner freeze.
-- Next command: owner review and freeze of `ac7818c`, then Phase 3 for T-4 and
-  T-9 only:
+  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6` (AC-3);
+  `tests/unit/test_human_hardening.py` and
+  `tests/acceptance/test_human_errors.py` (AC-4);
+  `tests/acceptance/test_type_config.py` (AC-5);
+  `tests/acceptance/test_pytest_config.py` (AC-6);
+  `tests/acceptance/test_redaction_truncation.py` (AC-7);
+  `tests/unit/test_traceability_entry.py` (AC-8); and
+  `tests/acceptance/test_discovery_error_paths.py` (AC-9) all at `ac7818c`.
+- Next command: Phase 3 for T-4 and T-9 only:
   `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q`
   and `uv run pytest tests/acceptance/test_discovery_error_paths.py -q`.
-  T-5..T-8 need no production change unless freeze review finds a defect.
+  T-5..T-8 need no production change; their exact commands already pass.
   Before T-10, POSIX CI must run the T-2 and T-3 acceptance modules.
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
@@ -83,4 +89,7 @@
   (4) gaps. T-5..T-8 pass against current behavior and need no Phase 3 unless
   freeze review finds a defect. Format, lint, and strict types pass;
   collect-only -> 379 tests; local traceability -> ok with a placeholder PR
-  title. Awaiting owner review and freeze.
+  title.
+- 2026-11-27: Owner approved the T-4..T-9 freeze at `ac7818c` with no changes.
+  T-5..T-8 are complete with no production change. Phase 3 starts for T-4
+  (`output/human.py`) and T-9 (`app.py`) only.
