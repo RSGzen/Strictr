@@ -10,7 +10,8 @@
   T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`;
   T-3 freeze approved at `585bfd6`; T-4..T-9 freeze approved at `ac7818c`
   on 2026-11-27. T-4 Phase 3 at `53bc220`; T-9 Phase 3 at `0fb0ca9`; T-10
-  local gate green with the tree at `70e0f3e`.
+  local gate green with the tree at `70e0f3e`. WSL Ubuntu ran the full suite:
+  379 passed, including the frozen T-2/T-3 modules.
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
   `tests/unit/test_path_display.py` at `ae77ab2` (AC-2);
   `tests/unit/test_output_non_utf8.py` and
@@ -30,12 +31,12 @@
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
 - Open items: spec 003 archive closeout is pending; T-1 has no Phase 3 because
-  no production change was needed. T-2 tests remain skipped locally on Windows
-  (`WinError 1314`); its completion checkbox and AC-2 pass status await real
-  POSIX execution evidence. T-3 is implemented at `bf9d277`; its checkbox and
-  AC-3 pass status await the frozen acceptance tests on POSIX CI. No PR is open
-  yet, and CI only runs on pull requests, so a draft PR is required for that
-  evidence. The POSIX FIFO acceptance case is omitted because ruff reads the
+  no production change was needed. T-2 is skipped locally on Windows
+  (`WinError 1314`), but its frozen tests passed on WSL Ubuntu. T-3 is
+  implemented at `bf9d277`, and its frozen tests also passed on WSL Ubuntu. The
+  integration gate still requires Windows and Linux CI, so the T-2/T-3
+  checkboxes and AC-2/AC-3 statuses stay open until the draft PR runs CI. No PR
+  is open yet. The POSIX FIFO acceptance case is omitted because ruff reads the
   FIFO; the human skipped-count unit test is the AC-4 evidence.
 
 ## Phase log
@@ -105,3 +106,8 @@
   skipped; collect-only 379 tests; local traceability -> ok. `CHANGELOG.md`
   records the hardening slice. T-10 remains open until the owner opens the
   draft PR and POSIX CI supplies T-2/T-3 evidence.
+- 2026-11-27: WSL Ubuntu at HEAD `012187c` ran
+  `uv run pytest tests/unit/test_path_display.py tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q`
+  -> 7 passed, then `uv run pytest -q` -> 379 passed. This is local POSIX
+  evidence for T-2/T-3; their checkboxes still await the required Linux CI run
+  after the draft PR opens.
