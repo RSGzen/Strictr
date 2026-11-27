@@ -85,7 +85,7 @@ def _discovery_result(
     type_checker: TypeCheckerChoice | None,
     timeout: float | None,
 ) -> CheckResult:
-    recorded = tuple(target for target in targets if target) or (".",)
+    recorded = _recorded_targets(targets)
     context = CheckContext(
         root=Path.cwd(),
         targets=recorded,
@@ -100,6 +100,20 @@ def _discovery_result(
         context,
         scope,
     )
+
+
+def _recorded_targets(targets: Sequence[str]) -> tuple[str, ...]:
+    root = Path.cwd()
+    normalized: list[str] = []
+    for target in targets:
+        if not target:
+            continue
+        try:
+            normalized.append(relative_posix(Path(target), root))
+        except ValueError:
+            # Windows cannot relativize a path on another drive.
+            normalized.append(Path(target).as_posix())
+    return tuple(sorted(set(normalized))) or (".",)
 
 
 @dataclass(slots=True)
