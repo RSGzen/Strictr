@@ -1,8 +1,9 @@
 # Blueprint: Verification hardening and edge-case coverage
 
-- Spec: `specs/active/004-verification-hardening/spec.md`
-- Status: approved
-- Revised: 2026-11-22 — adds AC-9/T-9 for discovery-error target normalization
+- Spec: `specs/archive/004-verification-hardening/spec.md`
+- Status: done (merged; spec archived)
+- Revised: 2026-11-28 — closeout bookkeeping, CI evidence, failure-mode test names,
+  retrospective
 - Owner: Ge Rui Sen
 
 ## Approach
@@ -100,7 +101,10 @@ No success-path behavior changes. `scope.root` and the existing error reason sta
 as they are. `scope.targets` is normalized relative to that root, sorted, and
 de-duplicated, with `/` separators. On Windows, separator backslashes become
 `/`; on POSIX, a literal backslash is part of the filename and is preserved. The
-error envelope still validates against the v1 schema and exits 2.
+error envelope still validates against the v1 schema and exits 2. A target on a
+different Windows drive cannot be made root-relative; the recorded target falls
+back to its absolute POSIX path. That edge has no automated test and is deferred
+to a follow-up spec.
 
 ### Type-checker and pytest parity
 
@@ -130,18 +134,18 @@ fail the lint tier before the tier under test runs.
 |---|---|---|
 | CLI run from a subdirectory | Ledger records `root` and `targets` relative to the correct roots | `test_nested_cwd_ledger` |
 | In-root symlink | Display path is the link, not the resolved target | `test_in_root_symlink_uses_link_path` |
-| Discovery error with Windows separators | Targets are normalized, sorted, de-duplicated POSIX paths; schema valid; exit 2 | `test_discovery_error_targets` |
+| Discovery error with Windows separators | Targets are normalized, sorted, de-duplicated POSIX paths; schema valid; exit 2 | `test_discovery_error_targets_are_sorted_and_deduplicated`, `test_discovery_error_normalizes_windows_separators`, `test_discovery_error_deduplicates_mixed_separators` |
 | Non-UTF8 POSIX filename | JSON is valid UTF-8; no renderer crash | `test_non_utf8_path_json`, `test_non_utf8_json_render` |
-| Skipped non-regular file | Human output shows skipped count; JSON records it | `test_human_reports_skipped_files` |
+| Skipped non-regular file | Human output shows the skipped count; discovery records `files_skipped` | `test_human_reports_skipped_files`, `test_non_regular_python_candidate_is_skipped` |
 | Pytest collection error | Human output includes collection evidence | `test_human_collection_error_shows_evidence` |
 | Tool error without diagnostics | Human output shows the redacted `meta.error` line | `test_human_tool_error_shows_meta_error` |
-| Config-selected checker | Selection and warning are recorded correctly | type-config tests |
+| Config-selected checker | Selection and warning are recorded correctly | `test_config_selects_mypy`, `test_both_configured_selects_mypy_and_warns_once` |
 | Configured checker unavailable | Tier is `error`, not pass | `test_configured_checker_unavailable` |
 | Pytest `testpaths` | Only configured tests are collected | `test_pytest_testpaths_is_honored` |
 | Secret in pytest failure | Secret is redacted in JSON | `test_real_pytest_secret_is_redacted` |
 | Long real message | Message is capped and marked truncated | `test_real_pytest_message_is_capped` |
 | >20 ruff findings | 20 kept, total recorded, human count shown | `test_ruff_count_cap` |
-| Traceability missing env/git failure | Exit 1 with stderr | traceability entry tests |
+| Traceability missing env/git failure | Exit 1 with stderr | `test_main_requires_environment`, `test_main_reports_git_failure` |
 
 ## Security and trust boundaries
 
@@ -158,8 +162,8 @@ fail the lint tier before the tier under test runs.
 | AC | Layer | Test module | Command | Status |
 |---|---|---|---|---|
 | AC-1 | acceptance | `tests/acceptance/test_scope_paths.py` | `uv run pytest tests/acceptance/test_scope_paths.py -q` | pass |
-| AC-2 | unit | `tests/unit/test_path_display.py` | `uv run pytest tests/unit/test_path_display.py -q` | todo |
-| AC-3 | unit, acceptance | `tests/unit/test_output_non_utf8.py`, `tests/acceptance/test_non_utf8_paths.py` | `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q` | todo |
+| AC-2 | unit | `tests/unit/test_path_display.py` | `uv run pytest tests/unit/test_path_display.py -q` | pass |
+| AC-3 | unit, acceptance | `tests/unit/test_output_non_utf8.py`, `tests/acceptance/test_non_utf8_paths.py` | `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q` | pass |
 | AC-4 | unit, acceptance | `tests/unit/test_human_hardening.py`, `tests/acceptance/test_human_errors.py` | `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q` | pass |
 | AC-5 | acceptance | `tests/acceptance/test_type_config.py` | `uv run pytest tests/acceptance/test_type_config.py -q` | pass |
 | AC-6 | acceptance | `tests/acceptance/test_pytest_config.py` | `uv run pytest tests/acceptance/test_pytest_config.py -q` | pass |
@@ -175,9 +179,9 @@ Full gate:
 
 - [x] T-1: Add nested-cwd and absolute-target acceptance tests — verify:
   `uv run pytest tests/acceptance/test_scope_paths.py -q` — AC: AC-1
-- [ ] T-2: Add in-root symlink display tests — verify:
+- [x] T-2: Add in-root symlink display tests — verify:
   `uv run pytest tests/unit/test_path_display.py -q` — AC: AC-2
-- [ ] T-3: Add non-UTF8 output tests and the surrogate-safe renderer helper —
+- [x] T-3: Add non-UTF8 output tests and the surrogate-safe renderer helper —
   verify:
   `uv run pytest tests/unit/test_output_non_utf8.py tests/acceptance/test_non_utf8_paths.py -q`
   — AC: AC-3
@@ -195,7 +199,7 @@ Full gate:
 - [x] T-9: Normalize discovery-error targets and add acceptance coverage —
   verify: `uv run pytest tests/acceptance/test_discovery_error_paths.py -q` —
   AC: AC-9
-- [ ] T-10: Update `CHANGELOG.md`, run the full gate, and open the PR — verify:
+- [x] T-10: Update `CHANGELOG.md`, run the full gate, and open the PR — verify:
   the full gate above — AC: AC-1..AC-9
 
 ## Task briefs
@@ -245,7 +249,9 @@ Phase 1 approved 2026-11-22:
 
 Deferred:
 
-- [x] Pyright wrapper-to-executable fallback is deferred; do not add it in `004`.
+- [x] Retry with the pyright executable when the importable wrapper fails its
+  probe is deferred; the executable fallback when no wrapper is importable
+  already exists. Do not add the retry in `004`.
 - [x] Config parse errors (`ConfigError`) are deferred; do not change fail-open
   behavior in `004`.
 - [x] Real pyright is not in CI; do not claim parity beyond the fake-module
@@ -253,7 +259,16 @@ Deferred:
 - [x] Discovery-error targets are normalized relative to the recorded root,
   sorted, de-duplicated, and POSIX-normalized; no root-selection change —
   accepted 2026-11-22.
+- [x] Windows cross-drive target normalization is deferred; a target on another
+  drive stays absolute because it cannot be made root-relative — closeout
+  decision, 2026-11-28.
 
 ## Retrospective
 
-Fill after completion: what worked, what did not, one change.
+Spec 004 closed the post-003 audit gaps without changing the contract. What
+worked: batching the Phase 2 tests for T-4..T-9 into one frozen slice, real CLI
+fixtures, and running the POSIX-only modules in WSL before CI. What did not: PR
+#14 merged before the Phase 5 audit ran, so closeout bookkeeping had to follow in
+a separate docs PR; the initial failure-mode table also named two tests that did
+not exist. One change: run the Phase 5 audit before merging and map every
+failure-mode row to an exact test node.

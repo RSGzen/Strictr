@@ -1,16 +1,16 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 4 Integrate & Verify complete locally; awaiting the draft PR and POSIX
-  CI for T-2/T-3 before Phase 5
+- Phase: Complete (merged and archived)
 - Spec: 004
-- Branch: feat/004-verification-hardening
-- Base: main at `5897fc5`
-- Dependency: `003-check-command` is merged; this branch is rebased onto `main`.
-- Last gate: Phase 1 approved by the owner on 2026-11-22 at `6010728`;
-  T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`;
-  T-3 freeze approved at `585bfd6`; T-4..T-9 freeze approved at `ac7818c`
-  on 2026-11-27. T-4 Phase 3 at `53bc220`; T-9 Phase 3 at `0fb0ca9`; T-10
-  local gate green with the tree at `70e0f3e`. WSL Ubuntu ran the full suite:
+- Branch: feat/004-verification-hardening (merged and deleted)
+- PR: #14 https://github.com/RSGzen/Strictr/pull/14 (merged)
+- Base: main at `5897fc5` after the branch rebase; pre-merge main `051fbae`;
+  merged at `11d7890`.
+- Dependency: `003-check-command` is merged and archived.
+- Last gate: Phase 5 audit after merge; PR CI run `46029685489` passed
+  `quality`, `test (ubuntu-latest, 3.13)`, `test (windows-latest, 3.13)`, and
+  `traceability`. Local Windows gate -> format 104 files formatted, lint pass,
+  mypy pass over 29 files, 371 passed / 8 skipped. WSL Ubuntu full suite ->
   379 passed, including the frozen T-2/T-3 modules.
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
   `tests/unit/test_path_display.py` at `ae77ab2` (AC-2);
@@ -23,21 +23,16 @@
   `tests/acceptance/test_redaction_truncation.py` (AC-7);
   `tests/unit/test_traceability_entry.py` (AC-8); and
   `tests/acceptance/test_discovery_error_paths.py` (AC-9) all at `ac7818c`.
-- Next command: the owner opens the draft PR; POSIX CI must run the T-2 and T-3
-  acceptance modules. After green CI, run the Phase 5 read-only audit:
-  `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`,
-  `uv run pytest -q`, `uv run pytest --collect-only -q`, and the traceability
-  script. T-10 stays open until the PR exists.
-- Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
-  and rebases the branch after `003` merged.
-- Open items: spec 003 archive closeout is pending; T-1 has no Phase 3 because
-  no production change was needed. T-2 is skipped locally on Windows
-  (`WinError 1314`), but its frozen tests passed on WSL Ubuntu. T-3 is
-  implemented at `bf9d277`, and its frozen tests also passed on WSL Ubuntu. The
-  integration gate still requires Windows and Linux CI, so the T-2/T-3
-  checkboxes and AC-2/AC-3 statuses stay open until the draft PR runs CI. No PR
-  is open yet. The POSIX FIFO acceptance case is omitted because ruff reads the
-  FIFO; the human skipped-count unit test is the AC-4 evidence.
+- Next command: none. Spec 004 is complete.
+- Spec changes: revision 1.1 added AC-9 for discovery-error target
+  normalization and rebased after `003` merged; revision 1.2 archives the spec
+  after PR #14 and records the cross-drive deferral.
+- Open items: none for 004. Follow-ups deferred to later specs: Windows
+  cross-drive target normalization and its test (behavior documented in the
+  blueprint), traceability archive/invalid-UTF-8 edge tests, and surrogate-safe
+  `render_stderr` only if warnings ever carry paths. The POSIX FIFO acceptance
+  case remains omitted because ruff reads the FIFO; 003's discovery FIFO unit
+  test records `files_skipped`, and the AC-4 human test covers the count line.
 
 ## Phase log
 
@@ -111,3 +106,12 @@
   -> 7 passed, then `uv run pytest -q` -> 379 passed. This is local POSIX
   evidence for T-2/T-3; their checkboxes still await the required Linux CI run
   after the draft PR opens.
+- 2026-11-27: PR #14 merged to `main` at `11d7890`. CI run `46029685489` passed
+  `quality`, `test (ubuntu-latest, 3.13)`, `test (windows-latest, 3.13)`, and
+  `traceability`. T-2, T-3, T-10, and AC-2/AC-3 close on that evidence.
+- 2026-11-28: Phase 5 read-only audit on `main` at `26ecb75` found no code,
+  contract, or AC blockers. Corrected the failure-mode test names, the pyright
+  fallback wording, the stale active-spec references, and the missing
+  retrospective; recorded cross-drive normalization as a deferred follow-up.
+  Moved the spec to `specs/archive/004-verification-hardening/` with status
+  `done`. Local branch deleted; remote branch was already gone.

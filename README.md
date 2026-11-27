@@ -12,7 +12,8 @@ LLM judge.
 Architecture approved. Spec `003-check-command` is implemented and archived: the
 v0.1 check command runs Tier 0 syntax parsing, ruff, mypy or pyright, and the full
 pytest suite. The contract schema, golden fixtures, CLI, and acceptance tests are
-in place. Spec `004-verification-hardening` is the active slice.
+in place. Spec `004-verification-hardening` is implemented and archived; it adds
+edge-case coverage without changing the v0.1 contract. There is no active spec.
 
 ## Usage
 
@@ -59,7 +60,7 @@ uv run mypy
 - `scripts/` — repository tooling
 
 Start with `AGENTS.md`, then read the product vision, the constitution, and the
-active spec.
+specs under `specs/` (active work first, then the archive).
 
 ## Documentation
 
