@@ -1,7 +1,7 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 3 Implement & Reconcile for T-4 and T-9; T-1..T-3 and T-5..T-8 are
-  implemented/frozen, with POSIX evidence pending for T-2 and T-3
+- Phase: 4 Integrate & Verify complete locally; awaiting the draft PR and POSIX
+  CI for T-2/T-3 before Phase 5
 - Spec: 004
 - Branch: feat/004-verification-hardening
 - Base: main at `5897fc5`
@@ -9,7 +9,8 @@
 - Last gate: Phase 1 approved by the owner on 2026-11-22 at `6010728`;
   T-1 freeze approved at `558dfde`; T-2 freeze approved at `ae77ab2`;
   T-3 freeze approved at `585bfd6`; T-4..T-9 freeze approved at `ac7818c`
-  on 2026-11-27.
+  on 2026-11-27. T-4 Phase 3 at `53bc220`; T-9 Phase 3 at `0fb0ca9`; T-10
+  local gate green with the tree at `70e0f3e`.
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
   `tests/unit/test_path_display.py` at `ae77ab2` (AC-2);
   `tests/unit/test_output_non_utf8.py` and
@@ -21,11 +22,11 @@
   `tests/acceptance/test_redaction_truncation.py` (AC-7);
   `tests/unit/test_traceability_entry.py` (AC-8); and
   `tests/acceptance/test_discovery_error_paths.py` (AC-9) all at `ac7818c`.
-- Next command: Phase 3 for T-4 and T-9 only:
-  `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q`
-  and `uv run pytest tests/acceptance/test_discovery_error_paths.py -q`.
-  T-5..T-8 need no production change; their exact commands already pass.
-  Before T-10, POSIX CI must run the T-2 and T-3 acceptance modules.
+- Next command: the owner opens the draft PR; POSIX CI must run the T-2 and T-3
+  acceptance modules. After green CI, run the Phase 5 read-only audit:
+  `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`,
+  `uv run pytest -q`, `uv run pytest --collect-only -q`, and the traceability
+  script. T-10 stays open until the PR exists.
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
 - Open items: spec 003 archive closeout is pending; T-1 has no Phase 3 because
@@ -93,3 +94,14 @@
 - 2026-11-27: Owner approved the T-4..T-9 freeze at `ac7818c` with no changes.
   T-5..T-8 are complete with no production change. Phase 3 starts for T-4
   (`output/human.py`) and T-9 (`app.py`) only.
+- 2026-11-27: T-4 Phase 3 at `53bc220` and T-9 Phase 3 at `0fb0ca9`. Exact
+  commands -> T-4 8 passed, T-9 4 passed. Disabled checker and discovery
+  failures correctly exit 2, matching v1. `uv run ruff format --check .` -> 104
+  files formatted; `uv run ruff check .` -> pass; `uv run mypy` -> pass;
+  `uv run pytest -q` -> 371 passed, 8 skipped. T-2/T-3 remain open pending
+  POSIX CI, and the draft PR is not open yet.
+- 2026-11-27: T-10 local gate with the tree at `70e0f3e`: format 104 files
+  formatted; lint pass; mypy pass over 29 files; full suite 371 passed, 8
+  skipped; collect-only 379 tests; local traceability -> ok. `CHANGELOG.md`
+  records the hardening slice. T-10 remains open until the owner opens the
+  draft PR and POSIX CI supplies T-2/T-3 evidence.
