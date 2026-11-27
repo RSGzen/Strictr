@@ -13,18 +13,22 @@ def render_human(result: CheckResult) -> str:
 
     Warnings and the trust warning are returned by `render_stderr`, not here.
     """
-    lines = [
-        f"{result.status.upper()}  {result.scope.files_checked} files checked in "
-        f"{result.timings.total_ms} ms"
-    ]
+    checked = f"{result.scope.files_checked} files checked"
+    if result.scope.files_skipped > 0:
+        checked += f", {result.scope.files_skipped} skipped"
+    lines = [f"{result.status.upper()}  {checked} in {result.timings.total_ms} ms"]
     lines.extend(_tier_line(tier) for tier in result.tiers)
 
     for tier in result.tiers:
-        if tier.status != "fail":
+        if tier.status not in ("fail", "error"):
             continue
         lines.extend(
             _diagnostic_line(item) for item in tier.diagnostics[:_DIAGNOSTIC_PREVIEW_LIMIT]
         )
+        if tier.status == "error" and not tier.diagnostics:
+            evidence = _error_evidence(tier)
+            if evidence is not None:
+                lines.append(evidence)
         notice = _truncation_notice(tier)
         if notice is not None:
             lines.append(notice)
@@ -53,6 +57,16 @@ def _tier_line(tier: TierResult) -> str:
 
 def _diagnostic_line(item: Diagnostic) -> str:
     return f"  {item.path}:{item.line}:{item.column}: {item.code}: {item.message}"
+
+
+def _error_evidence(tier: TierResult) -> str | None:
+    error = tier.meta.get("error")
+    if not isinstance(error, str) or not error:
+        return None
+    first_line = error.splitlines()[0]
+    if not first_line or first_line == tier.skipped_reason:
+        return None
+    return f"  {tier.id}: {first_line}"
 
 
 def _truncation_notice(tier: TierResult) -> str | None:
