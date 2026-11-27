@@ -1,6 +1,7 @@
 # Progress: Verification hardening and edge-case coverage
 
-- Phase: 3 Implement & Reconcile — T-3 implemented; POSIX acceptance pending
+- Phase: 2 Stub & Test for the grouped T-4..T-9 slice; T-1..T-3 are
+  implemented and frozen, with POSIX evidence pending
 - Spec: 004
 - Branch: feat/004-verification-hardening
 - Base: main at `5897fc5`
@@ -11,11 +12,13 @@
 - Frozen tests: `tests/acceptance/test_scope_paths.py` at `558dfde` (AC-1);
   `tests/unit/test_path_display.py` at `ae77ab2` (AC-2);
   `tests/unit/test_output_non_utf8.py` and
-  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6` (AC-3)
-- Next command: T-4 Phase 2 in a new session — write
-  `tests/unit/test_human_hardening.py` and
-  `tests/acceptance/test_human_errors.py`, then run
-  `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q`.
+  `tests/acceptance/test_non_utf8_paths.py` at `585bfd6` (AC-3).
+  T-4..T-9 tests are written at `ac7818c` and await the owner freeze.
+- Next command: owner review and freeze of `ac7818c`, then Phase 3 for T-4 and
+  T-9 only:
+  `uv run pytest tests/unit/test_human_hardening.py tests/acceptance/test_human_errors.py -q`
+  and `uv run pytest tests/acceptance/test_discovery_error_paths.py -q`.
+  T-5..T-8 need no production change unless freeze review finds a defect.
   Before T-10, POSIX CI must run the T-2 and T-3 acceptance modules.
 - Spec changes: revision 1.1 adds AC-9 for discovery-error target normalization
   and rebases the branch after `003` merged.
@@ -23,7 +26,10 @@
   no production change was needed. T-2 tests remain skipped locally on Windows
   (`WinError 1314`); its completion checkbox and AC-2 pass status await real
   POSIX execution evidence. T-3 is implemented at `bf9d277`; its checkbox and
-  AC-3 pass status await the frozen acceptance tests on POSIX CI.
+  AC-3 pass status await the frozen acceptance tests on POSIX CI. No PR is open
+  yet, and CI only runs on pull requests, so a draft PR is required for that
+  evidence. The POSIX FIFO acceptance case is omitted because ruff reads the
+  FIFO; the human skipped-count unit test is the AC-4 evidence.
 
 ## Phase log
 
@@ -71,3 +77,10 @@
   human mode exited 1 without a traceback. Full suite -> 343 passed, 8 skipped;
   format, lint, and strict types pass. The T-3 checkbox and AC-3 pass status
   stay open until the frozen acceptance tests run on POSIX CI.
+- 2026-11-27: Phase 2 grouped slice T-4..T-9 wrote seven test modules at
+  `ac7818c`. `uv run pytest -q` -> 10 failed, 361 passed, 8 skipped; the ten
+  failures are the expected T-4 human-rendering (6) and T-9 discovery-target
+  (4) gaps. T-5..T-8 pass against current behavior and need no Phase 3 unless
+  freeze review finds a defect. Format, lint, and strict types pass;
+  collect-only -> 379 tests; local traceability -> ok with a placeholder PR
+  title. Awaiting owner review and freeze.
