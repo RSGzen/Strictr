@@ -11,14 +11,11 @@ Versioning once a public release exists.
 
 - Spec `003-check-command` is implemented, merged, and archived; the
   `strictr check` command and its tests remain in the repository.
-- Spec `004-verification-hardening` hardens human output with the skipped-file
-  count, tier error evidence, and truncation notices; discovery-error
-  `scope.targets` are now root-relative, sorted, de-duplicated, and
-  POSIX-separated. Discovery failures still return a valid error envelope.
-- Added hardening coverage for nested-cwd scope, in-root symlinks, non-UTF8
-  paths, type-checker and pytest configuration parity, real redaction and
-  truncation, traceability entry failures, and discovery-error targets. Pyright
-  coverage uses a test double and does not claim real pyright parity.
+- Spec `004-verification-hardening` is implemented, merged, and archived. Human
+  output now includes the skipped-file count, tier error evidence, and
+  truncation notices; discovery-error `scope.targets` are root-relative, sorted,
+  de-duplicated, and POSIX-separated. Discovery failures still return a valid
+  error envelope.
 - Architecture is approved; spec 002 is archived, while
   `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
@@ -29,6 +26,11 @@ Versioning once a public release exists.
 - `strictr check` command with Tier 0 syntax parsing, ruff, mypy or pyright, and
   the full pytest suite, plus human/JSON output, fail-closed envelopes, and exit
   codes (`003-check-command`).
+- Hardening coverage for nested-cwd scope, in-root symlinks, non-UTF8 paths,
+  type-checker and pytest configuration parity, real redaction and truncation,
+  traceability entry failures, and discovery-error targets
+  (`004-verification-hardening`). Pyright coverage uses a test double and does
+  not claim real pyright parity.
 - ADR 0008 (tools may import pure core types), ADR 0009 (v0.1 execution
   refinements for pyright, pytest `xunit1`, Tier 0 budget, and timeout scope),
   and ADR 0010 (owner-approved one-time size exception for spec 003).

@@ -1,10 +1,10 @@
 ---
 id: "004"
 title: "Verification hardening and edge-case coverage"
-status: approved
+status: done
 owner: "Ge Rui Sen"
 created: 2026-11-22
-updated: 2026-11-22
+updated: 2026-11-28
 branch: "feat/004-verification-hardening"
 ---
 
@@ -174,8 +174,11 @@ Resolved by this spec:
 
 Deferred to later specs:
 
-- Pyright wrapper-to-executable fallback when the importable wrapper fails its
-  probe.
+- Retry with the pyright executable when the importable wrapper fails its
+  probe. The executable fallback when no wrapper is importable already exists.
+- Windows cross-drive target normalization. A target on another drive cannot be
+  made relative to the recorded root; the fallback records its absolute POSIX
+  path.
 - Fail-closed handling of unreadable or invalid project configuration
   (`ConfigError` is currently unused).
 - `.pyi`-specific CLI acceptance coverage.
@@ -191,3 +194,4 @@ Deferred to later specs:
 | 2026-11-22 | 0.1 | Initial draft for the post-`003` hardening slice | Ge Rui Sen |
 | 2026-11-22 | 1.0 | Phase 1 approved; nested-cwd, human-output, and non-UTF8 decisions resolved | Ge Rui Sen |
 | 2026-11-22 | 1.1 | Added AC-9 for discovery-error target normalization; rebased after `003` merged | Ge Rui Sen |
+| 2026-11-28 | 1.2 | Archived after PR #14 merged at `11d7890`; recorded CI evidence and deferred cross-drive normalization | Ge Rui Sen |
