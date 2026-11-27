@@ -37,6 +37,16 @@ def redact(text: str) -> str:
     return text
 
 
+def escape_surrogates(text: str) -> str:
+    """Escape surrogate code points so *text* is encodable as UTF-8.
+
+    POSIX filenames decoded with `surrogateescape` carry lone surrogates.
+    `backslashreplace` turns them into JSON `\\uXXXX` escapes, which keeps
+    JSON valid and leaves valid Unicode readable.
+    """
+    return text.encode("utf-8", "backslashreplace").decode("utf-8")
+
+
 def cap_text(text: str, limit: int = MESSAGE_LIMIT) -> tuple[str, bool]:
     """Redact *text*, then cap it at *limit* characters including the marker.
 

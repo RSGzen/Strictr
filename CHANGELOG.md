@@ -11,9 +11,14 @@ Versioning once a public release exists.
 
 - Spec `003-check-command` is implemented, merged, and archived; the
   `strictr check` command and its tests remain in the repository.
-- Spec `004-verification-hardening` is the active slice. Discovery-error
-  `scope.targets` normalization for Windows separators is tracked there as AC-9;
-  discovery failures still return a valid error envelope.
+- Spec `004-verification-hardening` hardens human output with the skipped-file
+  count, tier error evidence, and truncation notices; discovery-error
+  `scope.targets` are now root-relative, sorted, de-duplicated, and
+  POSIX-separated. Discovery failures still return a valid error envelope.
+- Added hardening coverage for nested-cwd scope, in-root symlinks, non-UTF8
+  paths, type-checker and pytest configuration parity, real redaction and
+  truncation, traceability entry failures, and discovery-error targets. Pyright
+  coverage uses a test double and does not claim real pyright parity.
 - Architecture is approved; spec 002 is archived, while
   `docs/architecture/` and `docs/adr/` remain living documents.
 - Product discovery is approved; spec 001 is archived and its durable documents
